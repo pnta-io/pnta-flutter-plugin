@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:pnta_flutter/pnta_flutter.dart';
 
@@ -19,6 +18,8 @@ class _MyAppState extends State<MyApp> {
   String _notificationStatus = 'Unknown';
   String? _deviceToken;
   String? _tokenError;
+  String? _identifyStatus;
+  final String _projectId = 'prj_k3e0Givq';
 
   @override
   void initState() {
@@ -46,12 +47,25 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _deviceToken = null;
       _tokenError = null;
+      _identifyStatus = null;
     });
     try {
       final token = await PntaFlutter.getDeviceToken();
       setState(() {
         _deviceToken = token;
       });
+      if (token != null) {
+        try {
+          await PntaFlutter.identify(_projectId, token);
+          setState(() {
+            _identifyStatus = 'Identify sent successfully';
+          });
+        } catch (e) {
+          setState(() {
+            _identifyStatus = 'Identify failed: $e';
+          });
+        }
+      }
     } catch (e) {
       setState(() {
         _tokenError = e.toString();
@@ -77,6 +91,10 @@ class _MyAppState extends State<MyApp> {
                 if (_deviceToken != null) ...[
                   const Text('Device Token:'),
                   SelectableText(_deviceToken!),
+                  if (_identifyStatus != null) ...[
+                    const SizedBox(height: 16),
+                    Text(_identifyStatus!),
+                  ],
                 ],
                 if (_tokenError != null) ...[
                   const Text('Error fetching token:'),

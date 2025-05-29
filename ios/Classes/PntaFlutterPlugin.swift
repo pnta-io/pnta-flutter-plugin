@@ -16,6 +16,14 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
       PermissionHandler.requestNotificationPermission(result: result)
     case "getDeviceToken":
       TokenHandler.getDeviceToken(result: result)
+    case "identify":
+      if let args = call.arguments as? [String: Any],
+         let projectId = args["projectId"] as? String,
+         let deviceToken = args["deviceToken"] as? String {
+        IdentifyHandler.identify(projectId: projectId, deviceToken: deviceToken, result: result)
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for identify", details: nil))
+      }
     default:
       result(FlutterMethodNotImplemented)
     }

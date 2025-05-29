@@ -20,4 +20,12 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
     final token = await methodChannel.invokeMethod<String>('getDeviceToken');
     return token;
   }
+
+  @override
+  Future<void> identify(String projectId, String deviceToken) async {
+    await methodChannel.invokeMethod('identify', {
+      'projectId': projectId,
+      'deviceToken': deviceToken,
+    });
+  }
 }
