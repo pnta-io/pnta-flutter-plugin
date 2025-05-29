@@ -12,6 +12,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import android.app.Activity
 import io.pnta.pnta_flutter.PermissionHandler
 import io.pnta.pnta_flutter.TokenHandler
+import io.pnta.pnta_flutter.IdentifyHandler
 
 /** PntaFlutterPlugin */
 class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -32,6 +33,10 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       PermissionHandler.requestNotificationPermission(activity, result)
     } else if (call.method == "getDeviceToken") {
       TokenHandler.getDeviceToken(activity, result)
+    } else if (call.method == "identify") {
+      val projectId = call.argument<String>("projectId")
+      val deviceToken = call.argument<String>("deviceToken")
+      IdentifyHandler.identify(activity, projectId, deviceToken, result)
     } else {
       result.notImplemented()
     }
