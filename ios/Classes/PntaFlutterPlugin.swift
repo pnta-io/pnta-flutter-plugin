@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 
 public class PntaFlutterPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -12,6 +13,17 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "getPlatformVersion":
       result("iOS " + UIDevice.current.systemVersion)
+    case "requestNotificationPermission":
+      if #available(iOS 10.0, *) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+          DispatchQueue.main.async {
+            result(granted)
+          }
+        }
+      } else {
+        // For iOS versions below 10, permissions are granted at app install time
+        result(true)
+      }
     default:
       result(FlutterMethodNotImplemented)
     }
