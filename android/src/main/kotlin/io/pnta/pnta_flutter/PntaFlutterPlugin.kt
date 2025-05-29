@@ -10,10 +10,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import android.app.Activity
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import io.pnta.pnta_flutter.PermissionHandler
 
 /** PntaFlutterPlugin */
 class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -23,7 +20,6 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private var activity: Activity? = null
-  private var permissionResult: Result? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
@@ -31,35 +27,15 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else if (call.method == "requestNotificationPermission") {
-      if (Build.VERSION.SDK_INT >= 33) {
-        val activity = activity
-        if (activity == null) {
-          result.error("NO_ACTIVITY", "Activity is null", null)
-          return
-        }
-        if (ContextCompat.checkSelfPermission(activity, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-          result.success(true)
-        } else {
-          permissionResult = result
-          ActivityCompat.requestPermissions(activity, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
-        }
-      } else {
-        // Permission is automatically granted on older versions
-        result.success(true)
-      }
+    if (call.method == "requestNotificationPermission") {
+      PermissionHandler.requestNotificationPermission(activity, result)
     } else {
       result.notImplemented()
     }
   }
 
-  fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-    if (requestCode == 1001) {
-      permissionResult?.success(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-      permissionResult = null
-    }
+  fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray): Boolean {
+    return PermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults)
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -71,7 +47,6 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     activity = binding.activity
     binding.addRequestPermissionsResultListener { requestCode, permissions, grantResults ->
       onRequestPermissionsResult(requestCode, permissions, grantResults)
-      true
     }
   }
 

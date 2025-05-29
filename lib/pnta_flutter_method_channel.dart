@@ -10,12 +10,6 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   final methodChannel = const MethodChannel('pnta_flutter');
 
   @override
-  Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
-  }
-
-  @override
   Future<bool> requestNotificationPermission() async {
     final result = await methodChannel.invokeMethod<bool>('requestNotificationPermission');
     return result ?? false;
