@@ -18,6 +18,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _pntaFlutterPlugin = PntaFlutter();
+  String _notificationStatus = 'Unknown';
 
   @override
   void initState() {
@@ -28,13 +29,16 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     String platformVersion;
+    bool notificationGranted = false;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
       platformVersion =
           await _pntaFlutterPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      notificationGranted = await PntaFlutter.requestNotificationPermission();
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
+      notificationGranted = false;
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -44,6 +48,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _platformVersion = platformVersion;
+      _notificationStatus = notificationGranted ? 'Granted' : 'Denied';
     });
   }
 
@@ -55,7 +60,14 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Running on: $_platformVersion'),
+              const SizedBox(height: 16),
+              Text('Notification permission: $_notificationStatus'),
+            ],
+          ),
         ),
       ),
     );
