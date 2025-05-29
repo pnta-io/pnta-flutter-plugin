@@ -42,3 +42,6 @@ android {
 flutter {
     source = "../.."
 }
+
+// Apply the Google services plugin for Firebase support
+apply plugin: 'com.google.gms.google-services'

@@ -11,6 +11,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import android.app.Activity
 import io.pnta.pnta_flutter.PermissionHandler
+import io.pnta.pnta_flutter.TokenHandler
 
 /** PntaFlutterPlugin */
 class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -29,6 +30,8 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (call.method == "requestNotificationPermission") {
       PermissionHandler.requestNotificationPermission(activity, result)
+    } else if (call.method == "getDeviceToken") {
+      TokenHandler.getDeviceToken(activity, result)
     } else {
       result.notImplemented()
     }
