@@ -23,12 +23,10 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
 
   // UIApplicationDelegate methods for APNs token forwarding
   public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    print("PntaFlutterPlugin: didRegisterForRemoteNotificationsWithDeviceToken called")
     TokenHandler.didRegisterForRemoteNotifications(deviceToken: deviceToken)
   }
 
   public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    print("PntaFlutterPlugin: didFailToRegisterForRemoteNotificationsWithError called")
     TokenHandler.didFailToRegisterForRemoteNotifications(error: error)
   }
 }

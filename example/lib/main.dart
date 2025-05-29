@@ -37,6 +37,9 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _notificationStatus = notificationGranted ? 'Granted' : 'Denied';
     });
+    if (notificationGranted) {
+      _getDeviceToken();
+    }
   }
 
   Future<void> _getDeviceToken() async {
@@ -71,11 +74,6 @@ class _MyAppState extends State<MyApp> {
               children: [
                 Text('Notification permission: $_notificationStatus'),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _getDeviceToken,
-                  child: const Text('Get Device Token'),
-                ),
-                const SizedBox(height: 16),
                 if (_deviceToken != null) ...[
                   const Text('Device Token:'),
                   SelectableText(_deviceToken!),
