@@ -1,15 +1,53 @@
-# pnta_flutter
+# PNTA Flutter Plugin
 
-A new Flutter plugin project.
+A Flutter plugin for requesting push notification permissions on iOS and Android.
 
-## Getting Started
+## Usage
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+### 1. Add Dependency
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Add this plugin to your `pubspec.yaml`:
 
+```yaml
+dependencies:
+    pnta_flutter:
+        path: ../pnta_flutter # or your published version
+```
+
+### 2. Request Notification Permission
+
+Call this method from your Dart code (e.g., on app launch):
+
+```dart
+import 'package:pnta_flutter/pnta_flutter.dart';
+
+final granted = await PntaFlutter.requestNotificationPermission();
+if (granted) {
+  // Permission granted, proceed with notifications
+} else {
+  // Permission denied
+}
+```
+
+### 3. Platform-specific Setup
+
+#### iOS
+
+-   **Info.plist:** (Recommended) Add a usage description for notifications:
+
+```xml
+<key>NSUserNotificationUsageDescription</key>
+<string>This app would like to send you notifications.</string>
+```
+
+#### Android
+
+-   **AndroidManifest.xml:** Add the notification permission (required for Android 13+):
+
+```xml
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+```
+
+## Example
+
+See the `example/` app for a working usage example.
