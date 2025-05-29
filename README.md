@@ -33,12 +33,7 @@ if (granted) {
 
 #### iOS
 
--   **Info.plist:** (Recommended) Add a usage description for notifications:
-
-```xml
-<key>NSUserNotificationUsageDescription</key>
-<string>This app would like to send you notifications.</string>
-```
+-   Enable **Push Notifications** and **Background Modes → Remote notifications** in the Signing & Capabilities section of your Xcode project.
 
 #### Android
 
