@@ -12,6 +12,10 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object IdentifyHandler {
     fun identify(activity: Activity?, projectId: String?, deviceToken: String?, result: Result) {
@@ -19,14 +23,38 @@ object IdentifyHandler {
             result.error("INVALID_ARGUMENTS", "Activity, projectId, or deviceToken is null", null)
             return
         }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val metadata = collectMetadata(activity, deviceToken)
+                val info = mapOf(
+                    "project_id" to projectId,
+                    "identifier" to deviceToken,
+                    "metadata" to metadata
+                )
+                
+                sendToBackend(info, result)
+            } catch (e: Exception) {
+                Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
+                withContext(Dispatchers.Main) {
+                    result.success(null)
+                }
+            }
+        }
+    }
+
+    private suspend fun collectMetadata(activity: Activity, deviceToken: String): Map<String, Any> = withContext(Dispatchers.IO) {
         val packageManager = activity.packageManager
         val packageName = activity.packageName
+        val locale = Locale.getDefault()
+        
         val appVersion: String = try {
             val pInfo = packageManager.getPackageInfo(packageName, 0)
             pInfo.versionName ?: "Unavailable"
         } catch (e: Exception) {
             "Unavailable"
         }
+
         val appBuild: String = try {
             val pInfo = packageManager.getPackageInfo(packageName, 0)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -38,14 +66,16 @@ object IdentifyHandler {
         } catch (e: Exception) {
             "Unavailable"
         }
-        val locale = Locale.getDefault()
+
         val currencyCode: String = try {
             java.util.Currency.getInstance(locale).currencyCode
         } catch (e: Exception) {
             "Unavailable"
         }
+
         val identifierForVendor = Settings.Secure.getString(activity.contentResolver, Settings.Secure.ANDROID_ID) ?: "Unavailable"
-        val metadata = mapOf(
+
+        mapOf(
             "name" to Build.MODEL,
             "model" to Build.MODEL,
             "localized_model" to Build.MODEL,
@@ -63,34 +93,39 @@ object IdentifyHandler {
             "app_version" to appVersion,
             "app_build" to appBuild
         )
-        val info = mapOf(
-            "project_id" to projectId,
-            "identifier" to deviceToken,
-            "metadata" to metadata
-        )
-        Thread {
-            try {
-                val url = URL("https://app.pnta.io/api/v1/identification")
-                val conn = url.openConnection() as HttpURLConnection
-                conn.requestMethod = "PUT"
-                conn.setRequestProperty("Content-Type", "application/json")
-                conn.doOutput = true
-                val json = JSONObject(info).toString()
-                val writer = OutputStreamWriter(conn.outputStream)
-                writer.write(json)
-                writer.flush()
-                writer.close()
-                val responseCode = conn.responseCode
+    }
+
+    private suspend fun sendToBackend(info: Map<String, Any>, result: Result) = withContext(Dispatchers.IO) {
+        try {
+            val url = URL("https://app.pnta.io/api/v1/identification")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "PUT"
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+
+            val json = JSONObject(info).toString()
+
+            conn.outputStream.use { outputStream ->
+                OutputStreamWriter(outputStream).use { writer ->
+                    writer.write(json)
+                    writer.flush()
+                }
+            }
+
+            val responseCode = conn.responseCode
+            withContext(Dispatchers.Main) {
                 if (responseCode in 200..299) {
                     result.success(null)
                 } else {
                     Log.e("PNTA", "Server returned error: $responseCode")
                     result.success(null)
                 }
-            } catch (e: Exception) {
-                Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
+            }
+        } catch (e: Exception) {
+            Log.e("PNTA", "Error sending to backend: ${e.localizedMessage}")
+            withContext(Dispatchers.Main) {
                 result.success(null)
             }
-        }.start()
+        }
     }
 } 
