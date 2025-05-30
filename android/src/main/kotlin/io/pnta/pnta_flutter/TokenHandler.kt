@@ -11,11 +11,9 @@ object TokenHandler {
             result.error("NO_ACTIVITY", "Activity is null", null)
             return
         }
-        try {
-            // Ensure Firebase is initialized
+        // Ensure Firebase is initialized
+        if (FirebaseApp.getApps(activity.applicationContext).isEmpty()) {
             FirebaseApp.initializeApp(activity.applicationContext)
-        } catch (_: Exception) {
-            // Already initialized or failed, ignore
         }
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
