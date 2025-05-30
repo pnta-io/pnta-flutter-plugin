@@ -33,9 +33,7 @@ if (granted) {
 
 #### iOS
 
-To use this plugin on iOS, make sure your Podfile includes the following setup.
-
-Replace your `ios/Podfile` contents with:
+To use this plugin on iOS, make sure your Podfile **includes the following configuration** (you can copy the whole block if starting fresh):
 
 ```ruby
 def flutter_root
