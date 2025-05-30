@@ -37,7 +37,31 @@ if (granted) {
 
 #### Android
 
--   **AndroidManifest.xml:** Add the notification permission (required for Android 13+):
+To use this plugin on Android, you must complete the following steps:
+
+1. **Add Firebase to Your Android App**
+
+    - Go to the [Firebase Console](https://console.firebase.google.com/).
+    - Create a new project (or use an existing one).
+    - Register your Android app (use your app's package name, e.g., `com.example.your_app`).
+    - Download the `google-services.json` file from the Firebase Console.
+    - Place the file in your Flutter project at:
+        - `android/app/google-services.json`
+
+2. **Update Your Gradle Files**
+
+    - **Project-level `android/build.gradle`:**
+        - Make sure the following is present inside the `buildscript { dependencies { ... } }` block:
+            ```gradle
+            classpath 'com.google.gms:google-services:4.3.15' // or latest version
+            ```
+    - **App-level `android/app/build.gradle`:**
+        - At the very bottom of the file, add:
+            ```gradle
+            apply plugin: 'com.google.gms.google-services'
+            ```
+
+3. **AndroidManifest.xml:** Add the notification permission (required for Android 13+):
 
 ```xml
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
