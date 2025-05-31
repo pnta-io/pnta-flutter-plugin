@@ -147,6 +147,64 @@ This will collect and send the following metadata (with consistent keys across i
 
 The data is sent as a JSON payload to `https://app.pnta.io/api/v1/identification` via PUT request.
 
+### 6. Foreground Notification Handling
+
+This plugin allows you to intercept and handle push notifications when your app is in the foreground, giving you full control over the user experience.
+
+#### Dart API
+
+```dart
+// Listen for foreground notifications
+PntaFlutter.foregroundNotifications.listen((payload) {
+  // Show custom UI, route user, track analytics, etc.
+  print('Received foreground notification: $payload');
+});
+
+// Configure whether to show the system notification UI (banner, sound, badge) in the foreground
+await PntaFlutter.setForegroundPresentationOptions(showSystemUI: false); // default is false
+```
+
+-   If `showSystemUI` is `false`, the system notification UI is suppressed in the foreground and you can show your own UI.
+-   If `showSystemUI` is `true`, the system notification UI is shown as if the app were in the background, and you still receive the payload in Dart.
+
+#### Platform Behavior
+
+| Platform | System UI Option   | Custom In-App UI | Dart Stream | User Flexibility |
+| -------- | ------------------ | ---------------- | ----------- | ---------------- |
+| iOS      | Yes (configurable) | Yes              | Yes         | Maximum          |
+| Android  | Yes (configurable) | Yes              | Yes         | Maximum          |
+
+-   **iOS:** Uses `UNUserNotificationCenterDelegate` to control presentation and always forwards the payload to Dart.
+-   **Android:** Uses a custom `FirebaseMessagingService` to intercept foreground messages, show/hide system UI, and forward the payload to Dart.
+
+#### Android Setup
+
+-   Make sure your `AndroidManifest.xml` includes:
+    ```xml
+    <service
+        android:name="io.pnta.pnta_flutter.PntaMessagingService"
+        android:exported="false">
+        <intent-filter>
+            <action android:name="com.google.firebase.MESSAGING_EVENT" />
+        </intent-filter>
+    </service>
+    ```
+
+#### iOS Setup
+
+-   No extra steps required beyond normal plugin integration.
+
+#### Example Usage
+
+```dart
+await PntaFlutter.setForegroundPresentationOptions(showSystemUI: false);
+
+PntaFlutter.foregroundNotifications.listen((payload) {
+  // Show custom banner, route user, track analytics, etc.
+  print('Received foreground notification: $payload');
+});
+```
+
 ## Example
 
 See the `example/` app for a working usage example.

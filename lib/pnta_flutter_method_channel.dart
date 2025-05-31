@@ -9,6 +9,9 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('pnta_flutter');
 
+  final EventChannel _foregroundNotificationsEventChannel = const EventChannel('pnta_flutter/foreground_notifications');
+  Stream<Map<String, dynamic>>? _foregroundNotificationsStream;
+
   @override
   Future<bool> requestNotificationPermission() async {
     final result = await methodChannel.invokeMethod<bool>('requestNotificationPermission');
@@ -26,6 +29,21 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
     await methodChannel.invokeMethod('identify', {
       'projectId': projectId,
       'deviceToken': deviceToken,
+    });
+  }
+
+  @override
+  Stream<Map<String, dynamic>> get foregroundNotifications {
+    _foregroundNotificationsStream ??= _foregroundNotificationsEventChannel
+        .receiveBroadcastStream()
+        .map<Map<String, dynamic>>((event) => Map<String, dynamic>.from(event));
+    return _foregroundNotificationsStream!;
+  }
+
+  @override
+  Future<void> setForegroundPresentationOptions({required bool showSystemUI}) async {
+    await methodChannel.invokeMethod('setForegroundPresentationOptions', {
+      'showSystemUI': showSystemUI,
     });
   }
 }

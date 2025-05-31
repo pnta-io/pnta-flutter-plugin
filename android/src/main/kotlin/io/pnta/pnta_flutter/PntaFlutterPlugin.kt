@@ -13,6 +13,7 @@ import android.app.Activity
 import io.pnta.pnta_flutter.PermissionHandler
 import io.pnta.pnta_flutter.TokenHandler
 import io.pnta.pnta_flutter.IdentifyHandler
+import io.pnta.pnta_flutter.ForegroundNotificationHandler
 
 /** PntaFlutterPlugin */
 class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -26,6 +27,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
     channel.setMethodCallHandler(this)
+    ForegroundNotificationHandler.register(flutterPluginBinding.binaryMessenger)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -37,6 +39,10 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       val projectId = call.argument<String>("projectId")
       val deviceToken = call.argument<String>("deviceToken")
       IdentifyHandler.identify(activity, projectId, deviceToken, result)
+    } else if (call.method == "setForegroundPresentationOptions") {
+      val showSystemUI = call.argument<Boolean>("showSystemUI") ?: false
+      ForegroundNotificationHandler.setForegroundPresentationOptions(showSystemUI)
+      result.success(null)
     } else {
       result.notImplemented()
     }

@@ -2,12 +2,14 @@ import Flutter
 import UIKit
 import UserNotifications
 
+
 public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "pnta_flutter", binaryMessenger: registrar.messenger())
     let instance = PntaFlutterPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
     registrar.addApplicationDelegate(instance)
+    ForegroundNotificationHandler.register(with: registrar)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -23,6 +25,14 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
         IdentifyHandler.identify(projectId: projectId, deviceToken: deviceToken, result: result)
       } else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for identify", details: nil))
+      }
+    case "setForegroundPresentationOptions":
+      if let args = call.arguments as? [String: Any],
+         let showSystemUI = args["showSystemUI"] as? Bool {
+        ForegroundNotificationHandler.setForegroundPresentationOptions(showSystemUI: showSystemUI)
+        result(nil)
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing showSystemUI argument", details: nil))
       }
     default:
       result(FlutterMethodNotImplemented)

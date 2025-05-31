@@ -34,4 +34,14 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
   Future<void> identify(String projectId, String deviceToken) {
     throw UnimplementedError('identify() has not been implemented.');
   }
+
+  /// Emits notification payloads when received while the app is in the foreground.
+  Stream<Map<String, dynamic>> get foregroundNotifications {
+    throw UnimplementedError('foregroundNotifications has not been implemented.');
+  }
+
+  /// Configures whether the native system UI should be shown for foreground notifications.
+  Future<void> setForegroundPresentationOptions({required bool showSystemUI}) {
+    throw UnimplementedError('setForegroundPresentationOptions() has not been implemented.');
+  }
 }
