@@ -20,11 +20,26 @@ class _MyAppState extends State<MyApp> {
   String? _tokenError;
   String? _identifyStatus;
   final String _projectId = 'prj_k3e0Givq';
+  bool _showSystemUI = false;
+  final List<Map<String, dynamic>> _foregroundNotifications = [];
+  StreamSubscription<Map<String, dynamic>>? _foregroundSub;
 
   @override
   void initState() {
     super.initState();
     _requestPermission();
+    _foregroundSub = PntaFlutter.foregroundNotifications.listen((payload) {
+      setState(() {
+        _foregroundNotifications.insert(0, payload);
+      });
+    });
+    PntaFlutter.setForegroundPresentationOptions(showSystemUI: _showSystemUI);
+  }
+
+  @override
+  void dispose() {
+    _foregroundSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _requestPermission() async {
@@ -88,6 +103,17 @@ class _MyAppState extends State<MyApp> {
               children: [
                 Text('Notification permission: $_notificationStatus'),
                 const SizedBox(height: 24),
+                if (_foregroundNotifications.isNotEmpty) ...[
+                  const Text('Foreground Notifications:'),
+                  const SizedBox(height: 8),
+                  ..._foregroundNotifications.map((notif) => Card(
+                        child: ListTile(
+                          title: Text(notif['title']?.toString() ?? 'No title'),
+                          subtitle: Text(notif['body']?.toString() ?? notif.toString()),
+                        ),
+                      )),
+                  const SizedBox(height: 24),
+                ],
                 if (_deviceToken != null) ...[
                   const Text('Device Token:'),
                   SelectableText(_deviceToken!),
@@ -100,6 +126,21 @@ class _MyAppState extends State<MyApp> {
                   const Text('Error fetching token:'),
                   SelectableText(_tokenError!),
                 ],
+                const SizedBox(height: 24),
+                Column(
+                  children: [
+                    const Text('Show System UI for Foreground Notifications'),
+                    Switch(
+                      value: _showSystemUI,
+                      onChanged: (val) {
+                        setState(() {
+                          _showSystemUI = val;
+                        });
+                        PntaFlutter.setForegroundPresentationOptions(showSystemUI: val);
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
