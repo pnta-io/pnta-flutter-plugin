@@ -5,13 +5,13 @@
 Pod::Spec.new do |s|
   s.name             = 'pnta_flutter'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'Official PNTA Flutter plugin to make push notifications suck less.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+A Flutter plugin for requesting push notification permissions and identifying devices on iOS and Android. Integrates with PNTA backend for device registration and metadata collection.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://pnta.io'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'pnta.io' => 'support@pnta.io' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
