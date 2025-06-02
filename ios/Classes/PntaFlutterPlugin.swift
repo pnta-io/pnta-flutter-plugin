@@ -10,6 +10,7 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
     registrar.addMethodCallDelegate(instance, channel: channel)
     registrar.addApplicationDelegate(instance)
     ForegroundNotificationHandler.register(with: registrar)
+    NotificationTapHandler.register(with: registrar)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

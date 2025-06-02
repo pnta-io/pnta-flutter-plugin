@@ -40,6 +40,11 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('foregroundNotifications has not been implemented.');
   }
 
+  /// Emits notification payloads when the user taps a notification (background/tap event).
+  Stream<Map<String, dynamic>> get onNotificationTap {
+    throw UnimplementedError('onNotificationTap has not been implemented.');
+  }
+
   /// Configures whether the native system UI should be shown for foreground notifications.
   Future<void> setForegroundPresentationOptions({required bool showSystemUI}) {
     throw UnimplementedError('setForegroundPresentationOptions() has not been implemented.');

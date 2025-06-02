@@ -45,4 +45,16 @@ class ForegroundNotificationHandler: NSObject, FlutterPlugin, UNUserNotification
             completionHandler([])
         }
     }
+
+    // Handle notification tap events
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        let stringKeyedUserInfo = userInfo.reduce(into: [String: Any]()) { (dict, pair) in
+            if let key = pair.key as? String {
+                dict[key] = pair.value
+            }
+        }
+        NotificationTapHandler.sendTapPayload(stringKeyedUserInfo)
+        completionHandler()
+    }
 } 

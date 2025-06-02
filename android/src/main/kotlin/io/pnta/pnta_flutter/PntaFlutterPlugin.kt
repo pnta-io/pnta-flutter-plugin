@@ -14,6 +14,7 @@ import io.pnta.pnta_flutter.PermissionHandler
 import io.pnta.pnta_flutter.TokenHandler
 import io.pnta.pnta_flutter.IdentifyHandler
 import io.pnta.pnta_flutter.ForegroundNotificationHandler
+import io.pnta.pnta_flutter.NotificationTapHandler
 
 /** PntaFlutterPlugin */
 class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -28,6 +29,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
     channel.setMethodCallHandler(this)
     ForegroundNotificationHandler.register(flutterPluginBinding.binaryMessenger)
+    NotificationTapHandler.register(flutterPluginBinding.binaryMessenger)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {

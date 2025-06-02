@@ -205,6 +205,111 @@ PntaFlutter.foregroundNotifications.listen((payload) {
 });
 ```
 
+### 7. link_to Push Notification Handling (Deep Links & External URLs)
+
+This plugin supports push notifications with a `link_to` field in the payload, enabling deep linking and external URL handling.
+
+-   If the notification is tapped while the app is in the background or terminated, and `autoHandleLinks` is enabled, the plugin will automatically:
+    -   Open external URLs (starting with `http` or `https`) in the system browser (using url_launcher).
+    -   Navigate to in-app routes (starting with `/` or any other path) using the app's navigator.
+-   When the app is in the foreground, the full notification payload is always delivered to Dart via the stream. You are responsible for handling any links or navigation in this case—`autoHandleLinks` does not apply.
+
+#### Dart API
+
+```dart
+// Call once, e.g. in main()
+await PntaFlutter.initialize(
+  autoHandleLinks: false, // default: false
+  showSystemUI: false,    // default: false
+);
+
+// Listen for foreground notifications (always delivered)
+PntaFlutter.foregroundNotifications.listen((payload) { ... });
+
+// Listen for notification taps (background/terminated)
+PntaFlutter.onNotificationTap.listen((payload) { ... });
+```
+
+#### Example Notification Payload
+
+```json
+{
+    "to": "<device_token>",
+    "data": {
+        "title": "Test Link",
+        "body": "Tap to open a deep link!",
+        "link_to": "/deep-link"
+    }
+}
+```
+
+#### Platform-specific Setup for URL Handling
+
+**Android:**
+
+-   Add the following `<queries>` block to your `AndroidManifest.xml` (as a child of `<manifest>`, before `<application>`):
+
+```xml
+<queries>
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="http" />
+  </intent>
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="https" />
+  </intent>
+</queries>
+```
+
+-   This is required for `url_launcher` to work on Android 11+ (API 30+).
+-   Make sure a browser is installed and set up on your device/emulator.
+
+**iOS:**
+
+-   No extra setup is required for external URLs. The plugin uses `url_launcher` which works out of the box.
+-   For deep links, ensure your app's `MaterialApp` uses the global navigator key:
+
+```dart
+MaterialApp(
+  navigatorKey: PntaFlutter.navigatorKey,
+  // ...
+)
+```
+
+#### Notes
+
+-   Foreground notifications are always delivered to Dart, regardless of the `autoHandleLinks` setting. You have full control over how to handle them.
+-   The `autoHandleLinks` feature only applies when the app is launched or resumed from a notification tap (background/terminated state).
+-   If `link_to` is invalid or cannot be handled, an error is logged but the app will not crash.
+-   The MainActivity override (see below) is only required for notification tap (background) events on Android. Foreground notifications do not require any MainActivity changes.
+
+```kotlin
+import android.content.Intent
+import io.flutter.embedding.android.FlutterActivity
+import io.pnta.pnta_flutter.NotificationTapHandler
+
+class MainActivity: FlutterActivity() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val extras = intent.extras
+        if (extras != null && !extras.isEmpty) {
+            val payload = mutableMapOf<String, Any>()
+            for (key in extras.keySet()) {
+                val value = extras.get(key)
+                when (value) {
+                    is String, is Int, is Boolean, is Double, is Float, is Long -> payload[key] = value
+                    else -> payload[key] = value.toString()
+                }
+            }
+            if (payload.isNotEmpty()) {
+                NotificationTapHandler.sendTapPayload(payload)
+            }
+        }
+    }
+}
+```
+
 ## Example
 
 See the `example/` app for a working usage example.
