@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:pnta_flutter/pnta_flutter.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
@@ -107,9 +108,12 @@ class _MyAppState extends State<MyApp> {
                   const Text('Foreground Notifications:'),
                   const SizedBox(height: 8),
                   ..._foregroundNotifications.map((notif) => Card(
-                        child: ListTile(
-                          title: Text(notif['title']?.toString() ?? 'No title'),
-                          subtitle: Text(notif['body']?.toString() ?? notif.toString()),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SelectableText(
+                            const JsonEncoder.withIndent('  ').convert(notif),
+                            style: const TextStyle(fontFamily: 'monospace'),
+                          ),
                         ),
                       )),
                   const SizedBox(height: 24),
