@@ -15,7 +15,7 @@ import io.flutter.plugin.common.BinaryMessenger
 object ForegroundNotificationHandler : EventChannel.StreamHandler {
     private var showSystemUI: Boolean = false
     private var eventSink: EventChannel.EventSink? = null
-    private const val CHANNEL_ID = "pnta_foreground_notifications"
+    private const val CHANNEL_ID = "pnta_default"
 
     fun register(messenger: BinaryMessenger) {
         val eventChannel = EventChannel(messenger, "pnta_flutter/foreground_notifications")
@@ -38,7 +38,7 @@ object ForegroundNotificationHandler : EventChannel.StreamHandler {
     private fun showSystemNotification(context: Context, data: Map<String, Any>) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "Foreground Notifications", NotificationManager.IMPORTANCE_DEFAULT)
+            val channel = NotificationChannel(CHANNEL_ID, "General Notifications", NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)

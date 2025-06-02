@@ -4,14 +4,14 @@ import 'src/permission.dart';
 import 'src/token.dart';
 import 'src/identify.dart';
 import 'src/foreground.dart';
+import 'src/link_handler.dart';
 
 class PntaFlutter {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  static bool _autoHandleLinks = false;
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(); // Used globally, including by LinkHandler
 
   /// Call once to initialize the plugin and enable features.
   static Future<void> initialize({bool autoHandleLinks = false, bool showSystemUI = false}) async {
-    _autoHandleLinks = autoHandleLinks;
+    LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
     await setForegroundPresentationOptions(showSystemUI: showSystemUI);
   }
 
@@ -29,33 +29,10 @@ class PntaFlutter {
 
   static Stream<Map<String, dynamic>> _onNotificationTapStream() async* {
     await for (final payload in onNotificationTapStream) {
-      await _maybeHandleLink(payload);
-      yield payload;
-    }
-  }
-
-  static Future<void> _maybeHandleLink(Map<String, dynamic> payload) async {
-    if (!_autoHandleLinks) return;
-    final link = payload['link_to'] as String?;
-    if (link != null && link.isNotEmpty) {
-      await _handleLink(link);
-    }
-  }
-
-  static Future<void> _handleLink(String link) async {
-    try {
-      if (link.startsWith('http')) {
-        final uri = Uri.parse(link);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          debugPrint('Could not launch URL: $link');
-        }
-      } else {
-        navigatorKey.currentState?.pushNamed(link);
+      if (LinkHandler.autoHandleLinks) {
+        await LinkHandler.handleLink(payload['link_to'] as String?);
       }
-    } catch (e, st) {
-      debugPrint('Error handling link_to: $link\n$e\n$st');
+      yield payload;
     }
   }
 
@@ -76,5 +53,5 @@ class PntaFlutter {
     return setForegroundPresentationOptionsInternal(showSystemUI: showSystemUI);
   }
 
-  static Future<void> handleLink(String link) => _handleLink(link);
+  static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
 }

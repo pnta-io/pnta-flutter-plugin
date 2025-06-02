@@ -15,6 +15,10 @@ import io.pnta.pnta_flutter.TokenHandler
 import io.pnta.pnta_flutter.IdentifyHandler
 import io.pnta.pnta_flutter.ForegroundNotificationHandler
 import io.pnta.pnta_flutter.NotificationTapHandler
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import android.content.Context
 
 /** PntaFlutterPlugin */
 class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -25,11 +29,24 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel : MethodChannel
   private var activity: Activity? = null
 
+  private fun createDefaultNotificationChannel(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val channelId = "pnta_default"
+      val channelName = "General Notifications"
+      val importance = NotificationManager.IMPORTANCE_DEFAULT
+      val channel = NotificationChannel(channelId, channelName, importance)
+      val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+      notificationManager.createNotificationChannel(channel)
+    }
+  }
+
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
     channel.setMethodCallHandler(this)
     ForegroundNotificationHandler.register(flutterPluginBinding.binaryMessenger)
     NotificationTapHandler.register(flutterPluginBinding.binaryMessenger)
+    // Create default notification channel on engine attach
+    createDefaultNotificationChannel(flutterPluginBinding.applicationContext)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -64,6 +81,8 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     binding.addRequestPermissionsResultListener { requestCode, permissions, grantResults ->
       onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+    // Also create default notification channel when activity is attached
+    createDefaultNotificationChannel(binding.activity)
   }
 
   override fun onDetachedFromActivityForConfigChanges() {

@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   String? _deviceToken;
   String? _tokenError;
   String? _identifyStatus;
-  final String _projectId = 'prj_rq7VPfl8';
+  final String _projectId = 'prj_k3e0Givq';
   bool _showSystemUI = false;
   bool _autoHandleLinks = false;
   final List<Map<String, dynamic>> _foregroundNotifications = [];
@@ -211,14 +211,7 @@ class _MyAppState extends State<MyApp> {
                   child: const Text('Open Foreground Link'),
                 ),
                 const SizedBox(height: 16),
-                // This is just an example. Customers can build their own UI.
               ],
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/deep-link');
-                },
-                child: const Text('Test Deep Link Route'),
-              ),
             ],
           ),
         ),

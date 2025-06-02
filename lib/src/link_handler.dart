@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-/// Global navigation key for in-app navigation. The app must set this up.
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+import '../pnta_flutter.dart';
 
 class LinkHandler {
   static bool _autoHandleLinks = false;
@@ -16,7 +14,7 @@ class LinkHandler {
   static Future<void> handleLink(String? link) async {
     if (link == null || link.isEmpty) return;
     try {
-      if (link.startsWith('http')) {
+      if (link.contains('://')) {
         final uri = Uri.parse(link);
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -24,7 +22,7 @@ class LinkHandler {
           debugPrint('Could not launch URL: $link');
         }
       } else {
-        navigatorKey.currentState?.pushNamed(link);
+        PntaFlutter.navigatorKey.currentState?.pushNamed(link);
       }
     } catch (e, st) {
       debugPrint('Error handling link_to: $link\n$e\n$st');

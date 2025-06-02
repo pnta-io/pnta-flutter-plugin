@@ -151,12 +151,19 @@ The data is sent as a JSON payload to `https://app.pnta.io/api/v1/identification
 
 This plugin allows you to intercept and handle push notifications when your app is in the foreground, giving you full control over the user experience.
 
+**Note:** Foreground notifications are always delivered to Dart, and you are responsible for handling any links in the payload. You can use `PntaFlutter.handleLink(link)` to handle links in your foreground notification handler.
+
 #### Dart API
 
 ```dart
 // Listen for foreground notifications
 PntaFlutter.foregroundNotifications.listen((payload) {
   // Show custom UI, route user, track analytics, etc.
+  final link = payload['link_to'] as String?;
+  if (link != null && link.isNotEmpty) {
+    // Manually handle the link if desired
+    PntaFlutter.handleLink(link);
+  }
   print('Received foreground notification: $payload');
 });
 
@@ -190,6 +197,20 @@ await PntaFlutter.setForegroundPresentationOptions(showSystemUI: false); // defa
     </service>
     ```
 
+### Android Notification Channel Setup
+
+For Android 8.0+ (API 26+), you must define a default notification channel for Firebase Cloud Messaging (FCM) background notifications. This ensures notifications are delivered with your desired settings and removes FCM warnings.
+
+Add the following inside your `<application>` tag in `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<meta-data
+    android:name="com.google.firebase.messaging.default_notification_channel_id"
+    android:value="pnta_default" />
+```
+
+This tells FCM to use the `pnta_default` channel (created automatically by the plugin) for all background notifications.
+
 #### iOS Setup
 
 -   No extra steps required beyond normal plugin integration.
@@ -213,6 +234,11 @@ This plugin supports push notifications with a `link_to` field in the payload, e
     -   Open external URLs (starting with `http` or `https`) in the system browser (using url_launcher).
     -   Navigate to in-app routes (starting with `/` or any other path) using the app's navigator.
 -   When the app is in the foreground, the full notification payload is always delivered to Dart via the stream. You are responsible for handling any links or navigation in this case—`autoHandleLinks` does not apply.
+
+**Implementation Note:**
+
+-   All link handling logic is now centralized in `LinkHandler`. The `autoHandleLinks` flag is managed only by `LinkHandler` and is set via `PntaFlutter.initialize(autoHandleLinks: ...)`.
+-   `PntaFlutter.onNotificationTap` will automatically handle links if `autoHandleLinks` is enabled, by delegating to `LinkHandler.handleLink`. You can also manually handle links by calling `PntaFlutter.handleLink(link)`.
 
 #### Dart API
 
@@ -309,6 +335,21 @@ class MainActivity: FlutterActivity() {
     }
 }
 ```
+
+### 8. Link Handling Rules and Deep Linking
+
+When handling `link_to` payloads, the plugin uses the following rule:
+
+-   **If the link contains `://`** (e.g., `http://`, `mailto://`, `myapp://`), it is treated as an external URI and opened via the OS using `url_launcher` in `LaunchMode.externalApplication`.
+-   **Otherwise** (e.g., `/home`, `/profile`), the link is treated as an internal Flutter route and is pushed using the global `navigatorKey`.
+
+#### Important: Deep Linking for Custom Schemes
+
+If you use custom URI schemes (such as `myapp://posts`) in your `link_to` payloads, you must set up deep linking on your platform (Android/iOS) for your app to handle these links. If deep linking is not set up, the OS will attempt to open the link externally, and your app may not receive it.
+
+**If you have not set up deep linking for your custom schemes, use standard internal route names (like `/appointments`) and rely on the `navigatorKey` for in-app navigation.**
+
+-   For more information on deep linking in Flutter, see the [Flutter deep linking documentation](https://docs.flutter.dev/development/ui/navigation/deep-linking).
 
 ## Example
 
