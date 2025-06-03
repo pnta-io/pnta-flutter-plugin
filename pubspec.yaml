@@ -4,6 +4,12 @@ version: 1.0.0
 homepage: https://pnta.io
 repository: https://github.com/smth-digital/pnta-flutter-plugin
 
+topics:
+    - notifications
+    - push
+    - fcm
+    - apns
+
 environment:
     sdk: ^3.6.1
     flutter: ">=3.3.0"
