@@ -30,4 +30,4 @@ class LinkHandler {
   }
 
   static bool get autoHandleLinks => _autoHandleLinks;
-} 
+}

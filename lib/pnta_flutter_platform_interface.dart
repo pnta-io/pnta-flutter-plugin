@@ -24,7 +24,8 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
   }
 
   Future<bool> requestNotificationPermission() {
-    throw UnimplementedError('requestNotificationPermission() has not been implemented.');
+    throw UnimplementedError(
+        'requestNotificationPermission() has not been implemented.');
   }
 
   Future<String?> getDeviceToken() {
@@ -37,7 +38,8 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
 
   /// Emits notification payloads when received while the app is in the foreground.
   Stream<Map<String, dynamic>> get foregroundNotifications {
-    throw UnimplementedError('foregroundNotifications has not been implemented.');
+    throw UnimplementedError(
+        'foregroundNotifications has not been implemented.');
   }
 
   /// Emits notification payloads when the user taps a notification (background/tap event).
@@ -47,6 +49,7 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
 
   /// Configures whether the native system UI should be shown for foreground notifications.
   Future<void> setForegroundPresentationOptions({required bool showSystemUI}) {
-    throw UnimplementedError('setForegroundPresentationOptions() has not been implemented.');
+    throw UnimplementedError(
+        'setForegroundPresentationOptions() has not been implemented.');
   }
 }

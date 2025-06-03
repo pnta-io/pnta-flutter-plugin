@@ -6,19 +6,23 @@ import 'src/foreground.dart';
 import 'src/link_handler.dart';
 
 class PntaFlutter {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(); // Used globally, including by LinkHandler
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>(); // Used globally, including by LinkHandler
 
   /// Call once to initialize the plugin and enable features.
-  static Future<void> initialize({bool autoHandleLinks = false, bool showSystemUI = false}) async {
+  static Future<void> initialize(
+      {bool autoHandleLinks = false, bool showSystemUI = false}) async {
     LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
     await setForegroundPresentationOptions(showSystemUI: showSystemUI);
   }
 
   /// Emits notification payloads when received while the app is in the foreground.
-  static Stream<Map<String, dynamic>> get foregroundNotifications => _foregroundNotificationsStream();
+  static Stream<Map<String, dynamic>> get foregroundNotifications =>
+      _foregroundNotificationsStream();
 
   /// Emits notification payloads when the user taps a notification (background/tap event).
-  static Stream<Map<String, dynamic>> get onNotificationTap => _onNotificationTapStream();
+  static Stream<Map<String, dynamic>> get onNotificationTap =>
+      _onNotificationTapStream();
 
   static Stream<Map<String, dynamic>> _foregroundNotificationsStream() async* {
     await for (final payload in foregroundNotificationsStream) {
@@ -48,7 +52,8 @@ class PntaFlutter {
   }
 
   /// Configures whether the native system UI should be shown for foreground notifications.
-  static Future<void> setForegroundPresentationOptions({required bool showSystemUI}) {
+  static Future<void> setForegroundPresentationOptions(
+      {required bool showSystemUI}) {
     return setForegroundPresentationOptionsInternal(showSystemUI: showSystemUI);
   }
 

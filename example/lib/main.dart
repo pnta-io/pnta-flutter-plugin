@@ -79,7 +79,8 @@ Future<void> main() async {
   // Initialize the plugin. You can customize options below (optional).
   await PntaFlutter.initialize(
     autoHandleLinks: false, // Optional: Enable automatic deep link handling
-    showSystemUI: false,    // Optional: Show system UI for foreground notifications
+    showSystemUI:
+        false, // Optional: Show system UI for foreground notifications
   );
   runApp(const MyApp());
 }
@@ -125,7 +126,8 @@ class _MyAppState extends State<MyApp> {
     // --- OPTIONAL: Listen for notification taps (background/terminated/foreground) ---
     _tapSub = PntaFlutter.onNotificationTap.listen((payload) async {
       setState(() {
-        _lastTappedPayload = const JsonEncoder.withIndent('  ').convert(payload);
+        _lastTappedPayload =
+            const JsonEncoder.withIndent('  ').convert(payload);
       });
       // --- IMPORTANT: ---
       // The following block is ONLY needed if autoHandleLinks is OFF (default):
@@ -141,7 +143,8 @@ class _MyAppState extends State<MyApp> {
         final ctx = PntaFlutter.navigatorKey.currentContext;
         if (ctx != null) {
           ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(content: Text('Custom Dart code handled navigation to: $link')),
+            SnackBar(
+                content: Text('Custom Dart code handled navigation to: $link')),
           );
         }
         await PntaFlutter.handleLink(link);
@@ -288,7 +291,8 @@ class _MyAppState extends State<MyApp> {
                       setState(() {
                         _showSystemUI = val;
                       });
-                      await PntaFlutter.setForegroundPresentationOptions(showSystemUI: val);
+                      await PntaFlutter.setForegroundPresentationOptions(
+                          showSystemUI: val);
                       await _initializePlugin();
                     },
                   ),
@@ -307,7 +311,8 @@ class _MyAppState extends State<MyApp> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     'Custom Dart code handled navigation to: $_customHandledLink',
-                    style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.green, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],

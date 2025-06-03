@@ -5,4 +5,4 @@ class Identify {
   static Future<void> identify(String projectId, String deviceToken) {
     return PntaFlutterPlatform.instance.identify(projectId, deviceToken);
   }
-} 
+}

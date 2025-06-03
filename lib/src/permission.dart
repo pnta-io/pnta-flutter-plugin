@@ -6,4 +6,4 @@ class Permission {
   static Future<bool> requestNotificationPermission() {
     return PntaFlutterPlatform.instance.requestNotificationPermission();
   }
-} 
+}

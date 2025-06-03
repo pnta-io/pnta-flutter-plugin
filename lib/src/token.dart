@@ -6,4 +6,4 @@ class Token {
   static Future<String?> getDeviceToken() {
     return PntaFlutterPlatform.instance.getDeviceToken();
   }
-} 
+}

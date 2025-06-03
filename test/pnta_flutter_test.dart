@@ -7,7 +7,6 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockPntaFlutterPlatform
     with MockPlatformInterfaceMixin
     implements PntaFlutterPlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 }
