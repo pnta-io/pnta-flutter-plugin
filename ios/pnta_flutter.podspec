@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'pnta_flutter'
-  s.version          = '0.0.1'
+  s.version          = '1.0.0'
   s.summary          = 'Official PNTA Flutter plugin to make push notifications suck less.'
   s.description      = <<-DESC
 A Flutter plugin for requesting push notification permissions and identifying devices on iOS and Android. Integrates with PNTA backend for device registration and metadata collection.
