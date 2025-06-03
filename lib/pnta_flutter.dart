@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'src/permission.dart';
 import 'src/token.dart';
 import 'src/identify.dart';
