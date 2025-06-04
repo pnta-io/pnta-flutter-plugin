@@ -65,7 +65,7 @@ object IdentifyHandler {
 
     private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
-        val name = Build.MODEL
+        val name = Build.MANUFACTURER
         val model = Build.MODEL
         val localizedModel = Build.MODEL
         val systemName = "android"
