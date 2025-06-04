@@ -16,116 +16,112 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.content.Context
 
 object IdentifyHandler {
-    fun identify(activity: Activity?, projectId: String?, deviceToken: String?, result: Result) {
-        if (activity == null || projectId == null || deviceToken == null) {
-            result.error("INVALID_ARGUMENTS", "Activity, projectId, or deviceToken is null", null)
+    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, result: Result) {
+        if (projectId == null) {
+            result.error("INVALID_ARGUMENTS", "projectId is null", null)
             return
         }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val metadata = collectMetadata(activity, deviceToken)
-                val info = mapOf(
-                    "project_id" to projectId,
-                    "identifier" to deviceToken,
-                    "metadata" to metadata
-                )
-                
-                sendToBackend(info, result)
-            } catch (e: Exception) {
-                Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
-                withContext(Dispatchers.Main) {
-                    result.success(null)
+        TokenHandler.getDeviceToken(activity, object : Result {
+            override fun success(token: Any?) {
+                val deviceToken = token as? String
+                if (deviceToken == null) {
+                    result.error("NO_TOKEN", "Device token not available", null)
+                    return
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val identifiers = collectIdentifiers(activity)
+                        val info = mapOf(
+                            "project_id" to projectId,
+                            "identifier" to deviceToken,
+                            "identifiers" to identifiers,
+                            "metadata" to (metadata ?: mapOf<String, Any>())
+                        )
+                        NetworkUtils.sendPutRequest(
+                            urlString = "https://app.pnta.io/api/v1/identification",
+                            payload = info,
+                            result = result,
+                            successReturn = deviceToken
+                        )
+                    } catch (e: Exception) {
+                        Log.e("IdentifyHandler", "Error in identify: ${e.localizedMessage}")
+                        withContext(Dispatchers.Main) {
+                            result.success(null)
+                        }
+                    }
                 }
             }
-        }
+            override fun error(code: String, message: String?, details: Any?) {
+                result.error(code, message, details)
+            }
+            override fun notImplemented() {
+                result.notImplemented()
+            }
+        })
     }
 
-    private suspend fun collectMetadata(activity: Activity, deviceToken: String): Map<String, Any> = withContext(Dispatchers.IO) {
-        val packageManager = activity.packageManager
-        val packageName = activity.packageName
+    private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
-        
-        val appVersion: String = try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            pInfo.versionName ?: "Unavailable"
-        } catch (e: Exception) {
-            "Unavailable"
-        }
-
-        val appBuild: String = try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                pInfo.longVersionCode.toString()
-            } else {
-                @Suppress("DEPRECATION")
-                pInfo.versionCode.toString()
-            }
-        } catch (e: Exception) {
-            "Unavailable"
-        }
-
-        val currencyCode: String = try {
+        val name = Build.MANUFACTURER
+        val model = Build.MODEL
+        val localizedModel = Build.MODEL
+        val systemName = "android"
+        val systemVersion = Build.VERSION.RELEASE
+        val identifierForVendor = activity?.let {
+            Settings.Secure.getString(it.contentResolver, Settings.Secure.ANDROID_ID)
+        } ?: "Unavailable"
+        val regionCode = locale.country ?: "Unavailable"
+        val languageCode = locale.language ?: "Unavailable"
+        val currencyCode = try {
             java.util.Currency.getInstance(locale).currencyCode
         } catch (e: Exception) {
             "Unavailable"
         }
-
-        val identifierForVendor = Settings.Secure.getString(activity.contentResolver, Settings.Secure.ANDROID_ID) ?: "Unavailable"
+        val currentLocale = locale.toString()
+        val preferredLanguages = listOf(locale.language)
+        val currentTimeZone = TimeZone.getDefault().id
+        val bundleIdentifier = activity?.packageName ?: "Unavailable"
+        val appVersion = activity?.let {
+            try {
+                val pInfo = it.packageManager.getPackageInfo(it.packageName, 0)
+                pInfo.versionName ?: "Unavailable"
+            } catch (e: Exception) {
+                "Unavailable"
+            }
+        } ?: "Unavailable"
+        val appBuild = activity?.let {
+            try {
+                val pInfo = it.packageManager.getPackageInfo(it.packageName, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pInfo.longVersionCode.toString()
+                } else {
+                    @Suppress("DEPRECATION")
+                    pInfo.versionCode.toString()
+                }
+            } catch (e: Exception) {
+                "Unavailable"
+            }
+        } ?: "Unavailable"
 
         mapOf(
-            "name" to Build.MODEL,
-            "model" to Build.MODEL,
-            "localized_model" to Build.MODEL,
-            "system_name" to "android",
-            "system_version" to Build.VERSION.RELEASE,
+            "name" to name,
+            "model" to model,
+            "localized_model" to localizedModel,
+            "system_name" to systemName,
+            "system_version" to systemVersion,
             "identifier_for_vendor" to identifierForVendor,
-            "device_token" to deviceToken,
-            "region_code" to (locale.country ?: "Unavailable"),
-            "language_code" to (locale.language ?: "Unavailable"),
+            "region_code" to regionCode,
+            "language_code" to languageCode,
             "currency_code" to currencyCode,
-            "current_locale" to locale.toString(),
-            "preferred_languages" to listOf(locale.language),
-            "current_time_zone" to TimeZone.getDefault().id,
-            "bundle_identifier" to packageName,
+            "current_locale" to currentLocale,
+            "preferred_languages" to preferredLanguages,
+            "current_time_zone" to currentTimeZone,
+            "bundle_identifier" to bundleIdentifier,
             "app_version" to appVersion,
             "app_build" to appBuild
         )
-    }
-
-    private suspend fun sendToBackend(info: Map<String, Any>, result: Result) = withContext(Dispatchers.IO) {
-        try {
-            val url = URL("https://app.pnta.io/api/v1/identification")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "PUT"
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.doOutput = true
-
-            val json = JSONObject(info).toString()
-
-            conn.outputStream.use { outputStream ->
-                OutputStreamWriter(outputStream).use { writer ->
-                    writer.write(json)
-                    writer.flush()
-                }
-            }
-
-            val responseCode = conn.responseCode
-            withContext(Dispatchers.Main) {
-                if (responseCode in 200..299) {
-                    result.success(null)
-                } else {
-                    Log.e("PNTA", "Server returned error: $responseCode")
-                    result.success(null)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("PNTA", "Error sending to backend: ${e.localizedMessage}")
-            withContext(Dispatchers.Main) {
-                result.success(null)
-            }
-        }
     }
 } 

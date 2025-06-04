@@ -1,3 +1,3 @@
-## 1.0.0-dev.2
+## 1.0.0-dev.3
 
-Fix dart formatting
+Stable version with a bunch of improvements

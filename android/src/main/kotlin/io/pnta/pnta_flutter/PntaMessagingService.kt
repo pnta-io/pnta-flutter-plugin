@@ -7,6 +7,8 @@ import com.google.firebase.messaging.RemoteMessage
 import android.app.ActivityManager
 import android.os.Handler
 
+
+
 class PntaMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         if (isAppInForeground(this)) {
@@ -25,6 +27,7 @@ class PntaMessagingService : FirebaseMessagingService() {
         }
         // else: let system handle background notifications
     }
+
 
     private fun isAppInForeground(context: Context): Boolean {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

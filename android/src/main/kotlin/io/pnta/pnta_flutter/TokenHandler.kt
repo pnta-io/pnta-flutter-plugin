@@ -1,19 +1,27 @@
 package io.pnta.pnta_flutter
 
 import android.app.Activity
+import android.content.Context
 import io.flutter.plugin.common.MethodChannel.Result
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.FirebaseApp
 
 object TokenHandler {
     fun getDeviceToken(activity: Activity?, result: Result) {
-        if (activity == null) {
-            result.error("NO_ACTIVITY", "Activity is null", null)
+        // Use application context from activity if available, otherwise from FirebaseApp
+        val context: Context? = activity?.applicationContext ?: try {
+            FirebaseApp.getInstance().applicationContext
+        } catch (e: Exception) {
+            android.util.Log.w("TokenHandler", "Failed to get context from FirebaseApp", e)
+            null
+        }
+        if (context == null) {
+            result.error("NO_CONTEXT", "Unable to obtain application context", null)
             return
         }
         // Ensure Firebase is initialized
-        if (FirebaseApp.getApps(activity.applicationContext).isEmpty()) {
-            FirebaseApp.initializeApp(activity.applicationContext)
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            FirebaseApp.initializeApp(context)
         }
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->

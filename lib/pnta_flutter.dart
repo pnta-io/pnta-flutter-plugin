@@ -4,6 +4,7 @@ import 'src/token.dart';
 import 'src/identify.dart';
 import 'src/foreground.dart';
 import 'src/link_handler.dart';
+import 'src/metadata.dart';
 
 class PntaFlutter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -47,8 +48,9 @@ class PntaFlutter {
     return Token.getDeviceToken();
   }
 
-  static Future<void> identify(String projectId, String deviceToken) {
-    return Identify.identify(projectId, deviceToken);
+  static Future<String?> identify(String projectId,
+      {Map<String, dynamic>? metadata}) {
+    return Identify.identify(projectId, metadata: metadata);
   }
 
   /// Configures whether the native system UI should be shown for foreground notifications.
@@ -58,4 +60,9 @@ class PntaFlutter {
   }
 
   static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
+
+  static Future<void> updateMetadata(String projectId,
+      {Map<String, dynamic>? metadata}) {
+    return Metadata.updateMetadata(projectId, metadata: metadata);
+  }
 }

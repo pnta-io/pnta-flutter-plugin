@@ -21,11 +21,19 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
       TokenHandler.getDeviceToken(result: result)
     case "identify":
       if let args = call.arguments as? [String: Any],
-         let projectId = args["projectId"] as? String,
-         let deviceToken = args["deviceToken"] as? String {
-        IdentifyHandler.identify(projectId: projectId, deviceToken: deviceToken, result: result)
+         let projectId = args["projectId"] as? String {
+        let metadata = args["metadata"] as? [String: Any]
+        IdentifyHandler.identify(projectId: projectId, metadata: metadata, result: result)
       } else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for identify", details: nil))
+      }
+    case "updateMetadata":
+      if let args = call.arguments as? [String: Any],
+         let projectId = args["projectId"] as? String {
+        let metadata = args["metadata"] as? [String: Any]
+        MetadataHandler.updateMetadata(projectId: projectId, metadata: metadata, result: result)
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for updateMetadata", details: nil))
       }
     case "setForegroundPresentationOptions":
       if let args = call.arguments as? [String: Any],

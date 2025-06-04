@@ -43,6 +43,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
     channel.setMethodCallHandler(this)
+    
     ForegroundNotificationHandler.register(flutterPluginBinding.binaryMessenger)
     NotificationTapHandler.register(flutterPluginBinding.binaryMessenger)
     // Create default notification channel on engine attach
@@ -56,8 +57,20 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       TokenHandler.getDeviceToken(activity, result)
     } else if (call.method == "identify") {
       val projectId = call.argument<String>("projectId")
-      val deviceToken = call.argument<String>("deviceToken")
-      IdentifyHandler.identify(activity, projectId, deviceToken, result)
+      val metadata = call.argument<Map<String, Any>>("metadata")
+      if (projectId == null) {
+        result.error("INVALID_ARGUMENTS", "projectId is null", null)
+        return
+      }
+      IdentifyHandler.identify(activity, projectId, metadata, result)
+    } else if (call.method == "updateMetadata") {
+      val projectId = call.argument<String>("projectId")
+      val metadata = call.argument<Map<String, Any>>("metadata")
+      if (projectId == null) {
+        result.error("INVALID_ARGUMENTS", "projectId is null", null)
+        return
+      }
+      MetadataHandler.updateMetadata(projectId, metadata, result)
     } else if (call.method == "setForegroundPresentationOptions") {
       val showSystemUI = call.argument<Boolean>("showSystemUI") ?: false
       ForegroundNotificationHandler.setForegroundPresentationOptions(showSystemUI)
