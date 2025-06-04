@@ -12,6 +12,7 @@ object TokenHandler {
         val context: Context? = activity?.applicationContext ?: try {
             FirebaseApp.getInstance().applicationContext
         } catch (e: Exception) {
+            android.util.Log.w("TokenHandler", "Failed to get context from FirebaseApp", e)
             null
         }
         if (context == null) {
