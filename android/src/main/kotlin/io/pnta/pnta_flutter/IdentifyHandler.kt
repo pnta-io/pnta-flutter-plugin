@@ -42,7 +42,7 @@ object IdentifyHandler {
                 }
             }
         }
-
+    }
 
     private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()

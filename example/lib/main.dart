@@ -191,7 +191,11 @@ class _MyAppState extends State<MyApp> {
       });
       if (token != null) {
         try {
-          await PntaFlutter.identify(_projectId, token);
+          await PntaFlutter.identify(_projectId, token, metadata: {
+            'demo_key': 'demo_value',
+            'timestamp': DateTime.now().toIso8601String(),
+            'source': 'identify',
+          });
           setState(() {
             _identifyStatus = 'Identify sent successfully';
           });
@@ -330,6 +334,29 @@ class _MyAppState extends State<MyApp> {
                     }
                   },
                   child: const Text('Open Foreground Link (foreground only)'),
+                ),
+                const SizedBox(height: 16),
+              ],
+              // --- DEMO: Update Metadata ---
+              if (_deviceToken != null) ...[
+                ElevatedButton(
+                  onPressed: () async {
+                    setState(() { _identifyStatus = 'Updating metadata...'; });
+                    try {
+                      await PntaFlutter.updateMetadata(
+                        _projectId,
+                        metadata: {
+                          'demo_key': 'demo_value',
+                          'timestamp': DateTime.now().toIso8601String(),
+                          'source': 'button_update',
+                        },
+                      );
+                      setState(() { _identifyStatus = 'Metadata updated successfully'; });
+                    } catch (e) {
+                      setState(() { _identifyStatus = 'Metadata update failed: $e'; });
+                    }
+                  },
+                  child: const Text('Update Metadata (Demo)'),
                 ),
                 const SizedBox(height: 16),
               ],

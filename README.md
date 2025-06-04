@@ -115,37 +115,33 @@ if (token != null) {
 }
 ```
 
-### 5. Identify Device
+### 5. Identify Device & Manage Metadata
 
-Send device and app metadata to the backend for identification:
+Send device and app metadata to the backend for identification and future updates:
 
 ```dart
-await PntaFlutter.identify(projectId, deviceToken);
+// Best practice: keep your metadata in one place in your app state
+final metadata = {
+  'user_id': '123',
+  'custom_key': 'custom_value',
+  // ...any other fields
+};
+
+// On first registration/identification
+await PntaFlutter.identify(projectId, deviceToken, metadata: metadata);
+
+// Later, if you want to update metadata (e.g., after user profile changes)
+await PntaFlutter.updateMetadata(projectId, metadata: metadata);
 ```
 
 -   `projectId`: Your PNTA project ID
--   `deviceToken`: The push notification token (from `getDeviceToken()`)
+-   `deviceToken`: The push notification token (from `getDeviceToken()`) (only needed for identify)
+-   `metadata`: A map of custom metadata to associate with the device (used in both identify and updateMetadata)
 
-This will collect and send the following metadata (with consistent keys across iOS and Android):
+**Best Practice:**
 
--   name
--   model
--   localized_model
--   system_name
--   system_version
--   identifier_for_vendor
--   device_token
--   region_code
--   language_code
--   currency_code
--   current_locale
--   preferred_languages
--   current_time_zone
--   bundle_identifier
--   app_version
--   app_build
-
-The data is sent as a JSON payload to `https://app.pnta.io/api/v1/identification` via PUT request.
+-   Store all relevant metadata in a single place in your app state (e.g., a provider, bloc, or singleton).
+-   Pass the same metadata map to both `identify` and `updateMetadata` to keep your PNTA in sync.
 
 ### 6. Foreground Notification Handling
 

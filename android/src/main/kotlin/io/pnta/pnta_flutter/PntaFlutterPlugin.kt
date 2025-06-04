@@ -43,6 +43,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
     channel.setMethodCallHandler(this)
+    
     ForegroundNotificationHandler.register(flutterPluginBinding.binaryMessenger)
     NotificationTapHandler.register(flutterPluginBinding.binaryMessenger)
     // Create default notification channel on engine attach
@@ -59,6 +60,10 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       val deviceToken = call.argument<String>("deviceToken")
       val metadata = call.argument<Map<String, Any>>("metadata")
       IdentifyHandler.identify(activity, projectId, deviceToken, metadata, result)
+    } else if (call.method == "updateMetadata") {
+      val projectId = call.argument<String>("projectId")
+      val metadata = call.argument<Map<String, Any>>("metadata")
+      MetadataHandler.updateMetadata(projectId, metadata, result)
     } else if (call.method == "setForegroundPresentationOptions") {
       val showSystemUI = call.argument<Boolean>("showSystemUI") ?: false
       ForegroundNotificationHandler.setForegroundPresentationOptions(showSystemUI)

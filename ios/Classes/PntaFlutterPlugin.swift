@@ -28,6 +28,14 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
       } else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for identify", details: nil))
       }
+    case "updateMetadata":
+      if let args = call.arguments as? [String: Any],
+         let projectId = args["projectId"] as? String {
+        let metadata = args["metadata"] as? [String: Any]
+        MetadataHandler.updateMetadata(projectId: projectId, metadata: metadata, result: result)
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for updateMetadata", details: nil))
+      }
     case "setForegroundPresentationOptions":
       if let args = call.arguments as? [String: Any],
          let showSystemUI = args["showSystemUI"] as? Bool {

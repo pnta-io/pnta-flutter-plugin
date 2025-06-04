@@ -4,6 +4,7 @@ import 'src/token.dart';
 import 'src/identify.dart';
 import 'src/foreground.dart';
 import 'src/link_handler.dart';
+import 'src/metadata.dart';
 
 class PntaFlutter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -58,4 +59,10 @@ class PntaFlutter {
   }
 
   static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
+
+  static Future<void> updateMetadata(String projectId, {Map<String, dynamic>? metadata}) async {
+    final token = await getDeviceToken();
+    if (token == null) throw Exception('Device token not available');
+    return Metadata.updateMetadata(projectId, metadata: metadata);
+  }
 }

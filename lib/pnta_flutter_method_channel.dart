@@ -40,6 +40,14 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
+  Future<void> updateMetadata(String projectId, [Map<String, dynamic>? metadata]) async {
+    await methodChannel.invokeMethod('updateMetadata', {
+      'projectId': projectId,
+      if (metadata != null) 'metadata': metadata,
+    });
+  }
+
+  @override
   Stream<Map<String, dynamic>> get foregroundNotifications {
     _foregroundNotificationsStream ??= _foregroundNotificationsEventChannel
         .receiveBroadcastStream()
