@@ -209,13 +209,13 @@ Register the device with your PNTA project. There are two ways to call this meth
 // Option 1: Simple identification (device token handled internally)
 await PntaFlutter.identify('your-project-id', metadata: {
   'user_id': '123',
-  'app_version': '1.0.0',
+  'user_email': 'user@example.com',
 });
 
 // Option 2: Get the device token returned (if you need it for your backend)
 final deviceToken = await PntaFlutter.identify('your-project-id', metadata: {
   'user_id': '123',
-  'app_version': '1.0.0',
+  'user_email': 'user@example.com',
 });
 if (deviceToken != null) {
   print('Device token: $deviceToken');
