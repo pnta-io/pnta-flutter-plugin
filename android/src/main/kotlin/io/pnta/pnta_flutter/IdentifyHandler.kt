@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 
 object IdentifyHandler {
-    fun identify(activity: Activity?, projectId: String?, deviceToken: String?, result: Result) {
+    fun identify(activity: Activity?, projectId: String?, deviceToken: String?, metadata: Map<String, Any>?, result: Result) {
         if (projectId == null || deviceToken == null) {
             result.error("INVALID_ARGUMENTS", "projectId or deviceToken is null", null)
             return
@@ -32,7 +32,7 @@ object IdentifyHandler {
                     "project_id" to projectId,
                     "identifier" to deviceToken,
                     "identifiers" to identifiers,
-                    "metadata" to mapOf<String, Any>()
+                    "metadata" to (metadata ?: mapOf<String, Any>())
                 )
                 sendToBackend(info, result)
             } catch (e: Exception) {

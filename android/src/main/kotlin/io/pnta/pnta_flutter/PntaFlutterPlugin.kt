@@ -57,7 +57,8 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     } else if (call.method == "identify") {
       val projectId = call.argument<String>("projectId")
       val deviceToken = call.argument<String>("deviceToken")
-      IdentifyHandler.identify(activity, projectId, deviceToken, result)
+      val metadata = call.argument<Map<String, Any>>("metadata")
+      IdentifyHandler.identify(activity, projectId, deviceToken, metadata, result)
     } else if (call.method == "setForegroundPresentationOptions") {
       val showSystemUI = call.argument<Boolean>("showSystemUI") ?: false
       ForegroundNotificationHandler.setForegroundPresentationOptions(showSystemUI)

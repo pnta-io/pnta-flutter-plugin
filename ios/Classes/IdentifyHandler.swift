@@ -3,7 +3,7 @@ import Flutter
 import UIKit
 
 class IdentifyHandler {
-    static func identify(projectId: String, deviceToken: String, result: @escaping FlutterResult) {
+    static func identify(projectId: String, deviceToken: String, metadata: [String: Any]? = nil, result: @escaping FlutterResult) {
         guard let deviceTokenData = Data(hexString: deviceToken) else {
             result(FlutterError(code: "INVALID_TOKEN", message: "Device token is not valid hex", details: nil))
             return
@@ -34,7 +34,7 @@ class IdentifyHandler {
             "project_id": projectId,
             "identifier": deviceToken,
             "identifiers": identifiers,
-            "metadata": [:]
+            "metadata": metadata ?? [:]
         ]
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: info, options: .prettyPrinted) else {

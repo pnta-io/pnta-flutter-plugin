@@ -31,7 +31,7 @@ class PntaMessagingService : FirebaseMessagingService() {
         // Retrieve projectId from SharedPreferences
         val prefs = applicationContext.getSharedPreferences("pnta_prefs", android.content.Context.MODE_PRIVATE)
         val projectId = prefs.getString("project_id", null)
-        IdentifyHandler.identify(null, projectId, token, object : io.flutter.plugin.common.MethodChannel.Result {
+        IdentifyHandler.identify(null, projectId, token, null, object : io.flutter.plugin.common.MethodChannel.Result {
             override fun success(result: Any?) {
                 // Token updated successfully
             }
