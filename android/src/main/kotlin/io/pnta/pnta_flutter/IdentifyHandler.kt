@@ -27,7 +27,7 @@ object IdentifyHandler {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val identifiers = collectMetadata(activity, deviceToken)
+                val identifiers = collectIdentifiers(activity)
                 val info = mapOf(
                     "project_id" to projectId,
                     "identifier" to deviceToken,
@@ -50,7 +50,7 @@ object IdentifyHandler {
         }
     }
 
-    private suspend fun collectMetadata(activity: Activity?, deviceToken: String): Map<String, Any> = withContext(Dispatchers.IO) {
+    private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
         val name = Build.MODEL
         val model = Build.MODEL
