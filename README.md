@@ -4,17 +4,7 @@ A Flutter plugin for requesting push notification permissions on iOS and Android
 
 ## Usage
 
-### 1. Add Dependency
-
-Add this plugin to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-    pnta_flutter:
-        path: ../pnta_flutter # or your published version
-```
-
-### 2. Platform-specific Setup
+### 1. Platform-specific Setup
 
 #### iOS
 
@@ -89,7 +79,7 @@ To use this plugin on Android, you must complete the following steps:
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 ```
 
-### 3. Request Notification Permission
+### 2. Request Notification Permission
 
 Call this method from your Dart code (e.g., on app launch):
 
@@ -104,7 +94,7 @@ if (granted) {
 }
 ```
 
-### 4. Identify Device & Manage Metadata
+### 3. Identify Device & Manage Metadata
 
 Send device and app metadata to the backend for identification and future updates. The device token is handled internally by the plugin and is also returned by the identify call:
 
@@ -137,7 +127,7 @@ await PntaFlutter.updateMetadata(projectId, metadata: metadata);
 -   Store all relevant metadata in a single place in your app state (e.g., a provider, bloc, or singleton).
 -   Pass the same metadata map to both `identify` and `updateMetadata` to keep your PNTA in sync.
 
-### 5. Foreground Notification Handling
+### 4. Foreground Notification Handling
 
 This plugin allows you to intercept and handle push notifications when your app is in the foreground, giving you full control over the user experience.
 
@@ -216,7 +206,7 @@ PntaFlutter.foregroundNotifications.listen((payload) {
 });
 ```
 
-### 6. link_to Push Notification Handling (Deep Links & External URLs)
+### 5. link_to Push Notification Handling (Deep Links & External URLs)
 
 This plugin supports push notifications with a `link_to` field in the payload, enabling deep linking and external URL handling.
 
@@ -326,7 +316,7 @@ class MainActivity: FlutterActivity() {
 }
 ```
 
-### 7. Link Handling Rules and Deep Linking
+### 6. Link Handling Rules and Deep Linking
 
 When handling `link_to` payloads, the plugin uses the following rule:
 
