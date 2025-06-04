@@ -8,7 +8,7 @@ class NetworkUtils {
         result: @escaping FlutterResult,
         successReturn: Any? = nil
     ) {
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted) else {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: payload, options: []) else {
             let errorMsg = "[NetworkUtils] PNTA Error: Failed to serialize JSON data for payload: \(payload)"
             print(errorMsg)
             result(FlutterError(code: "JSON_SERIALIZATION_ERROR", message: "Failed to serialize payload to JSON", details: payload))
@@ -42,7 +42,7 @@ class NetworkUtils {
                 return
             }
             guard (200...299).contains(httpResponse.statusCode) else {
-                var serverMessage: String? = nil
+                var serverMessage: String?
                 if let data = data, let body = String(data: data, encoding: .utf8) {
                     serverMessage = body
                 }
