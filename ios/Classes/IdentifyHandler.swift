@@ -3,6 +3,14 @@ import Flutter
 import UIKit
 
 class IdentifyHandler {
+    /// Registers the device with the identification API using the current device token and environment information.
+    ///
+    /// Retrieves the device token asynchronously, gathers device and locale identifiers, and sends them along with the project ID and optional metadata to the remote identification endpoint. Returns the device token string on success, or a Flutter error if the token is unavailable or invalid.
+    ///
+    /// - Parameters:
+    ///   - projectId: The unique identifier for the project.
+    ///   - metadata: Optional additional metadata to include in the identification payload.
+    ///   - result: Flutter callback to receive the device token string on success, or an error if identification fails.
     static func identify(projectId: String, metadata: [String: Any]? = nil, result: @escaping FlutterResult) {
         TokenHandler.getDeviceToken { deviceToken in
             guard let token = deviceToken as? String else {

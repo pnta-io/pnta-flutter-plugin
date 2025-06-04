@@ -19,6 +19,14 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 
 object IdentifyHandler {
+    /**
+     * Identifies the device and sends identification data, including device and app information, to the backend server.
+     *
+     * Validates the provided project ID, retrieves a device token asynchronously, collects device and app identifiers, and sends all data along with optional metadata to the backend. The result is returned via the provided Flutter `Result` callback, with the device identifier on success or null on failure.
+     *
+     * @param projectId The unique identifier for the project; must not be null.
+     * @param metadata Optional additional data to include in the identification payload.
+     */
     fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, result: Result) {
         if (projectId == null) {
             result.error("INVALID_ARGUMENTS", "projectId is null", null)
@@ -58,6 +66,14 @@ object IdentifyHandler {
         })
     }
 
+    /**
+     * Collects device and application identifiers for the current Android environment.
+     *
+     * Gathers information such as device model, system version, Android ID, locale details, currency, timezone, app package name, version, and build number. If any value cannot be determined, "Unavailable" is used as a fallback.
+     *
+     * @param activity The current Activity, used to access context-dependent identifiers. May be null.
+     * @return A map containing device and app identification data.
+     */
     private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
         val name = Build.MODEL
@@ -120,6 +136,13 @@ object IdentifyHandler {
         )
     }
 
+    /**
+     * Sends identification data to the backend server via an HTTP PUT request.
+     *
+     * Attempts to transmit the provided info map as JSON to the backend identification endpoint.
+     * On a successful response (HTTP 2xx), returns the device identifier via the result callback; otherwise, returns null.
+     * Any exceptions during the network operation are logged and result in a null response.
+     */
     private suspend fun sendToBackend(info: Map<String, Any>, result: Result) = withContext(Dispatchers.IO) {
         try {
             val url = URL("https://app.pnta.io/api/v1/identification")

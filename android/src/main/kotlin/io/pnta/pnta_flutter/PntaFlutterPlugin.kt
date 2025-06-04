@@ -40,6 +40,11 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
+  /**
+   * Initializes the plugin when attached to the Flutter engine.
+   *
+   * Sets up the method channel for communication with Flutter, registers notification handlers, and creates the default notification channel using the application context.
+   */
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pnta_flutter")
     channel.setMethodCallHandler(this)
@@ -50,6 +55,13 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     createDefaultNotificationChannel(flutterPluginBinding.applicationContext)
   }
 
+  /**
+   * Handles method calls from Flutter and delegates to the appropriate native handlers.
+   *
+   * Supported methods include requesting notification permissions, retrieving the device token,
+   * identifying a user with project metadata, updating user metadata, and setting foreground notification presentation options.
+   * Returns an error if required arguments are missing or if the method is unrecognized.
+   */
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (call.method == "requestNotificationPermission") {
       PermissionHandler.requestNotificationPermission(activity, result)

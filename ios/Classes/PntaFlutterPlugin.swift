@@ -13,6 +13,16 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
     NotificationTapHandler.register(with: registrar)
   }
 
+  /// Handles method calls from the Flutter side for notification permissions, device token retrieval, user identification, metadata updates, and foreground notification presentation options.
+  ///
+  /// Supported method calls:
+  /// - `"requestNotificationPermission"`: Requests notification permissions from the user.
+  /// - `"getDeviceToken"`: Retrieves the device's push notification token.
+  /// - `"identify"`: Identifies the user with a project ID and optional metadata.
+  /// - `"updateMetadata"`: Updates user metadata for a given project ID.
+  /// - `"setForegroundPresentationOptions"`: Sets whether system UI is shown for foreground notifications.
+  ///
+  /// Returns results or errors to the Flutter side via the provided result callback. If required arguments are missing, returns a Flutter error with code `"INVALID_ARGUMENTS"`. For unrecognized methods, returns `FlutterMethodNotImplemented`.
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "requestNotificationPermission":

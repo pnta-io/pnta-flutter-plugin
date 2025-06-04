@@ -2,6 +2,14 @@ import Foundation
 import Flutter
 
 class MetadataHandler {
+    /// Updates remote metadata for a project using the current device token.
+    ///
+    /// Retrieves the device token asynchronously and sends a PUT request to the remote server with the project ID, device token, and optional metadata. If the device token is unavailable or JSON serialization fails, an error is returned via the Flutter result. On success or failure, the result callback is invoked to signal completion.
+    ///
+    /// - Parameters:
+    ///   - projectId: The unique identifier for the project.
+    ///   - metadata: Optional dictionary containing additional metadata to associate with the device.
+    ///   - result: Flutter result callback invoked with `nil` on completion or a `FlutterError` if the device token is unavailable.
     static func updateMetadata(projectId: String, metadata: [String: Any]? = nil, result: @escaping FlutterResult) {
         TokenHandler.getDeviceToken { deviceToken in
             guard let deviceToken = deviceToken as? String else {

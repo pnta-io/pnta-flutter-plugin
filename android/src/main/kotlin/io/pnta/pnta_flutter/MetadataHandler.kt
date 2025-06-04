@@ -12,6 +12,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object MetadataHandler {
+    /**
+     * Updates metadata for a given project and device by sending it to the backend server.
+     *
+     * Initiates retrieval of the device token and, upon success, sends the provided metadata along with the project ID and device token to the backend. If the project ID is null or the device token cannot be obtained, an error is returned via the result callback. All result callbacks are invoked on the main thread.
+     */
     fun updateMetadata(projectId: String?, metadata: Map<String, Any>?, result: Result) {
         if (projectId == null) {
             result.error("INVALID_ARGUMENTS", "projectId is null", null)
@@ -51,6 +56,11 @@ object MetadataHandler {
         })
     }
 
+    /**
+     * Sends the provided metadata to the backend server via an HTTP PUT request.
+     *
+     * Attempts to deliver the given information as a JSON payload to the backend endpoint. Regardless of the HTTP response or any exceptions, the result callback is always invoked on the main thread with a success response containing null.
+     */
     private suspend fun sendToBackend(info: Map<String, Any>, result: Result) = withContext(Dispatchers.IO) {
         try {
             val url = URL("https://app.pnta.io/api/v1/metadata")
