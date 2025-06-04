@@ -60,9 +60,7 @@ class PntaFlutter {
 
   static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
 
-  static Future<void> updateMetadata(String projectId, {Map<String, dynamic>? metadata}) async {
-    final token = await getDeviceToken();
-    if (token == null) throw Exception('Device token not available');
+  static Future<void> updateMetadata(String projectId, {Map<String, dynamic>? metadata}) {
     return Metadata.updateMetadata(projectId, metadata: metadata);
   }
 }
