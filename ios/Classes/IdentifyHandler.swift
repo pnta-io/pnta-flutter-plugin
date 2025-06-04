@@ -57,13 +57,13 @@ class IdentifyHandler {
             let task = URLSession.shared.dataTask(with: request) { _, response, error in
                 if let error = error {
                     print("PNTA Error: \(error.localizedDescription)")
-                    result(nil)
+                    result(FlutterError(code: "NETWORK_ERROR", message: error.localizedDescription, details: nil))
                     return
                 }
                 guard let httpResponse = response as? HTTPURLResponse,
                       (200...299).contains(httpResponse.statusCode) else {
                     print("PNTA Error: Server returned an error")
-                    result(nil)
+                    result(FlutterError(code: "SERVER_ERROR", message: "Server returned an error", details: nil))
                     return
                 }
                 result(token)
