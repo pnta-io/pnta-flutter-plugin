@@ -127,13 +127,27 @@ await PntaFlutter.updateMetadata(projectId, metadata: metadata);
 -   Store all relevant metadata in a single place in your app state (e.g., a provider, bloc, or singleton).
 -   Pass the same metadata map to both `identify` and `updateMetadata` to keep your PNTA in sync.
 
-### 4. Foreground Notification Handling
+### 4. Initialize Plugin Configuration
 
-This plugin allows you to intercept and handle push notifications when your app is in the foreground, giving you full control over the user experience.
+Configure the plugin once at app startup (e.g., in your `main()` function):
 
-**Note:** Foreground notifications are always delivered to Dart, and you are responsible for handling any links in the payload. You can use `PntaFlutter.handleLink(link)` to handle links in your foreground notification handler.
+```dart
+await PntaFlutter.initialize(
+  autoHandleLinks: false, // Auto-handle links when notification tapped (background/terminated)
+  showSystemUI: false,    // Show system notification UI in foreground
+);
+```
 
-#### Dart API
+**Configuration Options:**
+
+-   `autoHandleLinks`: When `true`, automatically opens `link_to` URLs/routes when notifications are tapped (only applies to background/terminated state)
+-   `showSystemUI`: When `true`, shows system notification banner/sound even when app is in foreground
+
+### 5. Handle Notifications
+
+#### Foreground Notifications (App is Active)
+
+Listen for notifications when your app is in the foreground:
 
 ```dart
 // Listen for foreground notifications
@@ -146,94 +160,69 @@ PntaFlutter.foregroundNotifications.listen((payload) {
   }
   print('Received foreground notification: $payload');
 });
-
-// Configure whether to show the system notification UI (banner, sound, badge) in the foreground
-await PntaFlutter.setForegroundPresentationOptions(showSystemUI: false); // default is false
 ```
 
--   If `showSystemUI` is `false`, the system notification UI is suppressed in the foreground and you can show your own UI.
--   If `showSystemUI` is `true`, the system notification UI is shown as if the app were in the background, and you still receive the payload in Dart.
+**Note:** Foreground notifications are always delivered to Dart for custom handling. The `showSystemUI` setting (from `initialize()`) controls whether you also see the system notification banner.
 
-#### Platform Behavior
+#### Background Notifications (App in Background/Terminated)
 
-| Platform | System UI Option   | Custom In-App UI | Dart Stream | User Flexibility |
-| -------- | ------------------ | ---------------- | ----------- | ---------------- |
-| iOS      | Yes (configurable) | Yes              | Yes         | Maximum          |
-| Android  | Yes (configurable) | Yes              | Yes         | Maximum          |
-
--   **iOS:** Uses `UNUserNotificationCenterDelegate` to control presentation and always forwards the payload to Dart.
--   **Android:** Uses a custom `FirebaseMessagingService` to intercept foreground messages, show/hide system UI, and forward the payload to Dart.
-
-#### Android Setup
-
--   Make sure your `AndroidManifest.xml` includes:
-    ```xml
-    <service
-        android:name="io.pnta.pnta_flutter.PntaMessagingService"
-        android:exported="false">
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT" />
-        </intent-filter>
-    </service>
-    ```
-
-### Android Notification Channel Setup
-
-For Android 8.0+ (API 26+), you must define a default notification channel for Firebase Cloud Messaging (FCM) background notifications. This ensures notifications are delivered with your desired settings and removes FCM warnings.
-
-Add the following inside your `<application>` tag in `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<meta-data
-    android:name="com.google.firebase.messaging.default_notification_channel_id"
-    android:value="pnta_default" />
-```
-
-This tells FCM to use the `pnta_default` channel (created automatically by the plugin) for all background notifications.
-
-#### iOS Setup
-
--   No extra steps required beyond normal plugin integration.
-
-#### Example Usage
+Listen for notification taps when your app is not active:
 
 ```dart
-await PntaFlutter.setForegroundPresentationOptions(showSystemUI: false);
+// Listen for notification taps (background/terminated)
+PntaFlutter.onNotificationTap.listen((payload) {
+  // Handle the tap - called when user taps notification
+  print('User tapped notification: $payload');
 
-PntaFlutter.foregroundNotifications.listen((payload) {
-  // Show custom banner, route user, track analytics, etc.
-  print('Received foreground notification: $payload');
+  // If autoHandleLinks is false, manually handle links:
+  final link = payload['link_to'] as String?;
+  if (link != null) {
+    PntaFlutter.handleLink(link);
+  }
 });
 ```
 
-### 5. link_to Push Notification Handling (Deep Links & External URLs)
+**Automatic Link Handling:**
+If `autoHandleLinks` was set to `true` in `initialize()`, the plugin automatically:
 
-This plugin supports push notifications with a `link_to` field in the payload, enabling deep linking and external URL handling.
+-   Opens external URLs (`http://`, `https://`) in system browser
+-   Navigates to app routes (`/profile`, etc.) using your app's navigator
 
--   If the notification is tapped while the app is in the background or terminated, and `autoHandleLinks` is enabled, the plugin will automatically:
-    -   Open external URLs (starting with `http` or `https`) in the system browser (using url_launcher).
-    -   Navigate to in-app routes (starting with `/` or any other path) using the app's navigator.
--   When the app is in the foreground, the full notification payload is always delivered to Dart via the stream. You are responsible for handling any links or navigation in this case—`autoHandleLinks` does not apply.
+You can still listen to `onNotificationTap` for analytics or additional logic.
 
-**Implementation Note:**
+### 6. Link Handling Rules
 
--   All link handling logic is now centralized in `LinkHandler`. The `autoHandleLinks` flag is managed only by `LinkHandler` and is set via `PntaFlutter.initialize(autoHandleLinks: ...)`.
--   `PntaFlutter.onNotificationTap` will automatically handle links if `autoHandleLinks` is enabled, by delegating to `LinkHandler.handleLink`. You can also manually handle links by calling `PntaFlutter.handleLink(link)`.
+When handling `link_to` payloads, the plugin uses these rules:
 
-#### Dart API
+-   **If the link contains `://`** (e.g., `http://`, `mailto://`, `myapp://`), it is treated as an external URI and opened via the OS using `url_launcher`
+-   **Otherwise** (e.g., `/home`, `/profile`), the link is treated as an internal Flutter route and is pushed using the global `navigatorKey`
+
+#### Setup Requirements
+
+**For internal routes:**
+Ensure your app's `MaterialApp` uses the global navigator key:
 
 ```dart
-// Call once, e.g. in main()
-await PntaFlutter.initialize(
-  autoHandleLinks: false, // default: false
-  showSystemUI: false,    // default: false
-);
+MaterialApp(
+  navigatorKey: PntaFlutter.navigatorKey,
+  // ...
+)
+```
 
-// Listen for foreground notifications (always delivered)
-PntaFlutter.foregroundNotifications.listen((payload) { ... });
+**For external URLs on Android:**
+Add the following `<queries>` block to your `AndroidManifest.xml`:
 
-// Listen for notification taps (background/terminated)
-PntaFlutter.onNotificationTap.listen((payload) { ... });
+```xml
+<queries>
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="http" />
+  </intent>
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="https" />
+  </intent>
+</queries>
 ```
 
 #### Example Notification Payload
@@ -249,46 +238,32 @@ PntaFlutter.onNotificationTap.listen((payload) { ... });
 }
 ```
 
-#### Platform-specific Setup for URL Handling
+#### Platform-specific Setup
 
 **Android:**
-
--   Add the following `<queries>` block to your `AndroidManifest.xml` (as a child of `<manifest>`, before `<application>`):
+Make sure your `AndroidManifest.xml` includes:
 
 ```xml
-<queries>
-  <intent>
-    <action android:name="android.intent.action.VIEW" />
-    <data android:scheme="http" />
-  </intent>
-  <intent>
-    <action android:name="android.intent.action.VIEW" />
-    <data android:scheme="https" />
-  </intent>
-</queries>
+<service
+    android:name="io.pnta.pnta_flutter.PntaMessagingService"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+    </intent-filter>
+</service>
 ```
 
--   This is required for `url_launcher` to work on Android 11+ (API 30+).
--   Make sure a browser is installed and set up on your device/emulator.
+**Android Notification Channel:**
+Add inside your `<application>` tag:
 
-**iOS:**
-
--   No extra setup is required for external URLs. The plugin uses `url_launcher` which works out of the box.
--   For deep links, ensure your app's `MaterialApp` uses the global navigator key:
-
-```dart
-MaterialApp(
-  navigatorKey: PntaFlutter.navigatorKey,
-  // ...
-)
+```xml
+<meta-data
+    android:name="com.google.firebase.messaging.default_notification_channel_id"
+    android:value="pnta_default" />
 ```
 
-#### Notes
-
--   Foreground notifications are always delivered to Dart, regardless of the `autoHandleLinks` setting. You have full control over how to handle them.
--   The `autoHandleLinks` feature only applies when the app is launched or resumed from a notification tap (background/terminated state).
--   If `link_to` is invalid or cannot be handled, an error is logged but the app will not crash.
--   The MainActivity override (see below) is only required for notification tap (background) events on Android. Foreground notifications do not require any MainActivity changes.
+**MainActivity Override (Android):**
+For notification tap handling, update your `MainActivity.kt`:
 
 ```kotlin
 import android.content.Intent
@@ -316,20 +291,84 @@ class MainActivity: FlutterActivity() {
 }
 ```
 
-### 6. Link Handling Rules and Deep Linking
+**iOS:**
+No extra setup required beyond normal plugin integration.
 
-When handling `link_to` payloads, the plugin uses the following rule:
+### 7. Complete Example
 
--   **If the link contains `://`** (e.g., `http://`, `mailto://`, `myapp://`), it is treated as an external URI and opened via the OS using `url_launcher` in `LaunchMode.externalApplication`.
--   **Otherwise** (e.g., `/home`, `/profile`), the link is treated as an internal Flutter route and is pushed using the global `navigatorKey`.
+```dart
+import 'package:flutter/material.dart';
+import 'package:pnta_flutter/pnta_flutter.dart';
 
-#### Important: Deep Linking for Custom Schemes
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-If you use custom URI schemes (such as `myapp://posts`) in your `link_to` payloads, you must set up deep linking on your platform (Android/iOS) for your app to handle these links. If deep linking is not set up, the OS will attempt to open the link externally, and your app may not receive it.
+  // Initialize plugin
+  await PntaFlutter.initialize(
+    autoHandleLinks: true,  // Auto-handle links from background taps
+    showSystemUI: false,    // Hide system UI in foreground
+  );
 
-**If you have not set up deep linking for your custom schemes, use standard internal route names (like `/appointments`) and rely on the `navigatorKey` for in-app navigation.**
+  runApp(MyApp());
+}
 
--   For more information on deep linking in Flutter, see the [Flutter deep linking documentation](https://docs.flutter.dev/development/ui/navigation/deep-linking).
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: PntaFlutter.navigatorKey, // Required for deep linking
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    _setupNotifications();
+  }
+
+  void _setupNotifications() async {
+    // Request permission
+    final granted = await PntaFlutter.requestNotificationPermission();
+    if (!granted) return;
+
+    // Identify device
+    await PntaFlutter.identify('your-project-id', metadata: {
+      'user_id': '123',
+      'app_version': '1.0.0',
+    });
+
+    // Listen for foreground notifications
+    PntaFlutter.foregroundNotifications.listen((payload) {
+      // Show custom in-app UI
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Received: ${payload['title']}')),
+      );
+    });
+
+    // Listen for background notification taps
+    PntaFlutter.onNotificationTap.listen((payload) {
+      print('User tapped notification: ${payload['title']}');
+      // Links are auto-handled if autoHandleLinks is true
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('PNTA Example')),
+      body: Center(child: Text('Ready for notifications!')),
+    );
+  }
+}
+```
 
 ## Example
 
