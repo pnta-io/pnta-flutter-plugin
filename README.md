@@ -14,22 +14,7 @@ dependencies:
         path: ../pnta_flutter # or your published version
 ```
 
-### 2. Request Notification Permission
-
-Call this method from your Dart code (e.g., on app launch):
-
-```dart
-import 'package:pnta_flutter/pnta_flutter.dart';
-
-final granted = await PntaFlutter.requestNotificationPermission();
-if (granted) {
-  // Permission granted, proceed with notifications
-} else {
-  // Permission denied
-}
-```
-
-### 3. Platform-specific Setup
+### 2. Platform-specific Setup
 
 #### iOS
 
@@ -104,18 +89,22 @@ To use this plugin on Android, you must complete the following steps:
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 ```
 
-### 4. Get Device Token
+### 3. Request Notification Permission
 
-Retrieve the device push notification token (APNs on iOS, FCM on Android):
+Call this method from your Dart code (e.g., on app launch):
 
 ```dart
-final token = await PntaFlutter.getDeviceToken();
-if (token != null) {
-  // Use the token for identification or backend registration
+import 'package:pnta_flutter/pnta_flutter.dart';
+
+final granted = await PntaFlutter.requestNotificationPermission();
+if (granted) {
+  // Permission granted, proceed with notifications
+} else {
+  // Permission denied
 }
 ```
 
-### 5. Identify Device & Manage Metadata
+### 4. Identify Device & Manage Metadata
 
 Send device and app metadata to the backend for identification and future updates. The device token is handled internally by the plugin and is also returned by the identify call:
 
@@ -148,7 +137,7 @@ await PntaFlutter.updateMetadata(projectId, metadata: metadata);
 -   Store all relevant metadata in a single place in your app state (e.g., a provider, bloc, or singleton).
 -   Pass the same metadata map to both `identify` and `updateMetadata` to keep your PNTA in sync.
 
-### 6. Foreground Notification Handling
+### 5. Foreground Notification Handling
 
 This plugin allows you to intercept and handle push notifications when your app is in the foreground, giving you full control over the user experience.
 
@@ -227,7 +216,7 @@ PntaFlutter.foregroundNotifications.listen((payload) {
 });
 ```
 
-### 7. link_to Push Notification Handling (Deep Links & External URLs)
+### 6. link_to Push Notification Handling (Deep Links & External URLs)
 
 This plugin supports push notifications with a `link_to` field in the payload, enabling deep linking and external URL handling.
 
@@ -337,7 +326,7 @@ class MainActivity: FlutterActivity() {
 }
 ```
 
-### 8. Link Handling Rules and Deep Linking
+### 7. Link Handling Rules and Deep Linking
 
 When handling `link_to` payloads, the plugin uses the following rule:
 
