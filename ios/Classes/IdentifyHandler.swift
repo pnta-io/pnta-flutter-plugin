@@ -41,34 +41,12 @@ class IdentifyHandler {
                 "identifiers": identifiers,
                 "metadata": metadata ?? [:]
             ]
-
-            guard let jsonData = try? JSONSerialization.data(withJSONObject: info, options: .prettyPrinted) else {
-                print("PNTA Error: Failed to serialize JSON data")
-                result(nil)
-                return
-            }
-
-            let url = URL(string: "https://app.pnta.io/api/v1/identification")!
-            var request = URLRequest(url: url)
-            request.httpMethod = "PUT"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = jsonData
-
-            let task = URLSession.shared.dataTask(with: request) { _, response, error in
-                if let error = error {
-                    print("PNTA Error: \(error.localizedDescription)")
-                    result(FlutterError(code: "NETWORK_ERROR", message: error.localizedDescription, details: nil))
-                    return
-                }
-                guard let httpResponse = response as? HTTPURLResponse,
-                      (200...299).contains(httpResponse.statusCode) else {
-                    print("PNTA Error: Server returned an error")
-                    result(FlutterError(code: "SERVER_ERROR", message: "Server returned an error", details: nil))
-                    return
-                }
-                result(token)
-            }
-            task.resume()
+            NetworkUtils.sendPutRequest(
+                urlString: "https://app.pnta.io/api/v1/identification",
+                payload: info,
+                result: result,
+                successReturn: token
+            )
         }
     }
 }
