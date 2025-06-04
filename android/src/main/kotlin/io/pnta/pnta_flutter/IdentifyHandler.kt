@@ -124,38 +124,4 @@ object IdentifyHandler {
             "app_build" to appBuild
         )
     }
-
-    private suspend fun sendToBackend(info: Map<String, Any>, result: Result) = withContext(Dispatchers.IO) {
-        try {
-            val url = URL("https://app.pnta.io/api/v1/identification")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.requestMethod = "PUT"
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.doOutput = true
-
-            val json = JSONObject(info).toString()
-
-            conn.outputStream.use { outputStream ->
-                OutputStreamWriter(outputStream).use { writer ->
-                    writer.write(json)
-                    writer.flush()
-                }
-            }
-
-            val responseCode = conn.responseCode
-            withContext(Dispatchers.Main) {
-                if (responseCode in 200..299) {
-                    result.success(info["identifier"])
-                } else {
-                    Log.e("PNTA", "Identify:Server returned error: $responseCode")
-                    result.success(null)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("PNTA", "Error sending to backend: ${e.localizedMessage}")
-            withContext(Dispatchers.Main) {
-                result.success(null)
-            }
-        }
-    }
 } 
