@@ -46,7 +46,10 @@ object IdentifyHandler {
         if (activity != null && projectId != null) {
             // Save projectId to SharedPreferences
             val prefs = activity.applicationContext.getSharedPreferences("pnta_prefs", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putString("project_id", projectId).apply()
+            prefs.edit()
+                .putString("project_id", projectId)
+                .putString("metadata", JSONObject(metadata ?: mapOf<String, Any>()).toString())
+                .apply()
         }
     }
 
