@@ -40,9 +40,14 @@ object IdentifyHandler {
                             "identifiers" to identifiers,
                             "metadata" to (metadata ?: mapOf<String, Any>())
                         )
-                        sendToBackend(info, result)
+                        NetworkUtils.sendPutRequest(
+                            urlString = "https://app.pnta.io/api/v1/identification",
+                            payload = info,
+                            result = result,
+                            successReturn = deviceToken
+                        )
                     } catch (e: Exception) {
-                        Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
+                        Log.e("IdentifyHandler", "Error in identify: ${e.localizedMessage}")
                         withContext(Dispatchers.Main) {
                             result.success(null)
                         }

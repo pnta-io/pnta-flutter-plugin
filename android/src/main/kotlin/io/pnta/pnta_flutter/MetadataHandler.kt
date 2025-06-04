@@ -33,9 +33,13 @@ object MetadataHandler {
                             "identifier" to deviceToken,
                             "metadata" to (metadata ?: mapOf<String, Any>())
                         )
-                        sendToBackend(info, result)
+                        NetworkUtils.sendPutRequest(
+                            urlString = "https://app.pnta.io/api/v1/metadata",
+                            payload = info,
+                            result = result
+                        )
                     } catch (e: Exception) {
-                        Log.e("PNTA", "Error in updateMetadata: ${e.localizedMessage}")
+                        Log.e("MetadataHandler", "Error in updateMetadata: ${e.localizedMessage}")
                         withContext(Dispatchers.Main) {
                             result.success(null)
                         }
