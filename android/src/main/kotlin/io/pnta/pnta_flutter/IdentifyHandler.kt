@@ -16,11 +16,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.content.Context
 
 object IdentifyHandler {
     fun identify(activity: Activity?, projectId: String?, deviceToken: String?, result: Result) {
-        if (activity == null || projectId == null || deviceToken == null) {
-            result.error("INVALID_ARGUMENTS", "Activity, projectId, or deviceToken is null", null)
+        if (projectId == null || deviceToken == null) {
+            result.error("INVALID_ARGUMENTS", "projectId or deviceToken is null", null)
             return
         }
 
@@ -32,7 +33,6 @@ object IdentifyHandler {
                     "identifier" to deviceToken,
                     "metadata" to metadata
                 )
-                
                 sendToBackend(info, result)
             } catch (e: Exception) {
                 Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
@@ -41,55 +41,72 @@ object IdentifyHandler {
                 }
             }
         }
+
+        if (activity != null && projectId != null) {
+            // Save projectId to SharedPreferences
+            val prefs = activity.applicationContext.getSharedPreferences("pnta_prefs", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putString("project_id", projectId).apply()
+        }
     }
 
-    private suspend fun collectMetadata(activity: Activity, deviceToken: String): Map<String, Any> = withContext(Dispatchers.IO) {
-        val packageManager = activity.packageManager
-        val packageName = activity.packageName
+    private suspend fun collectMetadata(activity: Activity?, deviceToken: String): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
-        
-        val appVersion: String = try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            pInfo.versionName ?: "Unavailable"
-        } catch (e: Exception) {
-            "Unavailable"
-        }
-
-        val appBuild: String = try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                pInfo.longVersionCode.toString()
-            } else {
-                @Suppress("DEPRECATION")
-                pInfo.versionCode.toString()
-            }
-        } catch (e: Exception) {
-            "Unavailable"
-        }
-
-        val currencyCode: String = try {
+        val name = Build.MODEL
+        val model = Build.MODEL
+        val localizedModel = Build.MODEL
+        val systemName = "android"
+        val systemVersion = Build.VERSION.RELEASE
+        val identifierForVendor = activity?.let {
+            Settings.Secure.getString(it.contentResolver, Settings.Secure.ANDROID_ID)
+        } ?: "Unavailable"
+        val regionCode = locale.country ?: "Unavailable"
+        val languageCode = locale.language ?: "Unavailable"
+        val currencyCode = try {
             java.util.Currency.getInstance(locale).currencyCode
         } catch (e: Exception) {
             "Unavailable"
         }
-
-        val identifierForVendor = Settings.Secure.getString(activity.contentResolver, Settings.Secure.ANDROID_ID) ?: "Unavailable"
+        val currentLocale = locale.toString()
+        val preferredLanguages = listOf(locale.language)
+        val currentTimeZone = TimeZone.getDefault().id
+        val bundleIdentifier = activity?.packageName ?: "Unavailable"
+        val appVersion = activity?.let {
+            try {
+                val pInfo = it.packageManager.getPackageInfo(it.packageName, 0)
+                pInfo.versionName ?: "Unavailable"
+            } catch (e: Exception) {
+                "Unavailable"
+            }
+        } ?: "Unavailable"
+        val appBuild = activity?.let {
+            try {
+                val pInfo = it.packageManager.getPackageInfo(it.packageName, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pInfo.longVersionCode.toString()
+                } else {
+                    @Suppress("DEPRECATION")
+                    pInfo.versionCode.toString()
+                }
+            } catch (e: Exception) {
+                "Unavailable"
+            }
+        } ?: "Unavailable"
 
         mapOf(
-            "name" to Build.MODEL,
-            "model" to Build.MODEL,
-            "localized_model" to Build.MODEL,
-            "system_name" to "android",
-            "system_version" to Build.VERSION.RELEASE,
+            "name" to name,
+            "model" to model,
+            "localized_model" to localizedModel,
+            "system_name" to systemName,
+            "system_version" to systemVersion,
             "identifier_for_vendor" to identifierForVendor,
             "device_token" to deviceToken,
-            "region_code" to (locale.country ?: "Unavailable"),
-            "language_code" to (locale.language ?: "Unavailable"),
+            "region_code" to regionCode,
+            "language_code" to languageCode,
             "currency_code" to currencyCode,
-            "current_locale" to locale.toString(),
-            "preferred_languages" to listOf(locale.language),
-            "current_time_zone" to TimeZone.getDefault().id,
-            "bundle_identifier" to packageName,
+            "current_locale" to currentLocale,
+            "preferred_languages" to preferredLanguages,
+            "current_time_zone" to currentTimeZone,
+            "bundle_identifier" to bundleIdentifier,
             "app_version" to appVersion,
             "app_build" to appBuild
         )

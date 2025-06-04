@@ -26,6 +26,24 @@ class PntaMessagingService : FirebaseMessagingService() {
         // else: let system handle background notifications
     }
 
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        // Retrieve projectId from SharedPreferences
+        val prefs = applicationContext.getSharedPreferences("pnta_prefs", android.content.Context.MODE_PRIVATE)
+        val projectId = prefs.getString("project_id", null)
+        IdentifyHandler.identify(null, projectId, token, object : io.flutter.plugin.common.MethodChannel.Result {
+            override fun success(result: Any?) {
+                // Token updated successfully
+            }
+            override fun error(code: String, message: String?, details: Any?) {
+                // Handle error
+            }
+            override fun notImplemented() {
+                // Handle not implemented
+            }
+        })
+    }
+
     private fun isAppInForeground(context: Context): Boolean {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val appProcesses = activityManager.runningAppProcesses ?: return false
