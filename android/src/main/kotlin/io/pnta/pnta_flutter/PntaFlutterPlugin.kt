@@ -66,6 +66,10 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     } else if (call.method == "updateMetadata") {
       val projectId = call.argument<String>("projectId")
       val metadata = call.argument<Map<String, Any>>("metadata")
+      if (projectId == null) {
+        result.error("INVALID_ARGUMENTS", "projectId is null", null)
+        return
+      }
       MetadataHandler.updateMetadata(projectId, metadata, result)
     } else if (call.method == "setForegroundPresentationOptions") {
       val showSystemUI = call.argument<Boolean>("showSystemUI") ?: false
