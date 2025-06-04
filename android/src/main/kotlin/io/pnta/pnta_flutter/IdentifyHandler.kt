@@ -27,11 +27,12 @@ object IdentifyHandler {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val metadata = collectMetadata(activity, deviceToken)
+                val identifiers = collectMetadata(activity, deviceToken)
                 val info = mapOf(
                     "project_id" to projectId,
                     "identifier" to deviceToken,
-                    "metadata" to metadata
+                    "identifiers" to identifiers,
+                    "metadata" to mapOf<String, Any>()
                 )
                 sendToBackend(info, result)
             } catch (e: Exception) {
@@ -99,7 +100,6 @@ object IdentifyHandler {
             "system_name" to systemName,
             "system_version" to systemVersion,
             "identifier_for_vendor" to identifierForVendor,
-            "device_token" to deviceToken,
             "region_code" to regionCode,
             "language_code" to languageCode,
             "currency_code" to currencyCode,

@@ -12,7 +12,7 @@ class IdentifyHandler {
         let locale = Locale.current
         let bundle = Bundle.main
 
-        let metadata: [String: Any] = [
+        let identifiers: [String: Any] = [
             "name": device.name,
             "model": device.model,
             "localized_model": device.localizedModel,
@@ -33,7 +33,8 @@ class IdentifyHandler {
         let info: [String: Any] = [
             "project_id": projectId,
             "identifier": deviceToken,
-            "metadata": metadata
+            "identifiers": identifiers,
+            "metadata": [:]
         ]
 
         guard let jsonData = try? JSONSerialization.data(withJSONObject: info, options: .prettyPrinted) else {
