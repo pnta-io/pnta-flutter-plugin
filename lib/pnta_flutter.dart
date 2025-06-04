@@ -48,7 +48,8 @@ class PntaFlutter {
     return Token.getDeviceToken();
   }
 
-  static Future<String?> identify(String projectId, {Map<String, dynamic>? metadata}) {
+  static Future<String?> identify(String projectId,
+      {Map<String, dynamic>? metadata}) {
     return Identify.identify(projectId, metadata: metadata);
   }
 
@@ -60,7 +61,8 @@ class PntaFlutter {
 
   static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
 
-  static Future<void> updateMetadata(String projectId, {Map<String, dynamic>? metadata}) {
+  static Future<void> updateMetadata(String projectId,
+      {Map<String, dynamic>? metadata}) {
     return Metadata.updateMetadata(projectId, metadata: metadata);
   }
 }

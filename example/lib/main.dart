@@ -322,7 +322,9 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                 onPressed: _identifyStatus == 'Identify sent successfully'
                     ? () async {
-                        setState(() { _identifyStatus = 'Updating metadata...'; });
+                        setState(() {
+                          _identifyStatus = 'Updating metadata...';
+                        });
                         try {
                           await PntaFlutter.updateMetadata(
                             _projectId,
@@ -332,9 +334,13 @@ class _MyAppState extends State<MyApp> {
                               'source': 'button_update',
                             },
                           );
-                          setState(() { _identifyStatus = 'Metadata updated successfully'; });
+                          setState(() {
+                            _identifyStatus = 'Metadata updated successfully';
+                          });
                         } catch (e) {
-                          setState(() { _identifyStatus = 'Metadata update failed: $e'; });
+                          setState(() {
+                            _identifyStatus = 'Metadata update failed: $e';
+                          });
                         }
                       }
                     : null,
