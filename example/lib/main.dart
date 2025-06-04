@@ -45,7 +45,7 @@ void main() async {
   await PntaFlutter.initialize(); // autoHandleLinks: false is default, you handle navigation for all taps
   await PntaFlutter.requestNotificationPermission();
   final token = await PntaFlutter.getDeviceToken();
-  await PntaFlutter.identify('your_project_id', token); // REQUIRED
+  await PntaFlutter.identify('your_project_id'); // REQUIRED
 
   // Handle navigation or logic here for ALL app states (foreground, background, or terminated)
   PntaFlutter.onNotificationTap.listen((payload) {
@@ -61,7 +61,7 @@ void main() async {
   await PntaFlutter.initialize(autoHandleLinks: true); // plugin handles navigation for background/terminated taps
   await PntaFlutter.requestNotificationPermission();
   final token = await PntaFlutter.getDeviceToken();
-  await PntaFlutter.identify('your_project_id', token); // REQUIRED
+  await PntaFlutter.identify('your_project_id'); // REQUIRED
 
   // (Optional) Handle navigation or logic for foreground notification taps only
   PntaFlutter.onNotificationTap.listen((payload) {
@@ -173,42 +173,22 @@ class _MyAppState extends State<MyApp> {
       _notificationStatus = notificationGranted ? 'Granted' : 'Denied';
     });
     if (notificationGranted) {
-      _getDeviceToken();
-    }
-  }
-
-  /// Obtains the device token and registers it with your project (required for push notifications).
-  Future<void> _getDeviceToken() async {
-    setState(() {
-      _deviceToken = null;
-      _tokenError = null;
-      _identifyStatus = null;
-    });
-    try {
-      final token = await PntaFlutter.getDeviceToken();
-      setState(() {
-        _deviceToken = token;
-      });
-      if (token != null) {
-        try {
-          await PntaFlutter.identify(_projectId, token, metadata: {
-            'demo_key': 'demo_value',
-            'timestamp': DateTime.now().toIso8601String(),
-            'source': 'identify',
-          });
-          setState(() {
-            _identifyStatus = 'Identify sent successfully';
-          });
-        } catch (e) {
-          setState(() {
-            _identifyStatus = 'Identify failed: $e';
-          });
-        }
+      // Call identify directly after permission is granted, with example metadata
+      try {
+        final token = await PntaFlutter.identify(_projectId, metadata: {
+          'demo_key': 'demo_value',
+          'timestamp': DateTime.now().toIso8601String(),
+          'source': 'identify',
+        });
+        setState(() {
+          _identifyStatus = 'Identify sent successfully';
+          _deviceToken = token;
+        });
+      } catch (e) {
+        setState(() {
+          _identifyStatus = 'Identify failed: $e';
+        });
       }
-    } catch (e) {
-      setState(() {
-        _tokenError = e.toString();
-      });
     }
   }
 
@@ -265,10 +245,11 @@ class _MyAppState extends State<MyApp> {
               if (_deviceToken != null) ...[
                 const Text('Device Token:'),
                 SelectableText(_deviceToken!),
-                if (_identifyStatus != null) ...[
-                  const SizedBox(height: 16),
-                  Text(_identifyStatus!),
-                ],
+              ],
+              // --- REQUIRED: Identify status ---
+              if (_identifyStatus != null) ...[
+                Text(_identifyStatus!),
+                const SizedBox(height: 16),
               ],
               if (_tokenError != null) ...[
                 const Text('Error fetching token:'),
@@ -338,28 +319,27 @@ class _MyAppState extends State<MyApp> {
                 const SizedBox(height: 16),
               ],
               // --- DEMO: Update Metadata ---
-              if (_deviceToken != null) ...[
-                ElevatedButton(
-                  onPressed: () async {
-                    setState(() { _identifyStatus = 'Updating metadata...'; });
-                    try {
-                      await PntaFlutter.updateMetadata(
-                        _projectId,
-                        metadata: {
-                          'demo_key': 'demo_value',
-                          'timestamp': DateTime.now().toIso8601String(),
-                          'source': 'button_update',
-                        },
-                      );
-                      setState(() { _identifyStatus = 'Metadata updated successfully'; });
-                    } catch (e) {
-                      setState(() { _identifyStatus = 'Metadata update failed: $e'; });
-                    }
-                  },
-                  child: const Text('Update Metadata (Demo)'),
-                ),
-                const SizedBox(height: 16),
-              ],
+              ElevatedButton(
+                onPressed: _identifyStatus == 'Identify sent successfully'
+                    ? () async {
+                        setState(() { _identifyStatus = 'Updating metadata...'; });
+                        try {
+                          await PntaFlutter.updateMetadata(
+                            _projectId,
+                            metadata: {
+                              'demo_key': 'demo_value',
+                              'timestamp': DateTime.now().toIso8601String(),
+                              'source': 'button_update',
+                            },
+                          );
+                          setState(() { _identifyStatus = 'Metadata updated successfully'; });
+                        } catch (e) {
+                          setState(() { _identifyStatus = 'Metadata update failed: $e'; });
+                        }
+                      }
+                    : null,
+                child: const Text('Update Metadata (Demo)'),
+              ),
             ],
           ),
         ),

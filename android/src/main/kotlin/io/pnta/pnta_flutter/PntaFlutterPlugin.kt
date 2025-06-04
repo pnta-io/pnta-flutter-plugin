@@ -57,9 +57,12 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       TokenHandler.getDeviceToken(activity, result)
     } else if (call.method == "identify") {
       val projectId = call.argument<String>("projectId")
-      val deviceToken = call.argument<String>("deviceToken")
       val metadata = call.argument<Map<String, Any>>("metadata")
-      IdentifyHandler.identify(activity, projectId, deviceToken, metadata, result)
+      if (projectId == null) {
+        result.error("INVALID_ARGUMENTS", "projectId is null", null)
+        return
+      }
+      IdentifyHandler.identify(activity, projectId, metadata, result)
     } else if (call.method == "updateMetadata") {
       val projectId = call.argument<String>("projectId")
       val metadata = call.argument<Map<String, Any>>("metadata")

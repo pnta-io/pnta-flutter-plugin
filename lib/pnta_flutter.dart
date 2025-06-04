@@ -48,8 +48,8 @@ class PntaFlutter {
     return Token.getDeviceToken();
   }
 
-  static Future<void> identify(String projectId, String deviceToken, {Map<String, dynamic>? metadata}) {
-    return Identify.identify(projectId, deviceToken, metadata: metadata);
+  static Future<String?> identify(String projectId, {Map<String, dynamic>? metadata}) {
+    return Identify.identify(projectId, metadata: metadata);
   }
 
   /// Configures whether the native system UI should be shown for foreground notifications.

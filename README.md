@@ -117,7 +117,7 @@ if (token != null) {
 
 ### 5. Identify Device & Manage Metadata
 
-Send device and app metadata to the backend for identification and future updates:
+Send device and app metadata to the backend for identification and future updates. The device token is handled internally by the plugin and is also returned by the identify call:
 
 ```dart
 // Best practice: keep your metadata in one place in your app state
@@ -127,15 +127,20 @@ final metadata = {
   // ...any other fields
 };
 
-// On first registration/identification
-await PntaFlutter.identify(projectId, deviceToken, metadata: metadata);
+// On first registration/identification (if you don't need the token):
+await PntaFlutter.identify(projectId, metadata: metadata);
+
+// Or, if you want the token:
+final deviceToken = await PntaFlutter.identify(projectId, metadata: metadata);
+if (deviceToken != null) {
+  // You can use the deviceToken for your own backend or logging if needed
+}
 
 // Later, if you want to update metadata (e.g., after user profile changes)
 await PntaFlutter.updateMetadata(projectId, metadata: metadata);
 ```
 
 -   `projectId`: Your PNTA project ID
--   `deviceToken`: The push notification token (from `getDeviceToken()`) (only needed for identify)
 -   `metadata`: A map of custom metadata to associate with the device (used in both identify and updateMetadata)
 
 **Best Practice:**

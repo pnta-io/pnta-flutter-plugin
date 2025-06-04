@@ -3,67 +3,73 @@ import Flutter
 import UIKit
 
 class IdentifyHandler {
-    static func identify(projectId: String, deviceToken: String, metadata: [String: Any]? = nil, result: @escaping FlutterResult) {
-        guard let deviceTokenData = Data(hexString: deviceToken) else {
-            result(FlutterError(code: "INVALID_TOKEN", message: "Device token is not valid hex", details: nil))
-            return
-        }
-        let device = UIDevice.current
-        let locale = Locale.current
-        let bundle = Bundle.main
+    static func identify(projectId: String, metadata: [String: Any]? = nil, result: @escaping FlutterResult) {
+        TokenHandler.getDeviceToken { deviceToken in
+            guard let token = deviceToken as? String else {
+                result(FlutterError(code: "NO_TOKEN", message: "Device token not available", details: nil))
+                return
+            }
+            guard let deviceTokenData = Data(hexString: token) else {
+                result(FlutterError(code: "INVALID_TOKEN", message: "Device token is not valid hex", details: nil))
+                return
+            }
+            let device = UIDevice.current
+            let locale = Locale.current
+            let bundle = Bundle.main
 
-        let identifiers: [String: Any] = [
-            "name": device.name,
-            "model": device.model,
-            "localized_model": device.localizedModel,
-            "system_name": "ios",
-            "system_version": device.systemVersion,
-            "identifier_for_vendor": device.identifierForVendor?.uuidString ?? "Unavailable",
-            "region_code": locale.regionCode ?? "Unavailable",
-            "language_code": locale.languageCode ?? "Unavailable",
-            "currency_code": locale.currencyCode ?? "Unavailable",
-            "current_locale": locale.identifier,
-            "preferred_languages": Locale.preferredLanguages,
-            "current_time_zone": TimeZone.current.identifier,
-            "bundle_identifier": bundle.bundleIdentifier ?? "Unavailable",
-            "app_version": bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unavailable",
-            "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable"
-        ]
+            let identifiers: [String: Any] = [
+                "name": device.name,
+                "model": device.model,
+                "localized_model": device.localizedModel,
+                "system_name": "ios",
+                "system_version": device.systemVersion,
+                "identifier_for_vendor": device.identifierForVendor?.uuidString ?? "Unavailable",
+                "region_code": locale.regionCode ?? "Unavailable",
+                "language_code": locale.languageCode ?? "Unavailable",
+                "currency_code": locale.currencyCode ?? "Unavailable",
+                "current_locale": locale.identifier,
+                "preferred_languages": Locale.preferredLanguages,
+                "current_time_zone": TimeZone.current.identifier,
+                "bundle_identifier": bundle.bundleIdentifier ?? "Unavailable",
+                "app_version": bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unavailable",
+                "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable"
+            ]
 
-        let info: [String: Any] = [
-            "project_id": projectId,
-            "identifier": deviceToken,
-            "identifiers": identifiers,
-            "metadata": metadata ?? [:]
-        ]
+            let info: [String: Any] = [
+                "project_id": projectId,
+                "identifier": token,
+                "identifiers": identifiers,
+                "metadata": metadata ?? [:]
+            ]
 
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: info, options: .prettyPrinted) else {
-            print("PNTA Error: Failed to serialize JSON data")
-            result(nil)
-            return
-        }
-
-        let url = URL(string: "https://app.pnta.io/api/v1/identification")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = jsonData
-
-        let task = URLSession.shared.dataTask(with: request) { _, response, error in
-            if let error = error {
-                print("PNTA Error: \(error.localizedDescription)")
+            guard let jsonData = try? JSONSerialization.data(withJSONObject: info, options: .prettyPrinted) else {
+                print("PNTA Error: Failed to serialize JSON data")
                 result(nil)
                 return
             }
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode) else {
-                print("PNTA Error: Server returned an error")
-                result(nil)
-                return
+
+            let url = URL(string: "https://app.pnta.io/api/v1/identification")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "PUT"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = jsonData
+
+            let task = URLSession.shared.dataTask(with: request) { _, response, error in
+                if let error = error {
+                    print("PNTA Error: \(error.localizedDescription)")
+                    result(nil)
+                    return
+                }
+                guard let httpResponse = response as? HTTPURLResponse,
+                      (200...299).contains(httpResponse.statusCode) else {
+                    print("PNTA Error: Server returned an error")
+                    result(nil)
+                    return
+                }
+                result(token)
             }
-            result(nil)
+            task.resume()
         }
-        task.resume()
     }
 }
 

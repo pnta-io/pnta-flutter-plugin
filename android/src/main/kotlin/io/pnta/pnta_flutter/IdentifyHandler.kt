@@ -19,29 +19,43 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 
 object IdentifyHandler {
-    fun identify(activity: Activity?, projectId: String?, deviceToken: String?, metadata: Map<String, Any>?, result: Result) {
-        if (projectId == null || deviceToken == null) {
-            result.error("INVALID_ARGUMENTS", "projectId or deviceToken is null", null)
+    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, result: Result) {
+        if (projectId == null) {
+            result.error("INVALID_ARGUMENTS", "projectId is null", null)
             return
         }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val identifiers = collectIdentifiers(activity)
-                val info = mapOf(
-                    "project_id" to projectId,
-                    "identifier" to deviceToken,
-                    "identifiers" to identifiers,
-                    "metadata" to (metadata ?: mapOf<String, Any>())
-                )
-                sendToBackend(info, result)
-            } catch (e: Exception) {
-                Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
-                withContext(Dispatchers.Main) {
-                    result.success(null)
+        TokenHandler.getDeviceToken(activity, object : Result {
+            override fun success(token: Any?) {
+                val deviceToken = token as? String
+                if (deviceToken == null) {
+                    result.error("NO_TOKEN", "Device token not available", null)
+                    return
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val identifiers = collectIdentifiers(activity)
+                        val info = mapOf(
+                            "project_id" to projectId,
+                            "identifier" to deviceToken,
+                            "identifiers" to identifiers,
+                            "metadata" to (metadata ?: mapOf<String, Any>())
+                        )
+                        sendToBackend(info, result)
+                    } catch (e: Exception) {
+                        Log.e("PNTA", "Error in identify: ${e.localizedMessage}")
+                        withContext(Dispatchers.Main) {
+                            result.success(null)
+                        }
+                    }
                 }
             }
-        }
+            override fun error(code: String, message: String?, details: Any?) {
+                result.error(code, message, details)
+            }
+            override fun notImplemented() {
+                result.notImplemented()
+            }
+        })
     }
 
     private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
@@ -126,9 +140,9 @@ object IdentifyHandler {
             val responseCode = conn.responseCode
             withContext(Dispatchers.Main) {
                 if (responseCode in 200..299) {
-                    result.success(null)
+                    result.success(info["identifier"])
                 } else {
-                    Log.e("PNTA", "Server returned error: $responseCode")
+                    Log.e("PNTA", "Identify:Server returned error: $responseCode")
                     result.success(null)
                 }
             }
