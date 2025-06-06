@@ -22,9 +22,13 @@ class LinkHandler {
       if (link.contains('://')) {
         final uri = Uri.parse(link);
         if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-          debugPrint('PNTA: Successfully launched URL: $link');
-          return true;
+          final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          if (launched) {
+            debugPrint('PNTA: Successfully launched URL: $link');
+          } else {
+            debugPrint('PNTA: Failed to launch URL: $link');
+          }
+          return launched;
         } else {
           debugPrint('PNTA: Cannot launch URL - no app available: $link');
           return false;

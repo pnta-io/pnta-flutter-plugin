@@ -52,7 +52,9 @@ class NetworkUtils {
                 } else {
                     let errorMsg = "PNTA: Network error after \(maxRetries) attempts - \(error.localizedDescription)"
                     print(errorMsg)
-                    result(FlutterError(code: "NETWORK_ERROR", message: error.localizedDescription, details: nil))
+                    DispatchQueue.main.async {
+                        result(FlutterError(code: "NETWORK_ERROR", message: error.localizedDescription, details: nil))
+                    }
                     return
                 }
             }
@@ -60,12 +62,16 @@ class NetworkUtils {
             guard let httpResponse = response as? HTTPURLResponse else {
                 let errorMsg = "PNTA: No HTTP response received"
                 print(errorMsg)
-                result(FlutterError(code: "NO_HTTP_RESPONSE", message: "No HTTP response received", details: nil))
+                DispatchQueue.main.async {
+                    result(FlutterError(code: "NO_HTTP_RESPONSE", message: "No HTTP response received", details: nil))
+                }
                 return
             }
             
             if (200...299).contains(httpResponse.statusCode) {
-                result(successReturn)
+                DispatchQueue.main.async {
+                    result(successReturn)
+                }
                 return
             }
             
@@ -84,11 +90,13 @@ class NetworkUtils {
             } else {
                 let errorMsg = "PNTA: Server returned error: \(httpResponse.statusCode). Body: \(serverMessage ?? "<none>")"
                 print(errorMsg)
-                result(FlutterError(
-                    code: "HTTP_\(httpResponse.statusCode)",
-                    message: "Server returned error status code \(httpResponse.statusCode)",
-                    details: serverMessage
-                ))
+                DispatchQueue.main.async {
+                    result(FlutterError(
+                        code: "HTTP_\(httpResponse.statusCode)",
+                        message: "Server returned error status code \(httpResponse.statusCode)",
+                        details: serverMessage
+                    ))
+                }
             }
         }
         task.resume()
