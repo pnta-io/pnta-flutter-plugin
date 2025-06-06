@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'pnta_flutter_platform_interface.dart';
+import 'src/version.dart';
 
 /// An implementation of [PntaFlutterPlatform] that uses method channels.
 class MethodChannelPntaFlutter extends PntaFlutterPlatform {
@@ -35,6 +36,7 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
       {Map<String, dynamic>? metadata}) async {
     final token = await methodChannel.invokeMethod<String>('identify', {
       'projectId': projectId,
+      'pntaSdkVersion': kPntaSdkVersion,
       if (metadata != null) 'metadata': metadata,
     });
     return token;

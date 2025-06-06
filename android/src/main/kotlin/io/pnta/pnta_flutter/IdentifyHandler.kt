@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 
 object IdentifyHandler {
-    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, result: Result) {
+    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, pntaSdkVersion: String, result: Result) {
         if (projectId == null) {
             result.error("INVALID_ARGUMENTS", "projectId is null", null)
             return
@@ -102,13 +102,6 @@ object IdentifyHandler {
                 "Unavailable"
             }
         } ?: "Unavailable"
-        val pntaSdkVersion = try {
-            val pntaPluginPackageName = "io.pnta.pnta_flutter"
-            val pluginPackageInfo = activity?.packageManager?.getPackageInfo(pntaPluginPackageName, 0)
-            pluginPackageInfo?.versionName ?: "Unknown"
-        } catch (e: Exception) {
-            "Unknown"
-        }
 
         mapOf(
             "name" to name,
