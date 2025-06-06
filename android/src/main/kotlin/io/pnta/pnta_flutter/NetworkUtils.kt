@@ -4,10 +4,12 @@ import android.util.Log
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.math.pow
 
 object NetworkUtils {
     suspend fun sendPutRequest(
@@ -24,10 +26,10 @@ object NetworkUtils {
         
         repeat(maxRetries) { attempt ->
             try {
-                val delayMs = if (attempt > 0) (1000 * kotlin.math.pow(2.0, attempt.toDouble())).toLong() else 0
+                val delayMs = if (attempt > 0) (1000 * pow(2.0, attempt.toDouble())).toLong() else 0
                 if (delayMs > 0) {
                     Log.d("NetworkUtils", "PNTA: Retrying request in ${delayMs}ms (attempt ${attempt + 1}/$maxRetries)")
-                    kotlinx.coroutines.delay(delayMs)
+                    delay(delayMs)
                 }
                 
                 val url = URL(urlString)
