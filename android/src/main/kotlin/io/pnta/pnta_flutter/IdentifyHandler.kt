@@ -33,7 +33,7 @@ object IdentifyHandler {
                 }
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val identifiers = collectIdentifiers(activity)
+                        val identifiers = collectIdentifiers(activity, pntaSdkVersion)
                         val info = mapOf(
                             "project_id" to projectId,
                             "identifier" to deviceToken,
@@ -63,7 +63,7 @@ object IdentifyHandler {
         })
     }
 
-    private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
+    private suspend fun collectIdentifiers(activity: Activity?, pntaSdkVersion: String): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
         val name = Build.MANUFACTURER
         val model = Build.MODEL
