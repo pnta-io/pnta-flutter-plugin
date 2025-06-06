@@ -11,21 +11,44 @@ class LinkHandler {
   }
 
   /// Handles a link: opens external URLs or navigates to in-app routes.
-  static Future<void> handleLink(String? link) async {
-    if (link == null || link.isEmpty) return;
+  /// Returns true if successful, false otherwise.
+  static Future<bool> handleLink(String? link) async {
+    if (link == null || link.isEmpty) {
+      debugPrint('PNTA: Cannot handle empty or null link');
+      return false;
+    }
+
     try {
       if (link.contains('://')) {
         final uri = Uri.parse(link);
         if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          final launched =
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+          if (launched) {
+            debugPrint('PNTA: Successfully launched URL: $link');
+          } else {
+            debugPrint('PNTA: Failed to launch URL: $link');
+          }
+          return launched;
         } else {
-          debugPrint('Could not launch URL: $link');
+          debugPrint('PNTA: Cannot launch URL - no app available: $link');
+          return false;
         }
       } else {
-        PntaFlutter.navigatorKey.currentState?.pushNamed(link);
+        final navigator = PntaFlutter.navigatorKey.currentState;
+        if (navigator != null) {
+          navigator.pushNamed(link);
+          debugPrint('PNTA: Successfully navigated to route: $link');
+          return true;
+        } else {
+          debugPrint(
+              'PNTA: Cannot navigate - no navigator available for route: $link');
+          return false;
+        }
       }
     } catch (e, st) {
-      debugPrint('Error handling link_to: $link\n$e\n$st');
+      debugPrint('PNTA: Error handling link "$link": $e\n$st');
+      return false;
     }
   }
 

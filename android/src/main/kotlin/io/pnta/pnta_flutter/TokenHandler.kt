@@ -28,7 +28,7 @@ object TokenHandler {
                 if (task.isSuccessful) {
                     result.success(task.result)
                 } else {
-                    result.error("FCM_TOKEN_ERROR", task.exception?.localizedMessage, null)
+                    result.error("FCM_REGISTRATION_FAILED", task.exception?.localizedMessage, null)
                 }
             }
     }
