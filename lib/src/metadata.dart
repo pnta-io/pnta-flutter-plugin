@@ -7,7 +7,7 @@ class Metadata {
       {Map<String, dynamic>? metadata}) {
     // Trim projectId once and use consistently
     final trimmedProjectId = projectId.trim();
-    
+
     // Validate projectId
     if (trimmedProjectId.isEmpty) {
       debugPrint('PNTA: Invalid projectId - cannot be empty');
