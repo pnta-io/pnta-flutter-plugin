@@ -60,11 +60,11 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
             if (event is Map) {
               return Map<String, dynamic>.from(event);
             } else {
-              debugPrint('Invalid foreground notification event type: ${event.runtimeType}');
+              debugPrint('PNTA: Invalid foreground notification event type: ${event.runtimeType}');
               return <String, dynamic>{};
             }
           } catch (e) {
-            debugPrint('Error parsing foreground notification: $e');
+            debugPrint('PNTA: Error parsing foreground notification: $e');
             return <String, dynamic>{};
           }
         });
@@ -88,11 +88,11 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
             if (event is Map) {
               return Map<String, dynamic>.from(event);
             } else {
-              debugPrint('Invalid notification tap event type: ${event.runtimeType}');
+              debugPrint('PNTA: Invalid notification tap event type: ${event.runtimeType}');
               return <String, dynamic>{};
             }
           } catch (e) {
-            debugPrint('Error parsing notification tap: $e');
+            debugPrint('PNTA: Error parsing notification tap: $e');
             return <String, dynamic>{};
           }
         });
