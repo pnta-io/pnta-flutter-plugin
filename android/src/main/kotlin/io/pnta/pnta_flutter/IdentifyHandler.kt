@@ -70,9 +70,6 @@ object IdentifyHandler {
         val localizedModel = Build.MODEL
         val systemName = "android"
         val systemVersion = Build.VERSION.RELEASE
-        val identifierForVendor = activity?.let {
-            Settings.Secure.getString(it.contentResolver, Settings.Secure.ANDROID_ID)
-        } ?: "Unavailable"
         val regionCode = locale.country ?: "Unavailable"
         val languageCode = locale.language ?: "Unavailable"
         val currencyCode = try {
@@ -112,7 +109,6 @@ object IdentifyHandler {
             "localized_model" to localizedModel,
             "system_name" to systemName,
             "system_version" to systemVersion,
-            "identifier_for_vendor" to identifierForVendor,
             "region_code" to regionCode,
             "language_code" to languageCode,
             "currency_code" to currencyCode,

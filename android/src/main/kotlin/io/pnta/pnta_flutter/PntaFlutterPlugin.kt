@@ -94,12 +94,11 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     binding.addRequestPermissionsResultListener { requestCode, permissions, grantResults ->
       onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-    // Also create default notification channel when activity is attached
-    createDefaultNotificationChannel(binding.activity)
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
     activity = null
+    PermissionHandler.cleanup()
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -108,5 +107,6 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onDetachedFromActivity() {
     activity = null
+    PermissionHandler.cleanup()
   }
 }

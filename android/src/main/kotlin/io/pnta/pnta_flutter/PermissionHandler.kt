@@ -37,4 +37,8 @@ object PermissionHandler {
         }
         return false
     }
+
+    fun cleanup() {
+        permissionResult = null
+    }
 } 
