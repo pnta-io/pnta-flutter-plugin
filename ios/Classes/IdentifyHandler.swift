@@ -9,10 +9,6 @@ class IdentifyHandler {
                 result(FlutterError(code: "NO_TOKEN", message: "Device token not available", details: nil))
                 return
             }
-            guard let deviceTokenData = Data(hexString: token) else {
-                result(FlutterError(code: "INVALID_TOKEN", message: "Device token is not valid hex", details: nil))
-                return
-            }
             let device = UIDevice.current
             let locale = Locale.current
             let bundle = Bundle.main
@@ -48,25 +44,5 @@ class IdentifyHandler {
                 successReturn: token
             )
         }
-    }
-}
-
-extension Data {
-    init?(hexString: String) {
-        let len = hexString.count / 2
-        var data = Data(capacity: len)
-        var index = hexString.startIndex
-        for _ in 0..<len {
-            let nextIndex = hexString.index(index, offsetBy: 2)
-            if nextIndex > hexString.endIndex { return nil }
-            let bytes = hexString[index..<nextIndex]
-            if var num = UInt8(bytes, radix: 16) {
-                data.append(&num, count: 1)
-            } else {
-                return nil
-            }
-            index = nextIndex
-        }
-        self = data
     }
 } 
