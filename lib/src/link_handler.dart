@@ -17,12 +17,13 @@ class LinkHandler {
       debugPrint('PNTA: Cannot handle empty or null link');
       return false;
     }
-    
+
     try {
       if (link.contains('://')) {
         final uri = Uri.parse(link);
         if (await canLaunchUrl(uri)) {
-          final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          final launched =
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
           if (launched) {
             debugPrint('PNTA: Successfully launched URL: $link');
           } else {
@@ -40,7 +41,8 @@ class LinkHandler {
           debugPrint('PNTA: Successfully navigated to route: $link');
           return true;
         } else {
-          debugPrint('PNTA: Cannot navigate - no navigator available for route: $link');
+          debugPrint(
+              'PNTA: Cannot navigate - no navigator available for route: $link');
           return false;
         }
       }

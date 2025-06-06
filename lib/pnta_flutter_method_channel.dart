@@ -56,18 +56,19 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
     _foregroundNotificationsStream ??= _foregroundNotificationsEventChannel
         .receiveBroadcastStream()
         .map<Map<String, dynamic>>((event) {
-          try {
-            if (event is Map) {
-              return Map<String, dynamic>.from(event);
-            } else {
-              debugPrint('PNTA: Invalid foreground notification event type: ${event.runtimeType}');
-              return <String, dynamic>{};
-            }
-          } catch (e) {
-            debugPrint('PNTA: Error parsing foreground notification: $e');
-            return <String, dynamic>{};
-          }
-        });
+      try {
+        if (event is Map) {
+          return Map<String, dynamic>.from(event);
+        } else {
+          debugPrint(
+              'PNTA: Invalid foreground notification event type: ${event.runtimeType}');
+          return <String, dynamic>{};
+        }
+      } catch (e) {
+        debugPrint('PNTA: Error parsing foreground notification: $e');
+        return <String, dynamic>{};
+      }
+    });
     return _foregroundNotificationsStream!;
   }
 
@@ -84,18 +85,19 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
     _notificationTapStream ??= _notificationTapEventChannel
         .receiveBroadcastStream()
         .map<Map<String, dynamic>>((event) {
-          try {
-            if (event is Map) {
-              return Map<String, dynamic>.from(event);
-            } else {
-              debugPrint('PNTA: Invalid notification tap event type: ${event.runtimeType}');
-              return <String, dynamic>{};
-            }
-          } catch (e) {
-            debugPrint('PNTA: Error parsing notification tap: $e');
-            return <String, dynamic>{};
-          }
-        });
+      try {
+        if (event is Map) {
+          return Map<String, dynamic>.from(event);
+        } else {
+          debugPrint(
+              'PNTA: Invalid notification tap event type: ${event.runtimeType}');
+          return <String, dynamic>{};
+        }
+      } catch (e) {
+        debugPrint('PNTA: Error parsing notification tap: $e');
+        return <String, dynamic>{};
+      }
+    });
     return _notificationTapStream!;
   }
 }
