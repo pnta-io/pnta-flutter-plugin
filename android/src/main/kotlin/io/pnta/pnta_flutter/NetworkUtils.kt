@@ -3,8 +3,8 @@ package io.pnta.pnta_flutter
 import android.util.Log
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -26,7 +26,7 @@ object NetworkUtils {
         
         repeat(maxRetries) { attempt ->
             try {
-                val delayMs = if (attempt > 0) (1000 * pow(2.0, attempt.toDouble())).toLong() else 0
+                val delayMs = if (attempt > 0) (1000 * 2.0.pow(attempt.toDouble())).toLong() else 0
                 if (delayMs > 0) {
                     Log.d("NetworkUtils", "PNTA: Retrying request in ${delayMs}ms (attempt ${attempt + 1}/$maxRetries)")
                     delay(delayMs)
