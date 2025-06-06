@@ -28,7 +28,8 @@ class IdentifyHandler {
                 "current_time_zone": TimeZone.current.identifier,
                 "bundle_identifier": bundle.bundleIdentifier ?? "Unavailable",
                 "app_version": bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unavailable",
-                "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable"
+                "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable",
+                "pnta_sdk_version": Self.getPntaSdkVersion()
             ]
 
             let info: [String: Any] = [
@@ -44,5 +45,14 @@ class IdentifyHandler {
                 successReturn: token
             )
         }
+    }
+    
+    private static func getPntaSdkVersion() -> String {
+        let pntaPluginBundleId = "io.pnta.pnta_flutter"
+        if let pntaPluginBundle = Bundle(identifier: pntaPluginBundleId),
+           let pntaSdkVersion = pntaPluginBundle.infoDictionary?["CFBundleShortVersionString"] as? String {
+            return pntaSdkVersion
+        }
+        return "Unknown"
     }
 } 

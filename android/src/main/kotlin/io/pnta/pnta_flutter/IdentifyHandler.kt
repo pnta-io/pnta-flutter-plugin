@@ -102,6 +102,13 @@ object IdentifyHandler {
                 "Unavailable"
             }
         } ?: "Unavailable"
+        val pntaSdkVersion = try {
+            val pntaPluginPackageName = "io.pnta.pnta_flutter"
+            val pluginPackageInfo = activity?.packageManager?.getPackageInfo(pntaPluginPackageName, 0)
+            pluginPackageInfo?.versionName ?: "Unknown"
+        } catch (e: Exception) {
+            "Unknown"
+        }
 
         mapOf(
             "name" to name,
@@ -117,7 +124,8 @@ object IdentifyHandler {
             "current_time_zone" to currentTimeZone,
             "bundle_identifier" to bundleIdentifier,
             "app_version" to appVersion,
-            "app_build" to appBuild
+            "app_build" to appBuild,
+            "pnta_sdk_version" to pntaSdkVersion
         )
     }
 } 
