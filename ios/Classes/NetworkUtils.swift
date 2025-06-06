@@ -38,7 +38,7 @@ class NetworkUtils {
         request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
-        request.timeoutInterval = 15 // seconds
+        request.timeoutInterval = 10 // seconds
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {

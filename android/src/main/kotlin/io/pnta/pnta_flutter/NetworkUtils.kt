@@ -17,7 +17,7 @@ object NetworkUtils {
         payload: Map<String, Any>,
         result: Result,
         successReturn: Any? = null,
-        timeoutMillis: Int = 15000, // 15 seconds
+        timeoutMillis: Int = 10000, // 10 seconds
         maxRetries: Int = 3
     ) = withContext(Dispatchers.IO) {
         var lastException: Exception? = null
