@@ -36,9 +36,15 @@ class Metadata {
         throw ArgumentError('Metadata key "${entry.key}" cannot exceed 100 characters');
       }
       
-      if (entry.value is String && (entry.value as String).length > 1000) {
-        debugPrint('PNTA: Invalid metadata value - too long for key: ${entry.key}');
-        throw ArgumentError('Metadata value for "${entry.key}" cannot exceed 1000 characters');
+      // Validate based on value type
+      if (entry.value is String) {
+        if ((entry.value as String).length > 1000) {
+          debugPrint('PNTA: Invalid metadata value - too long for key: ${entry.key}');
+          throw ArgumentError('Metadata value for "${entry.key}" cannot exceed 1000 characters');
+        }
+      } else if (entry.value is! num && entry.value is! bool && entry.value != null) {
+        debugPrint('PNTA: Invalid metadata value type for key: ${entry.key}');
+        throw ArgumentError('Metadata value for "${entry.key}" must be String, num, bool, or null');
       }
     }
   }
