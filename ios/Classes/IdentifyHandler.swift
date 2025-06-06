@@ -3,7 +3,7 @@ import Flutter
 import UIKit
 
 class IdentifyHandler {
-    static func identify(projectId: String, metadata: [String: Any]? = nil, result: @escaping FlutterResult) {
+    static func identify(projectId: String, metadata: [String: Any]? = nil, pntaSdkVersion: String, result: @escaping FlutterResult) {
         TokenHandler.getDeviceToken { deviceToken in
             guard let token = deviceToken as? String else {
                 result(FlutterError(code: "NO_TOKEN", message: "Device token not available", details: nil))
@@ -28,7 +28,8 @@ class IdentifyHandler {
                 "current_time_zone": TimeZone.current.identifier,
                 "bundle_identifier": bundle.bundleIdentifier ?? "Unavailable",
                 "app_version": bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unavailable",
-                "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable"
+                "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable",
+                "pnta_sdk_version": pntaSdkVersion
             ]
 
             let info: [String: Any] = [

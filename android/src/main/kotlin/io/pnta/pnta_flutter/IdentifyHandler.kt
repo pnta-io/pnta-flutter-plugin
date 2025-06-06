@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 
 object IdentifyHandler {
-    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, result: Result) {
+    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, pntaSdkVersion: String, result: Result) {
         if (projectId == null) {
             result.error("INVALID_ARGUMENTS", "projectId is null", null)
             return
@@ -33,7 +33,7 @@ object IdentifyHandler {
                 }
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val identifiers = collectIdentifiers(activity)
+                        val identifiers = collectIdentifiers(activity, pntaSdkVersion)
                         val info = mapOf(
                             "project_id" to projectId,
                             "identifier" to deviceToken,
@@ -63,7 +63,7 @@ object IdentifyHandler {
         })
     }
 
-    private suspend fun collectIdentifiers(activity: Activity?): Map<String, Any> = withContext(Dispatchers.IO) {
+    private suspend fun collectIdentifiers(activity: Activity?, pntaSdkVersion: String): Map<String, Any> = withContext(Dispatchers.IO) {
         val locale = Locale.getDefault()
         val name = Build.MANUFACTURER
         val model = Build.MODEL
@@ -117,7 +117,8 @@ object IdentifyHandler {
             "current_time_zone" to currentTimeZone,
             "bundle_identifier" to bundleIdentifier,
             "app_version" to appVersion,
-            "app_build" to appBuild
+            "app_build" to appBuild,
+            "pnta_sdk_version" to pntaSdkVersion
         )
     }
 } 
