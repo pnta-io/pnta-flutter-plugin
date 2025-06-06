@@ -42,7 +42,7 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
 
   @override
   Future<void> updateMetadata(String projectId,
-      {Map<String, dynamic>? metadata}) async {
+      [Map<String, dynamic>? metadata]) async {
     await methodChannel.invokeMethod('updateMetadata', {
       'projectId': projectId,
       if (metadata != null) 'metadata': metadata,
