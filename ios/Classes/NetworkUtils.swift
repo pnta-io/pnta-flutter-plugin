@@ -43,9 +43,12 @@ class NetworkUtils {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 if attempt < maxRetries {
-                    let delay = pow(2.0, Double(attempt - 1))
-                    print("PNTA: Network error, will retry in \(delay)s (attempt \(attempt)/\(maxRetries)): \(error.localizedDescription)")
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    let delayMs = attempt > 1 ? pow(2.0, Double(attempt - 1)) * 1000 : 0
+                    let delaySecs = delayMs / 1000.0
+                    if delayMs > 0 {
+                        print("PNTA: Network error, will retry in \(Int(delayMs))ms (attempt \(attempt)/\(maxRetries)): \(error.localizedDescription)")
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delaySecs) {
                         attemptRequest(url: url, jsonData: jsonData, attempt: attempt + 1, maxRetries: maxRetries, result: result, successReturn: successReturn)
                     }
                     return
@@ -82,9 +85,12 @@ class NetworkUtils {
             }
             
             if shouldRetry(statusCode: httpResponse.statusCode) && attempt < maxRetries {
-                let delay = pow(2.0, Double(attempt - 1))
-                print("PNTA: Server error \(httpResponse.statusCode), will retry in \(delay)s (attempt \(attempt)/\(maxRetries))")
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                let delayMs = attempt > 1 ? pow(2.0, Double(attempt - 1)) * 1000 : 0
+                let delaySecs = delayMs / 1000.0
+                if delayMs > 0 {
+                    print("PNTA: Server error \(httpResponse.statusCode), will retry in \(Int(delayMs))ms (attempt \(attempt)/\(maxRetries))")
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + delaySecs) {
                     attemptRequest(url: url, jsonData: jsonData, attempt: attempt + 1, maxRetries: maxRetries, result: result, successReturn: successReturn)
                 }
             } else {
