@@ -53,7 +53,19 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   Stream<Map<String, dynamic>> get foregroundNotifications {
     _foregroundNotificationsStream ??= _foregroundNotificationsEventChannel
         .receiveBroadcastStream()
-        .map<Map<String, dynamic>>((event) => Map<String, dynamic>.from(event));
+        .map<Map<String, dynamic>>((event) {
+          try {
+            if (event is Map) {
+              return Map<String, dynamic>.from(event);
+            } else {
+              debugPrint('Invalid foreground notification event type: ${event.runtimeType}');
+              return <String, dynamic>{};
+            }
+          } catch (e) {
+            debugPrint('Error parsing foreground notification: $e');
+            return <String, dynamic>{};
+          }
+        });
     return _foregroundNotificationsStream!;
   }
 
@@ -69,7 +81,19 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   Stream<Map<String, dynamic>> get onNotificationTap {
     _notificationTapStream ??= _notificationTapEventChannel
         .receiveBroadcastStream()
-        .map<Map<String, dynamic>>((event) => Map<String, dynamic>.from(event));
+        .map<Map<String, dynamic>>((event) {
+          try {
+            if (event is Map) {
+              return Map<String, dynamic>.from(event);
+            } else {
+              debugPrint('Invalid notification tap event type: ${event.runtimeType}');
+              return <String, dynamic>{};
+            }
+          } catch (e) {
+            debugPrint('Error parsing notification tap: $e');
+            return <String, dynamic>{};
+          }
+        });
     return _notificationTapStream!;
   }
 }
