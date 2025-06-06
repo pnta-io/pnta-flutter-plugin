@@ -23,7 +23,7 @@ object MetadataHandler {
             override fun success(token: Any?) {
                 val deviceToken = token as? String
                 if (deviceToken == null) {
-                    result.error("NO_TOKEN", "Device token not available", null)
+                    result.error("NO_DEVICE_TOKEN", "Device token not available", null)
                     return
                 }
                 CoroutineScope(Dispatchers.IO).launch {

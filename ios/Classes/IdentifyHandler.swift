@@ -6,7 +6,7 @@ class IdentifyHandler {
     static func identify(projectId: String, metadata: [String: Any]? = nil, pntaSdkVersion: String, result: @escaping FlutterResult) {
         TokenHandler.getDeviceToken { deviceToken in
             guard let token = deviceToken as? String else {
-                result(FlutterError(code: "NO_TOKEN", message: "Device token not available", details: nil))
+                result(FlutterError(code: "NO_DEVICE_TOKEN", message: "Device token not available", details: nil))
                 return
             }
             let device = UIDevice.current
