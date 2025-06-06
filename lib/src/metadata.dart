@@ -5,15 +5,18 @@ import 'package:pnta_flutter/pnta_flutter_platform_interface.dart';
 class Metadata {
   static Future<void> updateMetadata(String projectId,
       {Map<String, dynamic>? metadata}) {
+    // Trim projectId once and use consistently
+    final trimmedProjectId = projectId.trim();
+    
     // Validate projectId
-    if (projectId.trim().isEmpty) {
+    if (trimmedProjectId.isEmpty) {
       debugPrint('PNTA: Invalid projectId - cannot be empty');
       throw ArgumentError('Project ID cannot be empty');
     }
 
-    if (projectId.length > 100) {
+    if (trimmedProjectId.length > 100) {
       debugPrint(
-          'PNTA: Invalid projectId - too long (${projectId.length} chars)');
+          'PNTA: Invalid projectId - too long (${trimmedProjectId.length} chars)');
       throw ArgumentError('Project ID cannot exceed 100 characters');
     }
 
@@ -23,7 +26,7 @@ class Metadata {
     }
 
     return PntaFlutterPlatform.instance
-        .updateMetadata(projectId.trim(), metadata);
+        .updateMetadata(trimmedProjectId, metadata);
   }
 
   static void _validateMetadata(Map<String, dynamic> metadata) {
