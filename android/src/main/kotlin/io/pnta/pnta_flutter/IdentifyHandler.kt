@@ -49,7 +49,7 @@ object IdentifyHandler {
                     } catch (e: Exception) {
                         Log.e("IdentifyHandler", "Error in identify: ${e.localizedMessage}")
                         withContext(Dispatchers.Main) {
-                            result.success(null)
+                            result.error("IDENTIFY_ERROR", "Failed to identify device: ${e.localizedMessage}", e.toString())
                         }
                     }
                 }

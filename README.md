@@ -2,6 +2,12 @@
 
 A Flutter plugin for requesting push notification permissions and handling notifications on iOS and Android with deep linking support.
 
+## Requirements
+
+- iOS 12.0+
+- Android API 21+ 
+- Flutter 3.3.0+
+
 ## Table of Contents
 
 -   [Installation & Setup](#installation--setup)
@@ -9,7 +15,7 @@ A Flutter plugin for requesting push notification permissions and handling notif
     -   [Android Setup](#android-setup)
 -   [Quick Start Guide](#quick-start-guide)
 -   [API Reference](#api-reference)
--   [Complete Example](#complete-example)
+-   [Simple Example](#simple-example)
 -   [Troubleshooting](#troubleshooting)
 
 ## Installation & Setup
@@ -28,6 +34,24 @@ flutter pub get
 ```
 
 ### iOS Setup
+
+#### 1. Xcode Configuration
+
+1. Open `ios/Runner.xcworkspace` in Xcode
+2. Select your app target and go to "Signing & Capabilities"
+3. Add "Push Notifications" capability
+4. Add "Background Modes" capability and enable "Remote notifications"
+
+Your `ios/Runner/Info.plist` should include:
+
+```xml
+<key>UIBackgroundModes</key>
+<array>
+    <string>remote-notification</string>
+</array>
+```
+
+#### 2. Podfile Configuration
 
 Update your `ios/Podfile` with the following configuration:
 
@@ -203,17 +227,19 @@ if (granted) {
 
 ### 4. Identify Your Device
 
-Register the device with your PNTA project. There are two ways to call this method:
+Register the device with your PNTA project using your project ID (format: `prj_XXXXXXXXX`). Get your project ID from your project settings at [app.pnta.io](https://app.pnta.io).
+
+There are two ways to call this method:
 
 ```dart
 // Option 1: Simple identification (device token handled internally)
-await PntaFlutter.identify('your-project-id', metadata: {
+await PntaFlutter.identify('prj_XXXXXXXXX', metadata: {
   'user_id': '123',
   'user_email': 'user@example.com',
 });
 
 // Option 2: Get the device token returned (if you need it for your backend)
-final deviceToken = await PntaFlutter.identify('your-project-id', metadata: {
+final deviceToken = await PntaFlutter.identify('prj_XXXXXXXXX', metadata: {
   'user_id': '123',
   'user_email': 'user@example.com',
 });
@@ -242,6 +268,8 @@ PntaFlutter.foregroundNotifications.listen((payload) {
     PntaFlutter.handleLink(link);
   }
 });
+
+// Remember to cancel subscriptions in dispose() to avoid memory leaks
 ```
 
 #### Background/Terminated Notifications
@@ -253,6 +281,8 @@ PntaFlutter.onNotificationTap.listen((payload) {
   // Track analytics, show specific screen, etc.
   // Links are auto-handled if autoHandleLinks is true
 });
+
+// Remember to cancel subscriptions in dispose() to avoid memory leaks
 ```
 
 ## API Reference
@@ -323,8 +353,8 @@ class UserMetadata {
 }
 
 // Use everywhere
-await PntaFlutter.identify('project-id', metadata: UserMetadata.current);
-await PntaFlutter.updateMetadata('project-id', metadata: UserMetadata.current);
+await PntaFlutter.identify('prj_XXXXXXXXX', metadata: UserMetadata.current);
+await PntaFlutter.updateMetadata('prj_XXXXXXXXX', metadata: UserMetadata.current);
 ```
 
 ## Simple Example
@@ -373,7 +403,7 @@ class _HomePageState extends State<HomePage> {
     if (!granted) return;
 
     // Identify device
-    await PntaFlutter.identify('your-project-id', metadata: {
+    await PntaFlutter.identify('prj_XXXXXXXXX', metadata: {
       'user_id': '123',
       'user_email': 'user@example.com',
     });
