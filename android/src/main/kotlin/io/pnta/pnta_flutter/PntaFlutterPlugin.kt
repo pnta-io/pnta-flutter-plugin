@@ -19,15 +19,18 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.content.Context
+import io.flutter.plugin.common.PluginRegistry
+import android.content.Intent
 
 /** PntaFlutterPlugin */
-class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
+class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.NewIntentListener {
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private var activity: Activity? = null
+  private var pluginBinding: ActivityPluginBinding? = null
 
   private fun createDefaultNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -92,22 +95,48 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   // ActivityAware methods
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
+    pluginBinding = binding
     binding.addRequestPermissionsResultListener { requestCode, permissions, grantResults ->
       onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+    binding.addOnNewIntentListener(this)
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
     activity = null
+    pluginBinding?.removeOnNewIntentListener(this)
+    pluginBinding = null
     PermissionHandler.cleanup()
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     activity = binding.activity
+    pluginBinding = binding
+    binding.addOnNewIntentListener(this)
   }
 
   override fun onDetachedFromActivity() {
     activity = null
+    pluginBinding?.removeOnNewIntentListener(this)
+    pluginBinding = null
     PermissionHandler.cleanup()
+  }
+
+  override fun onNewIntent(intent: Intent): Boolean {
+    val extras = intent.extras
+    if (extras != null && !extras.isEmpty) {
+      val payload = mutableMapOf<String, Any>()
+      for (key in extras.keySet()) {
+        val value = extras.get(key)
+        when (value) {
+          is String, is Int, is Boolean, is Double, is Float, is Long -> payload[key] = value
+          else -> if (value != null) payload[key] = value.toString()
+        }
+      }
+      if (payload.isNotEmpty()) {
+        NotificationTapHandler.sendTapPayload(payload)
+      }
+    }
+    return false // allow other listeners to process
   }
 }

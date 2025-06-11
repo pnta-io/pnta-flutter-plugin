@@ -1,3 +1,9 @@
+## 1.0.0-dev.5
+
+- Implement automatic notification tap handling in plugin
+- Remove requirement for custom MainActivity setup
+- Simplify integration process
+
 ## 1.0.0-dev.4
 
 - Fix parameter signature mismatch in updateMetadata method
