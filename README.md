@@ -4,9 +4,9 @@ A Flutter plugin for requesting push notification permissions and handling notif
 
 ## Requirements
 
-- iOS 12.0+
-- Android API 21+ 
-- Flutter 3.3.0+
+-   iOS 12.0+
+-   Android API 21+
+-   Flutter 3.3.0+
 
 ## Table of Contents
 
@@ -106,10 +106,10 @@ apply plugin: 'com.google.gms.google-services'
 ```
 
 **Note:** The plugin automatically handles:
-- ✅ `POST_NOTIFICATIONS` permission  
-- ✅ Firebase messaging service registration
-- ✅ Default notification channel setup
 
+-   `POST_NOTIFICATIONS` permission
+-   Firebase messaging service registration
+-   Default notification channel setup
 
 ## Quick Start Guide
 
