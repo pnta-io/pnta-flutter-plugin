@@ -17,7 +17,6 @@ class IdentifyHandler {
                 "name": device.name,
                 "model": device.model,
                 "localized_model": device.localizedModel,
-                "system_name": "ios",
                 "system_version": device.systemVersion,
                 "identifier_for_vendor": device.identifierForVendor?.uuidString ?? "Unavailable",
                 "region_code": locale.regionCode ?? "Unavailable",
