@@ -69,6 +69,7 @@ object IdentifyHandler {
         val name = Build.MANUFACTURER
         val model = Build.MODEL
         val localizedModel = Build.MODEL
+        val systemName = System.getProperty("os.name") ?: "Android"
         val systemVersion = Build.VERSION.RELEASE
         val regionCode = locale.country ?: "Unavailable"
         val languageCode = locale.language ?: "Unavailable"
@@ -107,6 +108,7 @@ object IdentifyHandler {
             "name" to name,
             "model" to model,
             "localized_model" to localizedModel,
+            "system_name" to systemName,
             "system_version" to systemVersion,
             "region_code" to regionCode,
             "language_code" to languageCode,
