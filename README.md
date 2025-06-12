@@ -115,15 +115,12 @@ Add at the very bottom:
 apply plugin: 'com.google.gms.google-services'
 ```
 
-#### 3. AndroidManifest.xml Updates
+#### 3. AndroidManifest.xml Updates (Optional)
 
-Add the following to `android/app/src/main/AndroidManifest.xml`:
+**Most configuration is handled automatically by the plugin!** You only need to add the following if your app opens external URLs from notifications:
 
 ```xml
-<!-- For Android 13+ notification permission -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
-<!-- For opening external URLs -->
+<!-- For opening external URLs (optional - only if your notifications contain links) -->
 <queries>
   <intent>
     <action android:name="android.intent.action.VIEW" />
@@ -134,23 +131,12 @@ Add the following to `android/app/src/main/AndroidManifest.xml`:
     <data android:scheme="https" />
   </intent>
 </queries>
-
-<application>
-  <!-- Default notification channel -->
-  <meta-data
-      android:name="com.google.firebase.messaging.default_notification_channel_id"
-      android:value="pnta_default" />
-
-  <!-- Firebase messaging service -->
-  <service
-      android:name="io.pnta.pnta_flutter.PntaMessagingService"
-      android:exported="false">
-    <intent-filter>
-      <action android:name="com.google.firebase.MESSAGING_EVENT" />
-    </intent-filter>
-  </service>
-</application>
 ```
+
+**Note:** The plugin automatically handles:
+- ✅ `POST_NOTIFICATIONS` permission  
+- ✅ Firebase messaging service registration
+- ✅ Default notification channel setup
 
 
 ## Quick Start Guide
