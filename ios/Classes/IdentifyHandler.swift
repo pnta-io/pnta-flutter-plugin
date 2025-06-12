@@ -17,7 +17,6 @@ class IdentifyHandler {
                 "name": device.name,
                 "model": device.model,
                 "localized_model": device.localizedModel,
-                "system_name": "ios",
                 "system_version": device.systemVersion,
                 "identifier_for_vendor": device.identifierForVendor?.uuidString ?? "Unavailable",
                 "region_code": locale.regionCode ?? "Unavailable",
@@ -36,7 +35,8 @@ class IdentifyHandler {
                 "project_id": projectId,
                 "identifier": token,
                 "identifiers": identifiers,
-                "metadata": metadata ?? [:]
+                "metadata": metadata ?? [:],
+                "platform": "ios"
             ]
             NetworkUtils.sendPutRequest(
                 urlString: "https://app.pnta.io/api/v1/identification",

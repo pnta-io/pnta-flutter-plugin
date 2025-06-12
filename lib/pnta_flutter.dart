@@ -7,12 +7,15 @@ import 'src/link_handler.dart';
 import 'src/metadata.dart';
 
 class PntaFlutter {
+  static String? _projectId;
+
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>(); // Used globally, including by LinkHandler
 
   /// Call once to initialize the plugin and enable features.
-  static Future<void> initialize(
+  static Future<void> initialize(String projectId,
       {bool autoHandleLinks = false, bool showSystemUI = false}) async {
+    _projectId = projectId;
     LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
     await setForegroundPresentationOptions(showSystemUI: showSystemUI);
   }
@@ -48,9 +51,11 @@ class PntaFlutter {
     return Token.getDeviceToken();
   }
 
-  static Future<String?> identify(String projectId,
-      {Map<String, dynamic>? metadata}) {
-    return Identify.identify(projectId, metadata: metadata);
+  static Future<String?> identify({Map<String, dynamic>? metadata}) {
+    if (_projectId == null) {
+      throw StateError('PNTA must be initialized with a project ID before calling identify');
+    }
+    return Identify.identify(_projectId!, metadata: metadata);
   }
 
   /// Configures whether the native system UI should be shown for foreground notifications.
@@ -61,8 +66,10 @@ class PntaFlutter {
 
   static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
 
-  static Future<void> updateMetadata(String projectId,
-      {Map<String, dynamic>? metadata}) {
-    return Metadata.updateMetadata(projectId, metadata: metadata);
+  static Future<void> updateMetadata({Map<String, dynamic>? metadata}) {
+    if (_projectId == null) {
+      throw StateError('PNTA must be initialized with a project ID before calling updateMetadata');
+    }
+    return Metadata.updateMetadata(_projectId!, metadata: metadata);
   }
 }

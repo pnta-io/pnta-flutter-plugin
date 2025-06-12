@@ -115,7 +115,7 @@ apply plugin: 'com.google.gms.google-services'
 
 ### 1. Initialize the Plugin
 
-Configure the plugin once at app startup:
+Configure the plugin once at app startup with your project ID:
 
 ```dart
 import 'package:pnta_flutter/pnta_flutter.dart';
@@ -124,6 +124,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await PntaFlutter.initialize(
+    'prj_XXXXXXXXX',        // Your project ID from app.pnta.io
     autoHandleLinks: true,  // Auto-open links from background notifications
     showSystemUI: false,    // Hide system notification UI when app is in foreground
   );
@@ -156,19 +157,19 @@ if (granted) {
 
 ### 4. Identify Your Device
 
-Register the device with your PNTA project using your project ID (format: `prj_XXXXXXXXX`). Get your project ID from your project settings at [app.pnta.io](https://app.pnta.io).
+After requesting notification permission, register the device with optional metadata. The project ID is already set during initialization.
 
 There are two ways to call this method:
 
 ```dart
 // Option 1: Simple identification (device token handled internally)
-await PntaFlutter.identify('prj_XXXXXXXXX', metadata: {
+await PntaFlutter.identify(metadata: {
   'user_id': '123',
   'user_email': 'user@example.com',
 });
 
 // Option 2: Get the device token returned (if you need it for your backend)
-final deviceToken = await PntaFlutter.identify('prj_XXXXXXXXX', metadata: {
+final deviceToken = await PntaFlutter.identify(metadata: {
   'user_id': '123',
   'user_email': 'user@example.com',
 });
@@ -218,10 +219,11 @@ PntaFlutter.onNotificationTap.listen((payload) {
 
 ### Core Methods
 
-#### `PntaFlutter.initialize({bool autoHandleLinks, bool showSystemUI})`
+#### `PntaFlutter.initialize(String projectId, {bool autoHandleLinks, bool showSystemUI})`
 
-Initializes the plugin with configuration options.
+Initializes the plugin with your project ID and configuration options.
 
+-   `projectId`: Your PNTA project ID (format: `prj_XXXXXXXXX`) from [app.pnta.io](https://app.pnta.io)
 -   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped from background/terminated state
 -   `showSystemUI`: Show system notification banner/sound when app is in foreground
 
@@ -229,18 +231,18 @@ Initializes the plugin with configuration options.
 
 Requests notification permission from the user. Returns `Future<bool>`.
 
-#### `PntaFlutter.identify(String projectId, {Map<String, dynamic>? metadata})`
+#### `PntaFlutter.identify({Map<String, dynamic>? metadata})`
 
-Registers the device with your PNTA project. Can be called in two ways:
+Registers the device with your PNTA project using the project ID from initialization. Can be called in two ways:
 
--   **Without storing token**: `await PntaFlutter.identify(projectId, metadata: {...})`
--   **With token returned**: `final token = await PntaFlutter.identify(projectId, metadata: {...})`
+-   **Without storing token**: `await PntaFlutter.identify(metadata: {...})`
+-   **With token returned**: `final token = await PntaFlutter.identify(metadata: {...})`
 
 Returns the device token as `Future<String?>` if you need it for your own backend or logging.
 
-#### `PntaFlutter.updateMetadata(String projectId, {Map<String, dynamic>? metadata})`
+#### `PntaFlutter.updateMetadata({Map<String, dynamic>? metadata})`
 
-Updates device metadata without re-registering. Returns `Future<void>`.
+Updates device metadata without re-registering. Uses the project ID from initialization. Returns `Future<void>`.
 
 #### `PntaFlutter.handleLink(String link)`
 
@@ -282,8 +284,8 @@ class UserMetadata {
 }
 
 // Use everywhere
-await PntaFlutter.identify('prj_XXXXXXXXX', metadata: UserMetadata.current);
-await PntaFlutter.updateMetadata('prj_XXXXXXXXX', metadata: UserMetadata.current);
+await PntaFlutter.identify(metadata: UserMetadata.current);
+await PntaFlutter.updateMetadata(metadata: UserMetadata.current);
 ```
 
 ## Simple Example
@@ -295,8 +297,9 @@ import 'package:pnta_flutter/pnta_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize plugin
+  // Initialize plugin with project ID
   await PntaFlutter.initialize(
+    'prj_XXXXXXXXX',        // Your project ID from app.pnta.io
     autoHandleLinks: true,  // Auto-handle links from background taps
     showSystemUI: false,    // Hide system UI in foreground
   );
@@ -331,8 +334,8 @@ class _HomePageState extends State<HomePage> {
     final granted = await PntaFlutter.requestNotificationPermission();
     if (!granted) return;
 
-    // Identify device
-    await PntaFlutter.identify('prj_XXXXXXXXX', metadata: {
+    // Identify device (project ID already set in initialize)
+    await PntaFlutter.identify(metadata: {
       'user_id': '123',
       'user_email': 'user@example.com',
     });

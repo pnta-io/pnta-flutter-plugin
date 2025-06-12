@@ -42,10 +42,10 @@ Minimal production usage (no UI required):
 // --- Option 1: Handle navigation for ALL notification taps yourself (default) ---
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await PntaFlutter.initialize(); // autoHandleLinks: false is default, you handle navigation for all taps
+  await PntaFlutter.initialize('your_project_id'); // autoHandleLinks: false is default, you handle navigation for all taps
   await PntaFlutter.requestNotificationPermission();
   final token = await PntaFlutter.getDeviceToken();
-  await PntaFlutter.identify('your_project_id'); // REQUIRED
+  await PntaFlutter.identify(); // REQUIRED
 
   // Handle navigation or logic here for ALL app states (foreground, background, or terminated)
   PntaFlutter.onNotificationTap.listen((payload) {
@@ -58,10 +58,10 @@ void main() async {
 // --- Option 2: Let the plugin handle navigation for background/terminated taps ---
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await PntaFlutter.initialize(autoHandleLinks: true); // plugin handles navigation for background/terminated taps
+  await PntaFlutter.initialize('your_project_id', autoHandleLinks: true); // plugin handles navigation for background/terminated taps
   await PntaFlutter.requestNotificationPermission();
   final token = await PntaFlutter.getDeviceToken();
-  await PntaFlutter.identify('your_project_id'); // REQUIRED
+  await PntaFlutter.identify(); // REQUIRED
 
   // (Optional) Handle navigation or logic for foreground notification taps only
   PntaFlutter.onNotificationTap.listen((payload) {
@@ -78,6 +78,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize the plugin. You can customize options below (optional).
   await PntaFlutter.initialize(
+    'prj_k3e0Givq', // Replace with your project ID
     autoHandleLinks: false, // Optional: Enable automatic deep link handling
     showSystemUI:
         false, // Optional: Show system UI for foreground notifications
@@ -175,7 +176,7 @@ class _MyAppState extends State<MyApp> {
     if (notificationGranted) {
       // Call identify directly after permission is granted, with example metadata
       try {
-        final token = await PntaFlutter.identify(_projectId, metadata: {
+        final token = await PntaFlutter.identify(metadata: {
           'demo_key': 'demo_value',
           'timestamp': DateTime.now().toIso8601String(),
           'source': 'identify',
@@ -195,6 +196,7 @@ class _MyAppState extends State<MyApp> {
   /// (Re)initializes the plugin with the current options (optional, for toggling features).
   Future<void> _initializePlugin() async {
     await PntaFlutter.initialize(
+      _projectId,
       autoHandleLinks: _autoHandleLinks,
       showSystemUI: _showSystemUI,
     );
@@ -327,7 +329,6 @@ class _MyAppState extends State<MyApp> {
                         });
                         try {
                           await PntaFlutter.updateMetadata(
-                            _projectId,
                             metadata: {
                               'demo_key': 'demo_value',
                               'timestamp': DateTime.now().toIso8601String(),

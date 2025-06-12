@@ -38,7 +38,8 @@ object IdentifyHandler {
                             "project_id" to projectId,
                             "identifier" to deviceToken,
                             "identifiers" to identifiers,
-                            "metadata" to (metadata ?: mapOf<String, Any>())
+                            "metadata" to (metadata ?: mapOf<String, Any>()),
+                            "platform" to "android"
                         )
                         NetworkUtils.sendPutRequest(
                             urlString = "https://app.pnta.io/api/v1/identification",
@@ -68,7 +69,6 @@ object IdentifyHandler {
         val name = Build.MANUFACTURER
         val model = Build.MODEL
         val localizedModel = Build.MODEL
-        val systemName = "android"
         val systemVersion = Build.VERSION.RELEASE
         val regionCode = locale.country ?: "Unavailable"
         val languageCode = locale.language ?: "Unavailable"
@@ -107,7 +107,6 @@ object IdentifyHandler {
             "name" to name,
             "model" to model,
             "localized_model" to localizedModel,
-            "system_name" to systemName,
             "system_version" to systemVersion,
             "region_code" to regionCode,
             "language_code" to languageCode,
