@@ -36,7 +36,8 @@ class IdentifyHandler {
                 "project_id": projectId,
                 "identifier": token,
                 "identifiers": identifiers,
-                "metadata": metadata ?? [:]
+                "metadata": metadata ?? [:],
+                "platform": "ios"
             ]
             NetworkUtils.sendPutRequest(
                 urlString: "https://app.pnta.io/api/v1/identification",

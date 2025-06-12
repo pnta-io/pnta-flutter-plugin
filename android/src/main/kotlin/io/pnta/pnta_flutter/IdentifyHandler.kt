@@ -38,7 +38,8 @@ object IdentifyHandler {
                             "project_id" to projectId,
                             "identifier" to deviceToken,
                             "identifiers" to identifiers,
-                            "metadata" to (metadata ?: mapOf<String, Any>())
+                            "metadata" to (metadata ?: mapOf<String, Any>()),
+                            "platform" to "android"
                         )
                         NetworkUtils.sendPutRequest(
                             urlString = "https://app.pnta.io/api/v1/identification",
