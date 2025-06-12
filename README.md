@@ -4,9 +4,9 @@ A Flutter plugin for requesting push notification permissions and handling notif
 
 ## Requirements
 
-- iOS 12.0+
-- Android API 21+ 
-- Flutter 3.3.0+
+-   iOS 12.0+
+-   Android API 21+
+-   Flutter 3.3.0+
 
 ## Table of Contents
 
@@ -51,44 +51,16 @@ Your `ios/Runner/Info.plist` should include:
 </array>
 ```
 
-#### 2. Podfile Configuration
+#### 2. Plugin Integration
 
-Update your `ios/Podfile` with the following configuration:
+**Automatic!** The plugin integrates automatically when you run:
 
-```ruby
-def flutter_root
-  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
-  unless File.exist?(generated_xcode_build_settings_path)
-    raise "#{generated_xcode_build_settings_path} must exist. Run `flutter pub get` first."
-  end
-  File.foreach(generated_xcode_build_settings_path) do |line|
-    matches = line.match(/FLUTTER_ROOT\=(.*)/)
-    return matches[1].strip if matches
-  end
-  raise "FLUTTER_ROOT not found. Try deleting Generated.xcconfig and re-running `flutter pub get`"
-end
-
-require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
-
-flutter_ios_podfile_setup
-
-target 'Runner' do
-  use_frameworks!
-  use_modular_headers!
-
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-
-  target 'RunnerTests' do
-    inherit! :search_paths
-  end
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
-  end
-end
+```bash
+flutter pub get
+cd ios && pod install
 ```
+
+**Note:** No manual Podfile configuration needed - Flutter generates the standard Podfile automatically.
 
 ### Android Setup
 
@@ -115,15 +87,12 @@ Add at the very bottom:
 apply plugin: 'com.google.gms.google-services'
 ```
 
-#### 3. AndroidManifest.xml Updates
+#### 3. AndroidManifest.xml Updates (Optional)
 
-Add the following to `android/app/src/main/AndroidManifest.xml`:
+**Most configuration is handled automatically by the plugin!** You only need to add the following if your app opens external URLs from notifications:
 
 ```xml
-<!-- For Android 13+ notification permission -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
-<!-- For opening external URLs -->
+<!-- For opening external URLs (optional - only if your notifications contain links) -->
 <queries>
   <intent>
     <action android:name="android.intent.action.VIEW" />
@@ -134,24 +103,13 @@ Add the following to `android/app/src/main/AndroidManifest.xml`:
     <data android:scheme="https" />
   </intent>
 </queries>
-
-<application>
-  <!-- Default notification channel -->
-  <meta-data
-      android:name="com.google.firebase.messaging.default_notification_channel_id"
-      android:value="pnta_default" />
-
-  <!-- Firebase messaging service -->
-  <service
-      android:name="io.pnta.pnta_flutter.PntaMessagingService"
-      android:exported="false">
-    <intent-filter>
-      <action android:name="com.google.firebase.MESSAGING_EVENT" />
-    </intent-filter>
-  </service>
-</application>
 ```
 
+**Note:** The plugin automatically handles:
+
+-   `POST_NOTIFICATIONS` permission
+-   Firebase messaging service registration
+-   Default notification channel setup
 
 ## Quick Start Guide
 
