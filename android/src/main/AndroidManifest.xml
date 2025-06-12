@@ -1,3 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="io.pnta.pnta_flutter">
+  
+  <!-- For Android 13+ notification permission -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+  
+  <application>
+    <!-- Default notification channel -->
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_channel_id"
+        android:value="pnta_default" />
+
+    <!-- Firebase messaging service -->
+    <service
+        android:name="io.pnta.pnta_flutter.PntaMessagingService"
+        android:exported="false">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+      </intent-filter>
+    </service>
+  </application>
 </manifest>
