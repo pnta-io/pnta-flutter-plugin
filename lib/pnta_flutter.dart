@@ -10,7 +10,9 @@ class PntaFlutter {
   static String? _projectId;
 
   static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>(); // Used globally, including by LinkHandler
+      GlobalKey<NavigatorState>();
+
+  // ==================== INITIALIZATION ====================
 
   /// Call once to initialize the plugin and enable features.
   static Future<void> initialize(String projectId,
@@ -19,6 +21,8 @@ class PntaFlutter {
     LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
     await setForegroundPresentationOptions(showSystemUI: showSystemUI);
   }
+
+  // ==================== NOTIFICATIONS ====================
 
   /// Emits notification payloads when received while the app is in the foreground.
   static Stream<Map<String, dynamic>> get foregroundNotifications =>
@@ -43,6 +47,14 @@ class PntaFlutter {
     }
   }
 
+  /// Configures whether the native system UI should be shown for foreground notifications.
+  static Future<void> setForegroundPresentationOptions(
+      {required bool showSystemUI}) {
+    return setForegroundPresentationOptionsInternal(showSystemUI: showSystemUI);
+  }
+
+  // ==================== PERMISSIONS & TOKEN ====================
+
   static Future<bool> requestNotificationPermission() {
     return Permission.requestNotificationPermission();
   }
@@ -51,6 +63,8 @@ class PntaFlutter {
     return Token.getDeviceToken();
   }
 
+  // ==================== USER IDENTIFICATION ====================
+
   static Future<String?> identify({Map<String, dynamic>? metadata}) {
     if (_projectId == null) {
       throw StateError('PNTA must be initialized with a project ID before calling identify');
@@ -58,18 +72,14 @@ class PntaFlutter {
     return Identify.identify(_projectId!, metadata: metadata);
   }
 
-  /// Configures whether the native system UI should be shown for foreground notifications.
-  static Future<void> setForegroundPresentationOptions(
-      {required bool showSystemUI}) {
-    return setForegroundPresentationOptionsInternal(showSystemUI: showSystemUI);
-  }
-
-  static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
-
   static Future<void> updateMetadata({Map<String, dynamic>? metadata}) {
     if (_projectId == null) {
       throw StateError('PNTA must be initialized with a project ID before calling updateMetadata');
     }
     return Metadata.updateMetadata(_projectId!, metadata: metadata);
   }
+
+  // ==================== LINK HANDLING ====================
+
+  static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
 }
