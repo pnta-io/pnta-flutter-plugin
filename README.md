@@ -113,9 +113,9 @@ apply plugin: 'com.google.gms.google-services'
 
 ## Quick Start Guide
 
-### 1. Initialize the Plugin
+### 1. One-Line Setup
 
-Configure the plugin once at app startup with your project ID:
+The simplest way to get started - this handles everything for most apps:
 
 ```dart
 import 'package:pnta_flutter/pnta_flutter.dart';
@@ -123,11 +123,20 @@ import 'package:pnta_flutter/pnta_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // One line setup - requests permission and registers device
   await PntaFlutter.initialize(
     'prj_XXXXXXXXX',        // Your project ID from app.pnta.io
-    autoHandleLinks: true,  // Auto-open links from background notifications
-    showSystemUI: false,    // Hide system notification UI when app is in foreground
+    metadata: {
+      'user_id': '123',
+      'user_email': 'user@example.com',
+    },
   );
+
+  // Optional: Get the device token if you need it for your backend
+  // final deviceToken = await PntaFlutter.initialize(...);
+  // if (deviceToken != null) {
+  //   print('Device token: $deviceToken');
+  // }
 
   runApp(MyApp());
 }
@@ -144,42 +153,43 @@ MaterialApp(
 )
 ```
 
-### 3. Request Notification Permission
+### 3. Advanced: Delayed Permission Flow
+
+For apps that need to ask for permission at a specific time (e.g., after user onboarding):
 
 ```dart
-final granted = await PntaFlutter.requestNotificationPermission();
-if (granted) {
-  print('Notification permission granted');
-} else {
-  print('Notification permission denied');
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize without requesting permission
+  await PntaFlutter.initialize(
+    'prj_XXXXXXXXX',
+    requestPermission: false,  // Skip permission request
+  );
+
+  runApp(MyApp());
+}
+
+// Later in your app, when ready to ask for permission:
+Future<void> setupNotifications() async {
+  await PntaFlutter.requestPermission(
+    metadata: {
+      'user_id': '123',
+      'user_email': 'user@example.com',
+    },
+  );
+
+  // Optional: Get the device token if you need it for your backend
+  // final deviceToken = await PntaFlutter.requestPermission(...);
+  // if (deviceToken != null) {
+  //   print('Permission granted and device registered!');
+  // } else {
+  //   print('Permission denied or registration failed');
+  // }
 }
 ```
 
-### 4. Identify Your Device
-
-After requesting notification permission, register the device with optional metadata. The project ID is already set during initialization.
-
-There are two ways to call this method:
-
-```dart
-// Option 1: Simple identification (device token handled internally)
-await PntaFlutter.identify(metadata: {
-  'user_id': '123',
-  'user_email': 'user@example.com',
-});
-
-// Option 2: Get the device token returned (if you need it for your backend)
-final deviceToken = await PntaFlutter.identify(metadata: {
-  'user_id': '123',
-  'user_email': 'user@example.com',
-});
-if (deviceToken != null) {
-  print('Device token: $deviceToken');
-  // Store or send to your backend if needed
-}
-```
-
-### 5. Handle Notifications
+### 4. Handle Notifications
 
 #### Foreground Notifications
 
@@ -219,30 +229,29 @@ PntaFlutter.onNotificationTap.listen((payload) {
 
 ### Core Methods
 
-#### `PntaFlutter.initialize(String projectId, {bool autoHandleLinks, bool showSystemUI})`
+#### `PntaFlutter.initialize(String projectId, {Map<String, dynamic>? metadata, bool requestPermission, bool autoHandleLinks, bool showSystemUI})`
 
-Initializes the plugin with your project ID and configuration options.
+Main initialization method that handles everything for most apps:
 
 -   `projectId`: Your PNTA project ID (format: `prj_XXXXXXXXX`) from [app.pnta.io](https://app.pnta.io)
--   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped from background/terminated state
--   `showSystemUI`: Show system notification banner/sound when app is in foreground
+-   `metadata`: Optional device metadata to include during registration
+-   `requestPermission`: Whether to request permission and register device immediately (default: `true`)
+-   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped (default: `true`)
+-   `showSystemUI`: Show system notification banner/sound when app is in foreground (default: `false`)
 
-#### `PntaFlutter.requestNotificationPermission()`
+Returns `Future<String?>` - the device token if permission was granted and device registered, null otherwise.
 
-Requests notification permission from the user. Returns `Future<bool>`.
+#### `PntaFlutter.requestPermission({Map<String, dynamic>? metadata})`
 
-#### `PntaFlutter.identify({Map<String, dynamic>? metadata})`
+For delayed permission scenarios. Must be called after `initialize()` with `requestPermission: false`.
 
-Registers the device with your PNTA project using the project ID from initialization. Can be called in two ways:
+-   `metadata`: Optional device metadata to include during registration (merged with metadata from initialize)
 
--   **Without storing token**: `await PntaFlutter.identify(metadata: {...})`
--   **With token returned**: `final token = await PntaFlutter.identify(metadata: {...})`
+Returns `Future<String?>` - the device token if permission was granted and device registered, null otherwise. **Note: You can ignore the return value if you don't need the token.**
 
-Returns the device token as `Future<String?>` if you need it for your own backend or logging.
+#### `PntaFlutter.updateMetadata(Map<String, dynamic> metadata)`
 
-#### `PntaFlutter.updateMetadata({Map<String, dynamic>? metadata})`
-
-Updates device metadata without re-registering. Uses the project ID from initialization. Returns `Future<void>`.
+Updates device metadata without re-registering. Must be called after successful initialization. Returns `Future<void>`.
 
 #### `PntaFlutter.handleLink(String link)`
 
@@ -284,8 +293,8 @@ class UserMetadata {
 }
 
 // Use everywhere
-await PntaFlutter.identify(metadata: UserMetadata.current);
-await PntaFlutter.updateMetadata(metadata: UserMetadata.current);
+await PntaFlutter.initialize('prj_XXXXXXXXX', metadata: UserMetadata.current);
+await PntaFlutter.updateMetadata(UserMetadata.current);
 ```
 
 ## Simple Example
@@ -297,12 +306,18 @@ import 'package:pnta_flutter/pnta_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize plugin with project ID
-  await PntaFlutter.initialize(
+  // One-line setup - handles permission, registration, and configuration
+  final deviceToken = await PntaFlutter.initialize(
     'prj_XXXXXXXXX',        // Your project ID from app.pnta.io
-    autoHandleLinks: true,  // Auto-handle links from background taps
-    showSystemUI: false,    // Hide system UI in foreground
+    metadata: {
+      'user_id': '123',
+      'user_email': 'user@example.com',
+    },
   );
+
+  if (deviceToken != null) {
+    print('Device registered successfully!');
+  }
 
   runApp(MyApp());
 }
@@ -330,15 +345,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _setupNotifications() async {
-    // Request permission
-    final granted = await PntaFlutter.requestNotificationPermission();
-    if (!granted) return;
-
-    // Identify device (project ID already set in initialize)
-    await PntaFlutter.identify(metadata: {
-      'user_id': '123',
-      'user_email': 'user@example.com',
-    });
+    // If you used initialize() with requestPermission: true, this is already done!
+    // Otherwise, for delayed permission scenarios:
+    // await PntaFlutter.requestPermission(
+    //   metadata: {
+    //     'user_id': '123',
+    //     'user_email': 'user@example.com',
+    //   },
+    // );
 
     // Listen for foreground notifications
     PntaFlutter.foregroundNotifications.listen((payload) {

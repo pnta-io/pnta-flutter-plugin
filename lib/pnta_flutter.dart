@@ -91,7 +91,7 @@ class PntaFlutter {
   }
 
   /// For delayed permission scenarios: requests permission, gets token, and registers device
-  static Future<String?> requestPermissionAndRegister({Map<String, dynamic>? metadata}) async {
+  static Future<String?> requestPermission({Map<String, dynamic>? metadata}) async {
     if (_config == null) {
       debugPrint('PNTA: Must call initialize() before requesting permission.');
       return null;
@@ -112,7 +112,7 @@ class PntaFlutter {
       );
       return _deviceToken;
     } catch (e, st) {
-      debugPrint('PNTA: requestPermissionAndRegister error: $e\n$st');
+      debugPrint('PNTA: requestPermission error: $e\n$st');
       return null;
     }
   }
