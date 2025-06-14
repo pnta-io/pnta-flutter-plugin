@@ -1,85 +1,157 @@
 import 'package:flutter/material.dart';
-import 'src/permission.dart';
-import 'src/token.dart';
-import 'src/identify.dart';
-import 'src/foreground.dart';
 import 'src/link_handler.dart';
-import 'src/metadata.dart';
+import 'src/version.dart';
+import 'pnta_flutter_platform_interface.dart';
+
+class PntaFlutterConfig {
+  final String projectId;
+  final bool autoHandleLinks;
+  final bool showSystemUI;
+  final bool requestPermission;
+  final Map<String, dynamic>? metadata;
+
+  PntaFlutterConfig({
+    required this.projectId,
+    required this.autoHandleLinks,
+    required this.showSystemUI,
+    required this.requestPermission,
+    this.metadata,
+  });
+}
 
 class PntaFlutter {
-  static String? _projectId;
+  static PntaFlutterConfig? _config;
+  static bool _isInitialized = false;
+  static bool _isInitializing = false;
+  static String? _deviceToken;
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>();
-
-  // ==================== INITIALIZATION ====================
-
-  /// Call once to initialize the plugin and enable features.
-  static Future<void> initialize(String projectId,
-      {bool autoHandleLinks = false, bool showSystemUI = false}) async {
-    _projectId = projectId;
-    LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
-    await setForegroundPresentationOptions(showSystemUI: showSystemUI);
-  }
-
-  // ==================== NOTIFICATIONS ====================
-
-  /// Emits notification payloads when received while the app is in the foreground.
-  static Stream<Map<String, dynamic>> get foregroundNotifications =>
-      _foregroundNotificationsStream();
-
-  /// Emits notification payloads when the user taps a notification (background/tap event).
-  static Stream<Map<String, dynamic>> get onNotificationTap =>
-      _onNotificationTapStream();
-
-  static Stream<Map<String, dynamic>> _foregroundNotificationsStream() async* {
-    await for (final payload in foregroundNotificationsStream) {
-      yield payload;
+  /// Main initialization - handles everything for most apps
+  static Future<String?> initialize(
+    String projectId, {
+    Map<String, dynamic>? metadata,
+    bool requestPermission = true,
+    bool autoHandleLinks = true,
+    bool showSystemUI = false,
+  }) async {
+    if (_isInitializing) {
+      debugPrint('PNTA: Initialization already in progress.');
+      return null;
     }
-  }
-
-  static Stream<Map<String, dynamic>> _onNotificationTapStream() async* {
-    await for (final payload in onNotificationTapStream) {
-      if (LinkHandler.autoHandleLinks) {
-        await LinkHandler.handleLink(payload['link_to'] as String?);
+    if (_isInitialized) {
+      debugPrint('PNTA: Already initialized.');
+      return _deviceToken;
+    }
+    _isInitializing = true;
+    try {
+      // Validate project ID
+      if (!projectId.startsWith('prj_')) {
+        debugPrint('PNTA: Invalid project ID. Must start with "prj_".');
+        _isInitializing = false;
+        return null;
       }
-      yield payload;
+      _config = PntaFlutterConfig(
+        projectId: projectId,
+        autoHandleLinks: autoHandleLinks,
+        showSystemUI: showSystemUI,
+        requestPermission: requestPermission,
+        metadata: metadata,
+      );
+      LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
+      await PntaFlutterPlatform.instance.setForegroundPresentationOptions(showSystemUI: showSystemUI);
+      if (requestPermission) {
+        final granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
+        if (!granted) {
+          debugPrint('PNTA: Notification permission denied.');
+          _isInitializing = false;
+          _isInitialized = true;
+          return null;
+        }
+        _deviceToken = await PntaFlutterPlatform.instance.identify(
+          projectId,
+          metadata: {
+            ...?metadata,
+            'pntaSdkVersion': kPntaSdkVersion,
+          },
+        );
+        _isInitialized = true;
+        _isInitializing = false;
+        return _deviceToken;
+      } else {
+        // Delayed permission scenario
+        _isInitialized = true;
+        _isInitializing = false;
+        return null;
+      }
+    } catch (e, st) {
+      debugPrint('PNTA: Initialization error: $e\n$st');
+      _isInitializing = false;
+      return null;
     }
   }
 
-  /// Configures whether the native system UI should be shown for foreground notifications.
-  static Future<void> setForegroundPresentationOptions(
-      {required bool showSystemUI}) {
-    return setForegroundPresentationOptionsInternal(showSystemUI: showSystemUI);
-  }
-
-  // ==================== PERMISSIONS & TOKEN ====================
-
-  static Future<bool> requestNotificationPermission() {
-    return Permission.requestNotificationPermission();
-  }
-
-  static Future<String?> getDeviceToken() {
-    return Token.getDeviceToken();
-  }
-
-  // ==================== USER IDENTIFICATION ====================
-
-  static Future<String?> identify({Map<String, dynamic>? metadata}) {
-    if (_projectId == null) {
-      throw StateError('PNTA must be initialized with a project ID before calling identify');
+  /// For delayed permission scenarios: requests permission, gets token, and registers device
+  static Future<String?> requestPermissionAndRegister({Map<String, dynamic>? metadata}) async {
+    if (_config == null) {
+      debugPrint('PNTA: Must call initialize() before requesting permission.');
+      return null;
     }
-    return Identify.identify(_projectId!, metadata: metadata);
-  }
-
-  static Future<void> updateMetadata({Map<String, dynamic>? metadata}) {
-    if (_projectId == null) {
-      throw StateError('PNTA must be initialized with a project ID before calling updateMetadata');
+    try {
+      final granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
+      if (!granted) {
+        debugPrint('PNTA: Notification permission denied.');
+        return null;
+      }
+      _deviceToken = await PntaFlutterPlatform.instance.identify(
+        _config!.projectId,
+        metadata: {
+          ...?_config!.metadata,
+          ...?metadata,
+          'pntaSdkVersion': kPntaSdkVersion,
+        },
+      );
+      return _deviceToken;
+    } catch (e, st) {
+      debugPrint('PNTA: requestPermissionAndRegister error: $e\n$st');
+      return null;
     }
-    return Metadata.updateMetadata(_projectId!, metadata: metadata);
   }
 
-  // ==================== LINK HANDLING ====================
+  /// Non-critical metadata updates
+  static Future<void> updateMetadata(Map<String, dynamic> metadata) async {
+    if (_config == null) {
+      debugPrint('PNTA: Must call initialize() before updating metadata.');
+      return;
+    }
+    try {
+      await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, metadata);
+    } catch (e, st) {
+      debugPrint('PNTA: updateMetadata error: $e\n$st');
+    }
+  }
 
-  static Future<void> handleLink(String link) => LinkHandler.handleLink(link);
+  /// Notification streams
+  static Stream<Map<String, dynamic>> get foregroundNotifications =>
+      PntaFlutterPlatform.instance.foregroundNotifications;
+
+  static Stream<Map<String, dynamic>> get onNotificationTap =>
+      PntaFlutterPlatform.instance.onNotificationTap.asyncMap((payload) async {
+        if (_config?.autoHandleLinks == true) {
+          await handleLink(payload['link_to'] as String?);
+        }
+        return payload;
+      });
+
+  /// Manual link handling
+  static Future<bool> handleLink(String? link) async {
+    return await LinkHandler.handleLink(link);
+  }
+
+  /// Configuration access
+  static String? get projectId => _config?.projectId;
+  static bool get isInitialized => _isInitialized;
+  static bool get autoHandleLinks => _config?.autoHandleLinks ?? false;
+  static bool get showSystemUI => _config?.showSystemUI ?? false;
+  static Map<String, dynamic>? get currentMetadata => _config?.metadata;
+  static String? get deviceToken => _deviceToken;
 }
