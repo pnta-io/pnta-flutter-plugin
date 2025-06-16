@@ -7,7 +7,7 @@ class PntaFlutterConfig {
   final bool autoHandleLinks;
   final bool showSystemUI;
   final bool registerDevice;
-  final Map<String, dynamic>? metadata;
+  Map<String, dynamic>? metadata;
 
   PntaFlutterConfig({
     required this.projectId,
@@ -85,6 +85,7 @@ class PntaFlutter {
     try {
       await PntaFlutterPlatform.instance
           .updateMetadata(_config!.projectId, metadata);
+      _config!.metadata = metadata;
     } catch (e, st) {
       debugPrint('PNTA: updateMetadata error: $e\n$st');
     }
@@ -134,6 +135,7 @@ class PntaFlutter {
       if (metadata != null && metadata.isNotEmpty) {
         await PntaFlutterPlatform.instance
             .updateMetadata(_config!.projectId, metadata);
+        _config!.metadata = metadata; 
       }
       
       return _deviceToken;
