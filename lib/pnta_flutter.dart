@@ -30,7 +30,7 @@ class PntaFlutter {
     String projectId, {
     Map<String, dynamic>? metadata,
     bool registerDevice = true,
-    bool autoHandleLinks = true,
+    bool autoHandleLinks = false,
     bool showSystemUI = false,
   }) async {
     if (_config != null) {

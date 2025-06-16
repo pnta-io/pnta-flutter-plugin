@@ -236,7 +236,7 @@ Main initialization method that handles everything for most apps:
 -   `projectId`: Your PNTA project ID (format: `prj_XXXXXXXXX`) from [app.pnta.io](https://app.pnta.io)
 -   `metadata`: Optional device metadata to include during registration
 -   `registerDevice`: Whether to register device immediately (default: `true`)
--   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped (default: `true`)
+-   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped (default: `false`)
 -   `showSystemUI`: Show system notification banner/sound when app is in foreground (default: `false`)
 
 Returns `Future<String?>` - the device token if device was registered, null otherwise.
