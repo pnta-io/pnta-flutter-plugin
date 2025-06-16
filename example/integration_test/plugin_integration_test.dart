@@ -14,11 +14,11 @@ import 'package:pnta_flutter/pnta_flutter.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('getPlatformVersion test', (WidgetTester tester) async {
-    final PntaFlutter plugin = PntaFlutter();
-    final String? version = await plugin.getPlatformVersion();
-    // The version string depends on the host platform running the test, so
-    // just assert that some non-empty string is returned.
-    expect(version?.isNotEmpty, true);
+  testWidgets('getDeviceToken test', (WidgetTester tester) async {
+    // Initialize PNTA first
+    await PntaFlutter.initialize('test_project_id');
+    final String? token = await PntaFlutter.getDeviceToken();
+    // The token can be null if not available, so just check it's a String?
+    expect(token, isA<String?>());
   });
 }

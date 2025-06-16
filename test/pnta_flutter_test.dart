@@ -8,7 +8,30 @@ class MockPntaFlutterPlatform
     with MockPlatformInterfaceMixin
     implements PntaFlutterPlatform {
   @override
-  Future<String?> getPlatformVersion() => Future.value('42');
+  Future<bool> requestNotificationPermission() => Future.value(true);
+
+  @override
+  Future<String?> getDeviceToken() => Future.value('mock_token');
+
+  @override
+  Future<String?> identify(String projectId,
+          {Map<String, dynamic>? metadata}) =>
+      Future.value('mock_user_id');
+
+  @override
+  Future<void> updateMetadata(String projectId,
+          [Map<String, dynamic>? metadata]) =>
+      Future.value();
+
+  @override
+  Stream<Map<String, dynamic>> get foregroundNotifications => Stream.empty();
+
+  @override
+  Stream<Map<String, dynamic>> get onNotificationTap => Stream.empty();
+
+  @override
+  Future<void> setForegroundPresentationOptions({required bool showSystemUI}) =>
+      Future.value();
 }
 
 void main() {
@@ -18,11 +41,10 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelPntaFlutter>());
   });
 
-  test('getPlatformVersion', () async {
-    PntaFlutter pntaFlutterPlugin = PntaFlutter();
+  test('getDeviceToken', () async {
     MockPntaFlutterPlatform fakePlatform = MockPntaFlutterPlatform();
     PntaFlutterPlatform.instance = fakePlatform;
 
-    expect(await pntaFlutterPlugin.getPlatformVersion(), '42');
+    expect(await PntaFlutter.getDeviceToken(), 'mock_token');
   });
 }
