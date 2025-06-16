@@ -119,7 +119,8 @@ class PntaFlutter {
   static String? get deviceToken => _deviceToken;
 
   // Private
-  static Future<String?> _performRegistration({Map<String, dynamic>? metadata}) async {
+  static Future<String?> _performRegistration(
+      {Map<String, dynamic>? metadata}) async {
     try {
       final granted =
           await PntaFlutterPlatform.instance.requestNotificationPermission();
@@ -127,17 +128,18 @@ class PntaFlutter {
         debugPrint('PNTA: Notification permission denied.');
         return null;
       }
-      
+
       // Pure device registration with SDK version
-      _deviceToken = await PntaFlutterPlatform.instance.identify(_config!.projectId);
+      _deviceToken =
+          await PntaFlutterPlatform.instance.identify(_config!.projectId);
 
       // Update metadata if provided
       if (metadata != null && metadata.isNotEmpty) {
         await PntaFlutterPlatform.instance
             .updateMetadata(_config!.projectId, metadata);
-        _config!.metadata = metadata; 
+        _config!.metadata = metadata;
       }
-      
+
       return _deviceToken;
     } catch (e, st) {
       debugPrint('PNTA: Registration error: $e\n$st');
