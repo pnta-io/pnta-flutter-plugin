@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'src/link_handler.dart';
 import 'pnta_flutter_platform_interface.dart';
 
-class PntaFlutterConfig {
+class _PntaFlutterConfig {
   final String projectId;
   final bool autoHandleLinks;
   final bool showSystemUI;
   final bool registerDevice;
   Map<String, dynamic>? metadata;
 
-  PntaFlutterConfig({
+  _PntaFlutterConfig({
     required this.projectId,
     required this.autoHandleLinks,
     required this.showSystemUI,
@@ -19,7 +19,7 @@ class PntaFlutterConfig {
 }
 
 class PntaFlutter {
-  static PntaFlutterConfig? _config;
+  static _PntaFlutterConfig? _config;
   static String? _deviceToken;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -43,7 +43,7 @@ class PntaFlutter {
         debugPrint('PNTA: Invalid project ID. Must start with "prj_".');
         return null;
       }
-      _config = PntaFlutterConfig(
+      _config = _PntaFlutterConfig(
         projectId: projectId,
         autoHandleLinks: autoHandleLinks,
         showSystemUI: showSystemUI,
