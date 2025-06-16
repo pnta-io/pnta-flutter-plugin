@@ -2,6 +2,8 @@
 
 A Flutter plugin for requesting push notification permissions and handling notifications on iOS and Android with deep linking support.
 
+📖 **[Full Documentation](https://docs.pnta.io)** | 🌐 **[PNTA Dashboard](https://app.pnta.io)**
+
 ## Requirements
 
 -   iOS 12.0+
