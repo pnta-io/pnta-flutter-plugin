@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'src/link_handler.dart';
-import 'src/version.dart';
 import 'pnta_flutter_platform_interface.dart';
 
 class PntaFlutterConfig {
