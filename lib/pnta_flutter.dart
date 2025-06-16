@@ -106,13 +106,9 @@ class PntaFlutter {
       // Pure device registration (SDK version is sent internally by identify)
       _deviceToken = await PntaFlutterPlatform.instance.identify(_config!.projectId);
       
-      // Separately update metadata if provided
-      final combinedMetadata = {
-        ...?_config!.metadata,
-        ...?metadata,
-      };
-      if (combinedMetadata.isNotEmpty) {
-        await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, combinedMetadata);
+      // Update metadata if provided
+      if (metadata != null && metadata.isNotEmpty) {
+        await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, metadata);
       }
       return _deviceToken;
     } catch (e, st) {
