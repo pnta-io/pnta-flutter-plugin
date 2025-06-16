@@ -21,8 +21,6 @@ class PntaFlutterConfig {
 
 class PntaFlutter {
   static PntaFlutterConfig? _config;
-  static bool _isInitialized = false;
-  static bool _isInitializing = false;
   static String? _deviceToken;
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -34,20 +32,14 @@ class PntaFlutter {
     bool autoHandleLinks = true,
     bool showSystemUI = false,
   }) async {
-    if (_isInitializing) {
-      debugPrint('PNTA: Initialization already in progress.');
-      return null;
-    }
-    if (_isInitialized) {
+    if (_config != null) {
       debugPrint('PNTA: Already initialized.');
       return _deviceToken;
     }
-    _isInitializing = true;
     try {
       // Validate project ID
       if (!projectId.startsWith('prj_')) {
         debugPrint('PNTA: Invalid project ID. Must start with "prj_".');
-        _isInitializing = false;
         return null;
       }
       _config = PntaFlutterConfig(
@@ -63,8 +55,6 @@ class PntaFlutter {
         final granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
         if (!granted) {
           debugPrint('PNTA: Notification permission denied.');
-          _isInitializing = false;
-          _isInitialized = true;
           return null;
         }
         // Pure device registration with SDK version
@@ -75,18 +65,13 @@ class PntaFlutter {
           await PntaFlutterPlatform.instance.updateMetadata(projectId, metadata);
         }
         
-        _isInitialized = true;
-        _isInitializing = false;
         return _deviceToken;
       } else {
         // Delayed permission scenario
-        _isInitialized = true;
-        _isInitializing = false;
         return null;
       }
     } catch (e, st) {
       debugPrint('PNTA: Initialization error: $e\n$st');
-      _isInitializing = false;
       return null;
     }
   }
@@ -149,7 +134,6 @@ class PntaFlutter {
 
   /// Configuration access
   static String? get projectId => _config?.projectId;
-  static bool get isInitialized => _isInitialized;
   static bool get autoHandleLinks => _config?.autoHandleLinks ?? false;
   static bool get showSystemUI => _config?.showSystemUI ?? false;
   static Map<String, dynamic>? get currentMetadata => _config?.metadata;
