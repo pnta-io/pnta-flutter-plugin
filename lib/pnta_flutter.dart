@@ -22,7 +22,8 @@ class PntaFlutterConfig {
 class PntaFlutter {
   static PntaFlutterConfig? _config;
   static String? _deviceToken;
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   /// Main initialization - handles everything for most apps
   static Future<String?> initialize(
@@ -50,21 +51,24 @@ class PntaFlutter {
         metadata: metadata,
       );
       LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
-      await PntaFlutterPlatform.instance.setForegroundPresentationOptions(showSystemUI: showSystemUI);
+      await PntaFlutterPlatform.instance
+          .setForegroundPresentationOptions(showSystemUI: showSystemUI);
       if (requestPermission) {
-        final granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
+        final granted =
+            await PntaFlutterPlatform.instance.requestNotificationPermission();
         if (!granted) {
           debugPrint('PNTA: Notification permission denied.');
           return null;
         }
         // Pure device registration with SDK version
         _deviceToken = await PntaFlutterPlatform.instance.identify(projectId);
-        
+
         // Separately update metadata if provided
         if (metadata != null && metadata.isNotEmpty) {
-          await PntaFlutterPlatform.instance.updateMetadata(projectId, metadata);
+          await PntaFlutterPlatform.instance
+              .updateMetadata(projectId, metadata);
         }
-        
+
         return _deviceToken;
       } else {
         // Delayed permission scenario
@@ -77,23 +81,27 @@ class PntaFlutter {
   }
 
   /// For delayed permission scenarios: requests permission, gets token, and registers device
-  static Future<String?> requestPermission({Map<String, dynamic>? metadata}) async {
+  static Future<String?> requestPermission(
+      {Map<String, dynamic>? metadata}) async {
     if (_config == null) {
       debugPrint('PNTA: Must call initialize() before requesting permission.');
       return null;
     }
     try {
-      final granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
+      final granted =
+          await PntaFlutterPlatform.instance.requestNotificationPermission();
       if (!granted) {
         debugPrint('PNTA: Notification permission denied.');
         return null;
       }
       // Pure device registration (SDK version is sent internally by identify)
-      _deviceToken = await PntaFlutterPlatform.instance.identify(_config!.projectId);
-      
+      _deviceToken =
+          await PntaFlutterPlatform.instance.identify(_config!.projectId);
+
       // Update metadata if provided
       if (metadata != null && metadata.isNotEmpty) {
-        await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, metadata);
+        await PntaFlutterPlatform.instance
+            .updateMetadata(_config!.projectId, metadata);
       }
       return _deviceToken;
     } catch (e, st) {
@@ -109,10 +117,10 @@ class PntaFlutter {
       return;
     }
     try {
-      await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, metadata);
+      await PntaFlutterPlatform.instance
+          .updateMetadata(_config!.projectId, metadata);
     } catch (e, st) {
       debugPrint('PNTA: updateMetadata error: $e\n$st');
-
     }
   }
 
