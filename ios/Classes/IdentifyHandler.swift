@@ -3,7 +3,7 @@ import Flutter
 import UIKit
 
 class IdentifyHandler {
-    static func identify(projectId: String, metadata: [String: Any]? = nil, pntaSdkVersion: String, result: @escaping FlutterResult) {
+    static func identify(projectId: String, pntaSdkVersion: String, result: @escaping FlutterResult) {
         TokenHandler.getDeviceToken { deviceToken in
             guard let token = deviceToken as? String else {
                 result(FlutterError(code: "NO_DEVICE_TOKEN", message: "Device token not available", details: nil))
@@ -35,7 +35,6 @@ class IdentifyHandler {
                 "project_id": projectId,
                 "identifier": token,
                 "identifiers": identifiers,
-                "metadata": metadata ?? [:],
                 "platform": "ios"
             ]
             NetworkUtils.sendPutRequest(

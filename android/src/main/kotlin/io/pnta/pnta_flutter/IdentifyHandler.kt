@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 
 object IdentifyHandler {
-    fun identify(activity: Activity?, projectId: String?, metadata: Map<String, Any>?, pntaSdkVersion: String, result: Result) {
+    fun identify(activity: Activity?, projectId: String?, pntaSdkVersion: String, result: Result) {
         if (projectId == null) {
             result.error("INVALID_ARGUMENTS", "projectId is null", null)
             return
@@ -38,7 +38,6 @@ object IdentifyHandler {
                             "project_id" to projectId,
                             "identifier" to deviceToken,
                             "identifiers" to identifiers,
-                            "metadata" to (metadata ?: mapOf<String, Any>()),
                             "platform" to "android"
                         )
                         NetworkUtils.sendPutRequest(

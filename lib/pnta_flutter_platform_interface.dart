@@ -32,7 +32,7 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('getDeviceToken() has not been implemented.');
   }
 
-  Future<String?> identify(String projectId, {Map<String, dynamic>? metadata}) {
+  Future<String?> identify(String projectId) {
     throw UnimplementedError('identify() has not been implemented.');
   }
 

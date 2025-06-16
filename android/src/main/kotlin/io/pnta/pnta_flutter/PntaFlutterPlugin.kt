@@ -60,13 +60,12 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
       TokenHandler.getDeviceToken(activity, result)
     } else if (call.method == "identify") {
       val projectId = call.argument<String>("projectId")
-      val metadata = call.argument<Map<String, Any>>("metadata")
       val pntaSdkVersion = call.argument<String>("pntaSdkVersion") ?: "Unknown"
       if (projectId == null) {
         result.error("INVALID_ARGUMENTS", "projectId is null", null)
         return
       }
-      IdentifyHandler.identify(activity, projectId, metadata, pntaSdkVersion, result)
+      IdentifyHandler.identify(activity, projectId, pntaSdkVersion, result)
     } else if (call.method == "updateMetadata") {
       val projectId = call.argument<String>("projectId")
       val metadata = call.argument<Map<String, Any>>("metadata")

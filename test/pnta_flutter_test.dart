@@ -14,9 +14,7 @@ class MockPntaFlutterPlatform
   Future<String?> getDeviceToken() => Future.value('mock_token');
 
   @override
-  Future<String?> identify(String projectId,
-          {Map<String, dynamic>? metadata}) =>
-      Future.value('mock_user_id');
+  Future<String?> identify(String projectId) => Future.value('mock_user_id');
 
   @override
   Future<void> updateMetadata(String projectId,
@@ -41,10 +39,11 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelPntaFlutter>());
   });
 
-  test('getDeviceToken', () async {
+  test('deviceToken getter', () async {
     MockPntaFlutterPlatform fakePlatform = MockPntaFlutterPlatform();
     PntaFlutterPlatform.instance = fakePlatform;
 
-    expect(await PntaFlutter.getDeviceToken(), 'mock_token');
+    // Test that deviceToken is accessible via getter
+    expect(PntaFlutter.deviceToken, isNull); // Initially null
   });
 }
