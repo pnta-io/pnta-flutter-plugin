@@ -153,7 +153,7 @@ MaterialApp(
 )
 ```
 
-### 3. Advanced: Delayed Permission Flow
+### 3. Advanced: Delayed Registration Flow
 
 For apps that need to ask for permission at a specific time (e.g., after user onboarding):
 
@@ -161,18 +161,18 @@ For apps that need to ask for permission at a specific time (e.g., after user on
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize without requesting permission
+  // Initialize without registering device
   await PntaFlutter.initialize(
     'prj_XXXXXXXXX',
-    requestPermission: false,  // Skip permission request
+    registerDevice: false,  // Skip device registration
   );
 
   runApp(MyApp());
 }
 
-// Later in your app, when ready to ask for permission:
+// Later in your app, when ready to register:
 Future<void> setupNotifications() async {
-  await PntaFlutter.requestPermission(
+  await PntaFlutter.registerDevice(
     metadata: {
       'user_id': '123',
       'user_email': 'user@example.com',
@@ -180,11 +180,11 @@ Future<void> setupNotifications() async {
   );
 
   // Optional: Get the device token if you need it for your backend
-  // final deviceToken = await PntaFlutter.requestPermission(...);
+  // final deviceToken = await PntaFlutter.registerDevice(...);
   // if (deviceToken != null) {
-  //   print('Permission granted and device registered!');
+  //   print('Device registered successfully!');
   // } else {
-  //   print('Permission denied or registration failed');
+  //   print('Registration failed');
   // }
 }
 ```
@@ -229,25 +229,25 @@ PntaFlutter.onNotificationTap.listen((payload) {
 
 ### Core Methods
 
-#### `PntaFlutter.initialize(String projectId, {Map<String, dynamic>? metadata, bool requestPermission, bool autoHandleLinks, bool showSystemUI})`
+#### `PntaFlutter.initialize(String projectId, {Map<String, dynamic>? metadata, bool registerDevice, bool autoHandleLinks, bool showSystemUI})`
 
 Main initialization method that handles everything for most apps:
 
 -   `projectId`: Your PNTA project ID (format: `prj_XXXXXXXXX`) from [app.pnta.io](https://app.pnta.io)
 -   `metadata`: Optional device metadata to include during registration
--   `requestPermission`: Whether to request permission and register device immediately (default: `true`)
+-   `registerDevice`: Whether to register device immediately (default: `true`)
 -   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped (default: `true`)
 -   `showSystemUI`: Show system notification banner/sound when app is in foreground (default: `false`)
 
-Returns `Future<String?>` - the device token if permission was granted and device registered, null otherwise.
+Returns `Future<String?>` - the device token if device was registered, null otherwise.
 
-#### `PntaFlutter.requestPermission({Map<String, dynamic>? metadata})`
+#### `PntaFlutter.registerDevice({Map<String, dynamic>? metadata})`
 
-For delayed permission scenarios. Must be called after `initialize()` with `requestPermission: false`.
+For delayed registration scenarios. Requests notification permission and registers device. Must be called after `initialize()` with `registerDevice: false`.
 
--   `metadata`: Optional device metadata to include during registration (merged with metadata from initialize)
+-   `metadata`: Optional device metadata to include during registration
 
-Returns `Future<String?>` - the device token if permission was granted and device registered, null otherwise. **Note: You can ignore the return value if you don't need the token.**
+Returns `Future<String?>` - the device token if permission was granted and device registered successfully, null otherwise. **Note: You can ignore the return value if you don't need the token.**
 
 #### `PntaFlutter.updateMetadata(Map<String, dynamic> metadata)`
 
