@@ -67,14 +67,16 @@ class PntaFlutter {
 
   static Future<String?> identify({Map<String, dynamic>? metadata}) {
     if (_projectId == null) {
-      throw StateError('PNTA must be initialized with a project ID before calling identify');
+      throw StateError(
+          'PNTA must be initialized with a project ID before calling identify');
     }
     return Identify.identify(_projectId!, metadata: metadata);
   }
 
   static Future<void> updateMetadata({Map<String, dynamic>? metadata}) {
     if (_projectId == null) {
-      throw StateError('PNTA must be initialized with a project ID before calling updateMetadata');
+      throw StateError(
+          'PNTA must be initialized with a project ID before calling updateMetadata');
     }
     return Metadata.updateMetadata(_projectId!, metadata: metadata);
   }

@@ -137,17 +137,21 @@ class _MyAppState extends State<MyApp> {
       //   - You may still use this listener for analytics, logging, or custom UI in any case.
       final link = payload['link_to'] as String?;
       if (link != null && link.isNotEmpty && !_autoHandleLinks) {
+        // For demo: show a SnackBar if context is available
+        if (mounted) {
+          final ctx = PntaFlutter.navigatorKey.currentContext;
+          if (ctx != null) {
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(ctx).showSnackBar(
+              SnackBar(
+                  content:
+                      Text('Custom Dart code handled navigation to: $link')),
+            );
+          }
+        }
         setState(() {
           _customHandledLink = link;
         });
-        // For demo: show a SnackBar if context is available
-        final ctx = PntaFlutter.navigatorKey.currentContext;
-        if (ctx != null) {
-          ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(
-                content: Text('Custom Dart code handled navigation to: $link')),
-          );
-        }
         await PntaFlutter.handleLink(link);
       }
     });
