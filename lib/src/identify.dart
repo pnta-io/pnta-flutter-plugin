@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:pnta_flutter/pnta_flutter_platform_interface.dart';
 
 /// Handles identification logic.

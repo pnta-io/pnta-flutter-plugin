@@ -112,6 +112,7 @@ class PntaFlutter {
       await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, metadata);
     } catch (e, st) {
       debugPrint('PNTA: updateMetadata error: $e\n$st');
+
     }
   }
 
