@@ -32,12 +32,10 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
-  Future<String?> identify(String projectId,
-      {Map<String, dynamic>? metadata}) async {
+  Future<String?> identify(String projectId) async {
     final token = await methodChannel.invokeMethod<String>('identify', {
       'projectId': projectId,
       'pntaSdkVersion': kPntaSdkVersion,
-      if (metadata != null) 'metadata': metadata,
     });
     return token;
   }

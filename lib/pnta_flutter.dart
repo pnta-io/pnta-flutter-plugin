@@ -67,13 +67,14 @@ class PntaFlutter {
           _isInitialized = true;
           return null;
         }
-        _deviceToken = await PntaFlutterPlatform.instance.identify(
-          projectId,
-          metadata: {
-            ...?metadata,
-            'pntaSdkVersion': kPntaSdkVersion,
-          },
-        );
+        // Pure device registration with SDK version
+        _deviceToken = await PntaFlutterPlatform.instance.identify(projectId);
+        
+        // Separately update metadata if provided
+        if (metadata != null && metadata.isNotEmpty) {
+          await PntaFlutterPlatform.instance.updateMetadata(projectId, metadata);
+        }
+        
         _isInitialized = true;
         _isInitializing = false;
         return _deviceToken;
@@ -102,14 +103,17 @@ class PntaFlutter {
         debugPrint('PNTA: Notification permission denied.');
         return null;
       }
-      _deviceToken = await PntaFlutterPlatform.instance.identify(
-        _config!.projectId,
-        metadata: {
-          ...?_config!.metadata,
-          ...?metadata,
-          'pntaSdkVersion': kPntaSdkVersion,
-        },
-      );
+      // Pure device registration (SDK version is sent internally by identify)
+      _deviceToken = await PntaFlutterPlatform.instance.identify(_config!.projectId);
+      
+      // Separately update metadata if provided
+      final combinedMetadata = {
+        ...?_config!.metadata,
+        ...?metadata,
+      };
+      if (combinedMetadata.isNotEmpty) {
+        await PntaFlutterPlatform.instance.updateMetadata(_config!.projectId, combinedMetadata);
+      }
       return _deviceToken;
     } catch (e, st) {
       debugPrint('PNTA: requestPermission error: $e\n$st');
