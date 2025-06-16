@@ -80,8 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SelectableText(_deviceToken ?? 'No token (denied or error)'),
                   const SizedBox(height: 24),
                   const Text('Foreground Notifications:'),
-                  if (_foregroundNotifications.isEmpty)
-                    const Text('None'),
+                  if (_foregroundNotifications.isEmpty) const Text('None'),
                   for (final notif in _foregroundNotifications)
                     Card(
                       child: Padding(

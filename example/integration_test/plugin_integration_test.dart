@@ -19,7 +19,7 @@ void main() {
     // Note: This won't actually register since we're using a test project ID
     try {
       await PntaFlutter.initialize(
-        'prj_test123', 
+        'prj_test123',
         requestPermission: false, // Don't request permission in test
         metadata: {'test': 'true'},
       );
