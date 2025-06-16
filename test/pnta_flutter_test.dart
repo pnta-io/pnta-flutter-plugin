@@ -14,8 +14,7 @@ class MockPntaFlutterPlatform
   Future<String?> getDeviceToken() => Future.value('mock_token');
 
   @override
-  Future<String?> identify(String projectId) =>
-      Future.value('mock_user_id');
+  Future<String?> identify(String projectId) => Future.value('mock_user_id');
 
   @override
   Future<void> updateMetadata(String projectId,
