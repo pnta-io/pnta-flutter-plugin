@@ -20,7 +20,7 @@ void main() {
     try {
       await PntaFlutter.initialize(
         'prj_test123',
-        requestPermission: false, // Don't request permission in test
+        registerDevice: false, // Don't register device in test
         metadata: {'test': 'true'},
       );
       // If we get here without exception, initialization succeeded
