@@ -135,10 +135,10 @@ void main() async {
   );
 
   // Optional: Get the device token if you need it for your backend
-  // final deviceToken = await PntaFlutter.initialize(...);
-  // if (deviceToken != null) {
-  //   print('Device token: $deviceToken');
-  // }
+  final deviceToken = PntaFlutter.deviceToken;
+  if (deviceToken != null) {
+    print('Device token: $deviceToken');
+  }
 
   runApp(MyApp());
 }
@@ -163,10 +163,14 @@ For apps that need to ask for permission at a specific time (e.g., after user on
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize without registering device
+  // Initialize without registering device, but include metadata for later use
   await PntaFlutter.initialize(
     'prj_XXXXXXXXX',
     registerDevice: false,  // Skip device registration
+    metadata: {
+      'user_id': '123',
+      'user_email': 'user@example.com',
+    },
   );
 
   runApp(MyApp());
@@ -174,20 +178,15 @@ void main() async {
 
 // Later in your app, when ready to register:
 Future<void> setupNotifications() async {
-  await PntaFlutter.registerDevice(
-    metadata: {
-      'user_id': '123',
-      'user_email': 'user@example.com',
-    },
-  );
+  await PntaFlutter.registerDevice();
 
   // Optional: Get the device token if you need it for your backend
-  // final deviceToken = await PntaFlutter.registerDevice(...);
-  // if (deviceToken != null) {
-  //   print('Device registered successfully!');
-  // } else {
-  //   print('Registration failed');
-  // }
+  final deviceToken = PntaFlutter.deviceToken;
+  if (deviceToken != null) {
+    print('Device registered successfully! Token: $deviceToken');
+  } else {
+    print('Registration failed or not completed yet');
+  }
 }
 ```
 
@@ -241,15 +240,13 @@ Main initialization method that handles everything for most apps:
 -   `autoHandleLinks`: Automatically handle `link_to` URLs when notifications are tapped (default: `false`)
 -   `showSystemUI`: Show system notification banner/sound when app is in foreground (default: `false`)
 
-Returns `Future<String?>` - the device token if device was registered, null otherwise.
+Returns `Future<void>`. Use `PntaFlutter.deviceToken` getter to access the device token after successful registration.
 
-#### `PntaFlutter.registerDevice({Map<String, dynamic>? metadata})`
+#### `PntaFlutter.registerDevice()`
 
-For delayed registration scenarios. Requests notification permission and registers device. Must be called after `initialize()` with `registerDevice: false`.
+For delayed registration scenarios. Requests notification permission and registers device using metadata from `initialize()`. Must be called after `initialize()` with `registerDevice: false`.
 
--   `metadata`: Optional device metadata to include during registration
-
-Returns `Future<String?>` - the device token if permission was granted and device registered successfully, null otherwise. **Note: You can ignore the return value if you don't need the token.**
+Returns `Future<void>`. Use `PntaFlutter.deviceToken` getter to access the device token after successful registration.
 
 #### `PntaFlutter.updateMetadata(Map<String, dynamic> metadata)`
 
@@ -309,7 +306,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // One-line setup - handles permission, registration, and configuration
-  final deviceToken = await PntaFlutter.initialize(
+  await PntaFlutter.initialize(
     'prj_XXXXXXXXX',        // Your project ID from app.pnta.io
     metadata: {
       'user_id': '123',
@@ -317,8 +314,10 @@ void main() async {
     },
   );
 
+  // Optional: Get the device token if you need it for your backend
+  final deviceToken = PntaFlutter.deviceToken;
   if (deviceToken != null) {
-    print('Device registered successfully!');
+    print('Device registered successfully! Token: $deviceToken');
   }
 
   runApp(MyApp());

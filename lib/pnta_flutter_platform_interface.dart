@@ -28,6 +28,11 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
         'requestNotificationPermission() has not been implemented.');
   }
 
+  Future<bool> checkNotificationPermission() {
+    throw UnimplementedError(
+        'checkNotificationPermission() has not been implemented.');
+  }
+
   Future<String?> getDeviceToken() {
     throw UnimplementedError('getDeviceToken() has not been implemented.');
   }

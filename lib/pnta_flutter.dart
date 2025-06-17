@@ -26,7 +26,7 @@ class PntaFlutter {
 
   // Setup
   /// Main initialization - handles everything for most apps
-  static Future<String?> initialize(
+  static Future<void> initialize(
     String projectId, {
     Map<String, dynamic>? metadata,
     bool registerDevice = true,
@@ -35,13 +35,13 @@ class PntaFlutter {
   }) async {
     if (_config != null) {
       debugPrint('PNTA: Already initialized.');
-      return _deviceToken;
+      return;
     }
     try {
       // Validate project ID
       if (!projectId.startsWith('prj_')) {
         debugPrint('PNTA: Invalid project ID. Must start with "prj_".');
-        return null;
+        return;
       }
       _config = _PntaFlutterConfig(
         projectId: projectId,
@@ -53,27 +53,31 @@ class PntaFlutter {
       LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
       await PntaFlutterPlatform.instance
           .setForegroundPresentationOptions(showSystemUI: showSystemUI);
-      if (registerDevice) {
-        return await _performRegistration(metadata: metadata);
-      } else {
-        // Delayed registration scenario
-        return null;
+
+      // Always check if permissions are already granted
+      final permissionsGranted =
+          await PntaFlutterPlatform.instance.checkNotificationPermission();
+
+      if (permissionsGranted) {
+        // Always register if permissions available, regardless of registerDevice flag
+        await _performRegistration(metadata: metadata, skipPrompt: true);
+      } else if (registerDevice) {
+        // Only prompt for permissions if registerDevice: true
+        await _performRegistration(metadata: metadata);
       }
     } catch (e, st) {
       debugPrint('PNTA: Initialization error: $e\n$st');
-      return null;
     }
   }
 
   // Registration
-  /// For delayed registration scenarios
-  static Future<String?> registerDevice(
-      {Map<String, dynamic>? metadata}) async {
+  /// For delayed registration scenarios - prompts for permissions and registers if granted
+  static Future<void> registerDevice() async {
     if (_config == null) {
       debugPrint('PNTA: Must call initialize() before registering device.');
-      return null;
+      return;
     }
-    return await _performRegistration(metadata: metadata);
+    await _performRegistration(metadata: _config!.metadata);
   }
 
   /// Update device metadata
@@ -119,14 +123,18 @@ class PntaFlutter {
   static String? get deviceToken => _deviceToken;
 
   // Private
-  static Future<String?> _performRegistration(
-      {Map<String, dynamic>? metadata}) async {
+  static Future<void> _performRegistration({
+    Map<String, dynamic>? metadata,
+    bool skipPrompt = false,
+  }) async {
     try {
-      final granted =
-          await PntaFlutterPlatform.instance.requestNotificationPermission();
+      final granted = skipPrompt
+          ? await PntaFlutterPlatform.instance.checkNotificationPermission()
+          : await PntaFlutterPlatform.instance.requestNotificationPermission();
+
       if (!granted) {
         debugPrint('PNTA: Notification permission denied.');
-        return null;
+        return;
       }
 
       // Pure device registration with SDK version
@@ -139,11 +147,8 @@ class PntaFlutter {
             .updateMetadata(_config!.projectId, metadata);
         _config!.metadata = metadata;
       }
-
-      return _deviceToken;
     } catch (e, st) {
       debugPrint('PNTA: Registration error: $e\n$st');
-      return null;
     }
   }
 }

@@ -11,6 +11,9 @@ class MockPntaFlutterPlatform
   Future<bool> requestNotificationPermission() => Future.value(true);
 
   @override
+  Future<bool> checkNotificationPermission() => Future.value(true);
+
+  @override
   Future<String?> getDeviceToken() => Future.value('mock_token');
 
   @override
