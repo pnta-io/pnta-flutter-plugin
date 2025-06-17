@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initPnta() async {
-    final token = await PntaFlutter.initialize(
+    await PntaFlutter.initialize(
       'prj_k3e0Givq',
       metadata: {
         'user_id': '123',
@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       autoHandleLinks: false, // We'll handle links manually for demo
     );
     setState(() {
-      _deviceToken = token;
+      _deviceToken = PntaFlutter.deviceToken;
       _loading = false;
     });
   }
