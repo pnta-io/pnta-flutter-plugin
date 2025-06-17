@@ -17,6 +17,8 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
     switch call.method {
     case "requestNotificationPermission":
       PermissionHandler.requestNotificationPermission(result: result)
+    case "checkNotificationPermission":
+      PermissionHandler.checkNotificationPermission(result: result)
     case "getDeviceToken":
       TokenHandler.getDeviceToken(result: result)
     case "identify":

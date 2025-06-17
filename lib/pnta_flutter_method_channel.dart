@@ -26,6 +26,13 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
+  Future<bool> checkNotificationPermission() async {
+    final result =
+        await methodChannel.invokeMethod<bool>('checkNotificationPermission');
+    return result ?? false;
+  }
+
+  @override
   Future<String?> getDeviceToken() async {
     final token = await methodChannel.invokeMethod<String>('getDeviceToken');
     return token;

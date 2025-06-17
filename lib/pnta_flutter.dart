@@ -53,12 +53,19 @@ class PntaFlutter {
       LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
       await PntaFlutterPlatform.instance
           .setForegroundPresentationOptions(showSystemUI: showSystemUI);
-      if (registerDevice) {
+      
+      // Always check if permissions are already granted
+      final permissionsGranted = await PntaFlutterPlatform.instance.checkNotificationPermission();
+      
+      if (permissionsGranted) {
+        // Always register if permissions available, regardless of registerDevice flag
+        return await _performRegistration(metadata: metadata, skipPrompt: true);
+      } else if (registerDevice) {
+        // Only prompt for permissions if registerDevice: true
         return await _performRegistration(metadata: metadata);
-      } else {
-        // Delayed registration scenario
-        return null;
       }
+      
+      return null; // No permissions, no prompt requested
     } catch (e, st) {
       debugPrint('PNTA: Initialization error: $e\n$st');
       return null;
@@ -66,14 +73,13 @@ class PntaFlutter {
   }
 
   // Registration
-  /// For delayed registration scenarios
-  static Future<String?> registerDevice(
-      {Map<String, dynamic>? metadata}) async {
+  /// For delayed registration scenarios - prompts for permissions and registers if granted
+  static Future<String?> registerDevice() async {
     if (_config == null) {
       debugPrint('PNTA: Must call initialize() before registering device.');
       return null;
     }
-    return await _performRegistration(metadata: metadata);
+    return await _performRegistration(metadata: _config!.metadata);
   }
 
   /// Update device metadata
@@ -119,11 +125,18 @@ class PntaFlutter {
   static String? get deviceToken => _deviceToken;
 
   // Private
-  static Future<String?> _performRegistration(
-      {Map<String, dynamic>? metadata}) async {
+  static Future<String?> _performRegistration({
+    Map<String, dynamic>? metadata,
+    bool skipPrompt = false,
+  }) async {
     try {
-      final granted =
-          await PntaFlutterPlatform.instance.requestNotificationPermission();
+      bool granted;
+      if (skipPrompt) {
+        granted = await PntaFlutterPlatform.instance.checkNotificationPermission();
+      } else {
+        granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
+      }
+      
       if (!granted) {
         debugPrint('PNTA: Notification permission denied.');
         return null;

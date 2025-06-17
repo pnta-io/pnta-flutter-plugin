@@ -29,6 +29,20 @@ object PermissionHandler {
         }
     }
 
+    fun checkNotificationPermission(activity: Activity?, result: Result) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (activity == null) {
+                result.error("NO_ACTIVITY", "Activity is null", null)
+                return
+            }
+            val granted = ContextCompat.checkSelfPermission(activity, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            result.success(granted)
+        } else {
+            // Permission is automatically granted on older versions
+            result.success(true)
+        }
+    }
+
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray): Boolean {
         if (requestCode == REQUEST_CODE) {
             permissionResult?.success(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
