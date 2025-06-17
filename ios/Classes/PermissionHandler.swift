@@ -20,14 +20,20 @@ class PermissionHandler {
         if #available(iOS 10.0, *) {
             UNUserNotificationCenter.current().getNotificationSettings { settings in
                 DispatchQueue.main.async {
-                    let granted = settings.authorizationStatus == .authorized ||
-                                  settings.authorizationStatus == .provisional ||
-                                  settings.authorizationStatus == .ephemeral
+                    var granted = settings.authorizationStatus == .authorized
+                    
+                    if #available(iOS 12.0, *) {
+                        granted = granted || settings.authorizationStatus == .provisional
+                    }
+                    
+                    if #available(iOS 14.0, *) {
+                        granted = granted || settings.authorizationStatus == .ephemeral
+                    }
+                    
                     result(granted)
                 }
             }
         } else {
-            // For iOS versions below 10, permissions are granted at app install time
             DispatchQueue.main.async {
                 result(true)
             }
