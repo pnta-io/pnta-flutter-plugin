@@ -128,6 +128,10 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     if (extras != null && !extras.isEmpty) {
       val payload = mutableMapOf<String, Any>()
       for (key in extras.keySet()) {
+        if (key.startsWith("google.") || key.startsWith("gcm.") || 
+            key == "from" || key == "collapse_key") {
+          continue
+        }
         val value = extras.get(key)
         when (value) {
           is String, is Int, is Boolean, is Double, is Float, is Long -> payload[key] = value
@@ -138,6 +142,6 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
         NotificationTapHandler.sendTapPayload(payload)
       }
     }
-    return false // allow other listeners to process
+    return false
   }
 }
