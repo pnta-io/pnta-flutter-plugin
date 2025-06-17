@@ -130,12 +130,9 @@ class PntaFlutter {
     bool skipPrompt = false,
   }) async {
     try {
-      bool granted;
-      if (skipPrompt) {
-        granted = await PntaFlutterPlatform.instance.checkNotificationPermission();
-      } else {
-        granted = await PntaFlutterPlatform.instance.requestNotificationPermission();
-      }
+      final granted = skipPrompt
+        ? await PntaFlutterPlatform.instance.checkNotificationPermission()
+        : await PntaFlutterPlatform.instance.requestNotificationPermission();
       
       if (!granted) {
         debugPrint('PNTA: Notification permission denied.');
