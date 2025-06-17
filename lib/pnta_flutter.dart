@@ -53,10 +53,11 @@ class PntaFlutter {
       LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
       await PntaFlutterPlatform.instance
           .setForegroundPresentationOptions(showSystemUI: showSystemUI);
-      
+
       // Always check if permissions are already granted
-      final permissionsGranted = await PntaFlutterPlatform.instance.checkNotificationPermission();
-      
+      final permissionsGranted =
+          await PntaFlutterPlatform.instance.checkNotificationPermission();
+
       if (permissionsGranted) {
         // Always register if permissions available, regardless of registerDevice flag
         await _performRegistration(metadata: metadata, skipPrompt: true);
@@ -128,9 +129,9 @@ class PntaFlutter {
   }) async {
     try {
       final granted = skipPrompt
-        ? await PntaFlutterPlatform.instance.checkNotificationPermission()
-        : await PntaFlutterPlatform.instance.requestNotificationPermission();
-      
+          ? await PntaFlutterPlatform.instance.checkNotificationPermission()
+          : await PntaFlutterPlatform.instance.requestNotificationPermission();
+
       if (!granted) {
         debugPrint('PNTA: Notification permission denied.');
         return;
