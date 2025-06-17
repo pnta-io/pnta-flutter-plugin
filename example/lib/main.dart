@@ -19,7 +19,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    
+
     PntaFlutter.foregroundNotifications.listen((payload) {
       setState(() => _lastNotification = 'Foreground: ${payload.toString()}');
     });
@@ -70,7 +70,8 @@ class _HomePageState extends State<HomePage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             SizedBox(height: 8),
-            Text('Device token: ${PntaFlutter.deviceToken != null ? "Available" : "Not available"}'),
+            Text(
+                'Device token: ${PntaFlutter.deviceToken != null ? "Available" : "Not available"}'),
             if (PntaFlutter.deviceToken != null)
               SelectableText(
                 PntaFlutter.deviceToken!,
@@ -95,7 +96,7 @@ class _HomePageState extends State<HomePage> {
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
