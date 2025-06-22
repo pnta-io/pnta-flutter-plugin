@@ -6,7 +6,7 @@ apply plugin: "kotlin-android"
 
 android {
   
-    compileSdkVersion 35
+    compileSdkVersion 34
     
     if (project.android.hasProperty("namespace")) {
         namespace = "io.pnta.pnta_flutter"
