@@ -37,8 +37,10 @@ class ForegroundNotificationHandler: NSObject, FlutterPlugin, UNUserNotification
         var flattenedData: [String: Any] = [:]
         
         // Add all custom data (everything except "aps")
-        for (key, value) in userInfo where key != "aps" {
-            flattenedData[key] = value
+        for (key, value) in userInfo {
+            if let stringKey = key as? String, stringKey != "aps" {
+                flattenedData[stringKey] = value
+            }
         }
         
         // Extract title/body from aps.alert
