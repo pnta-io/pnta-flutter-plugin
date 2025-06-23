@@ -123,7 +123,19 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     PermissionHandler.cleanup()
   }
 
+  private fun isNotificationTapIntent(intent: Intent): Boolean {
+    val extras = intent.extras ?: return false
+    
+    return extras.containsKey("title") || 
+           extras.containsKey("body") || 
+           extras.containsKey("link_to")
+  }
+
   override fun onNewIntent(intent: Intent): Boolean {
+    if (!isNotificationTapIntent(intent)) {
+      return false
+    }
+    
     val extras = intent.extras
     if (extras != null && !extras.isEmpty) {
       val payload = mutableMapOf<String, Any>()
