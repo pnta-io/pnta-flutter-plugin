@@ -41,12 +41,27 @@ object ForegroundNotificationHandler : EventChannel.StreamHandler {
             val channel = NotificationChannel(CHANNEL_ID, "General Notifications", NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
+        
+        // Create intent for tap handling
+        val intent = Intent().apply {
+            setClassName(context.packageName, "${context.packageName}.MainActivity")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            data.forEach { (key, value) -> putExtra(key, value.toString()) }
+        }
+        
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            System.currentTimeMillis().toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(data["title"] as? String ?: "Notification")
             .setContentText(data["body"] as? String ?: "")
             .setSmallIcon(context.applicationInfo.icon)
             .setAutoCancel(true)
-        // Optionally add more fields from data
+            .setContentIntent(pendingIntent)
         notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
 
