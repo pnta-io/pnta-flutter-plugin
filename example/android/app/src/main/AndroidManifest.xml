@@ -1,18 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="http" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
-        </intent>
-    </queries>
     <application
         android:label="pnta_flutter_example"
         android:name="${applicationName}"

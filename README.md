@@ -88,30 +88,6 @@ Add at the very bottom:
 apply plugin: 'com.google.gms.google-services'
 ```
 
-#### 3. AndroidManifest.xml Updates (Optional)
-
-**Most configuration is handled automatically by the plugin!** You only need to add the following if your app opens external URLs from notifications:
-
-```xml
-<!-- For opening external URLs (optional - only if your notifications contain links) -->
-<queries>
-  <intent>
-    <action android:name="android.intent.action.VIEW" />
-    <data android:scheme="http" />
-  </intent>
-  <intent>
-    <action android:name="android.intent.action.VIEW" />
-    <data android:scheme="https" />
-  </intent>
-</queries>
-```
-
-**Note:** The plugin automatically handles:
-
--   `POST_NOTIFICATIONS` permission
--   Firebase messaging service registration
--   Default notification channel setup
-
 ## Quick Start Guide
 
 ### 1. One-Line Setup
@@ -209,7 +185,7 @@ PntaFlutter.foregroundNotifications.listen((payload) {
   }
 });
 
-// Remember to cancel subscriptions in dispose() to avoid memory leaks
+
 ```
 
 #### Background/Terminated Notifications
@@ -222,7 +198,7 @@ PntaFlutter.onNotificationTap.listen((payload) {
   // Links are auto-handled if autoHandleLinks is true
 });
 
-// Remember to cancel subscriptions in dispose() to avoid memory leaks
+
 ```
 
 ## API Reference
@@ -275,25 +251,6 @@ The plugin automatically routes links based on these rules:
 
 -   **Contains `://`** (e.g., `http://example.com`, `mailto:test@example.com`) → Opens externally via system browser/app
 -   **No `://`** (e.g., `/profile`, `/settings`) → Navigates internally using Flutter's Navigator
-
-### Metadata Best Practices
-
-Store your metadata in one place and use it consistently:
-
-```dart
-class UserMetadata {
-  static Map<String, dynamic> get current => {
-    'user_id': getCurrentUserId(),
-    'app_version': getAppVersion(),
-    'subscription_tier': getSubscriptionTier(),
-    'last_active': DateTime.now().toIso8601String(),
-  };
-}
-
-// Use everywhere
-await PntaFlutter.initialize('prj_XXXXXXXXX', metadata: UserMetadata.current);
-await PntaFlutter.updateMetadata(UserMetadata.current);
-```
 
 ## Example
 

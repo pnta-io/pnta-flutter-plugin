@@ -19,21 +19,16 @@ class LinkHandler {
     }
 
     try {
-      if (link.contains('://')) {
-        final uri = Uri.parse(link);
-        if (await canLaunchUrl(uri)) {
-          final launched =
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-          if (launched) {
-            debugPrint('PNTA: Successfully launched URL: $link');
-          } else {
-            debugPrint('PNTA: Failed to launch URL: $link');
-          }
-          return launched;
+      final uri = Uri.parse(link);
+      if (uri.hasScheme) {
+        final launched =
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (launched) {
+          debugPrint('PNTA: Successfully launched URL: $link');
         } else {
-          debugPrint('PNTA: Cannot launch URL - no app available: $link');
-          return false;
+          debugPrint('PNTA: Failed to launch URL: $link');
         }
+        return launched;
       } else {
         final navigator = PntaFlutter.navigatorKey.currentState;
         if (navigator != null) {
