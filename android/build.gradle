@@ -1,9 +1,10 @@
 group = "io.pnta.pnta_flutter"
 version = "1.0.0"
 
-apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
-
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+}
 android {
   
     compileSdkVersion 34
