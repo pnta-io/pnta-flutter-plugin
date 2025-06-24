@@ -19,8 +19,8 @@ class LinkHandler {
     }
 
     try {
-      if (link.contains('://')) {
-        final uri = Uri.parse(link);
+      final uri = Uri.parse(link);
+      if (uri.hasScheme) {
         final launched =
             await launchUrl(uri, mode: LaunchMode.externalApplication);
         if (launched) {
