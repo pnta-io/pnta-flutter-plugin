@@ -32,8 +32,26 @@ class ForegroundNotificationHandler: NSObject, FlutterPlugin, UNUserNotification
     // UNUserNotificationCenterDelegate
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         let userInfo = notification.request.content.userInfo
-        // Forward payload to Dart
-        ForegroundNotificationHandler.eventSink?(userInfo)
+        
+        // Flatten the payload to match Android structure
+        var flattenedData: [String: Any] = [:]
+        
+        // Add all custom data (everything except "aps")
+        for (key, value) in userInfo {
+            if let stringKey = key as? String, stringKey != "aps" {
+                flattenedData[stringKey] = value
+            }
+        }
+        
+        // Extract title/body from aps.alert
+        if let aps = userInfo["aps"] as? [String: Any],
+           let alert = aps["alert"] as? [String: Any] {
+            flattenedData["title"] = alert["title"] ?? ""
+            flattenedData["body"] = alert["body"] ?? ""
+        }
+        
+        // Forward flattened payload to Dart
+        ForegroundNotificationHandler.eventSink?(flattenedData)
         // Show or suppress system UI
         if ForegroundNotificationHandler.showSystemUI {
             if #available(iOS 14.0, *) {
