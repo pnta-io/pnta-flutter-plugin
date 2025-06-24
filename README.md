@@ -252,25 +252,6 @@ The plugin automatically routes links based on these rules:
 -   **Contains `://`** (e.g., `http://example.com`, `mailto:test@example.com`) → Opens externally via system browser/app
 -   **No `://`** (e.g., `/profile`, `/settings`) → Navigates internally using Flutter's Navigator
 
-### Metadata Best Practices
-
-Store your metadata in one place and use it consistently:
-
-```dart
-class UserMetadata {
-  static Map<String, dynamic> get current => {
-    'user_id': getCurrentUserId(),
-    'app_version': getAppVersion(),
-    'subscription_tier': getSubscriptionTier(),
-    'last_active': DateTime.now().toIso8601String(),
-  };
-}
-
-// Use everywhere
-await PntaFlutter.initialize('prj_XXXXXXXXX', metadata: UserMetadata.current);
-await PntaFlutter.updateMetadata(UserMetadata.current);
-```
-
 ## Example
 
 For a complete working example with all features, see the `example/` app in the plugin repository.
