@@ -10,25 +10,29 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('pnta_flutter');
 
-  final EventChannel _foregroundNotificationsEventChannel =
-      const EventChannel('pnta_flutter/foreground_notifications');
+  final EventChannel _foregroundNotificationsEventChannel = const EventChannel(
+    'pnta_flutter/foreground_notifications',
+  );
   Stream<Map<String, dynamic>>? _foregroundNotificationsStream;
 
-  final EventChannel _notificationTapEventChannel =
-      const EventChannel('pnta_flutter/notification_tap');
+  final EventChannel _notificationTapEventChannel = const EventChannel(
+    'pnta_flutter/notification_tap',
+  );
   Stream<Map<String, dynamic>>? _notificationTapStream;
 
   @override
   Future<bool> requestNotificationPermission() async {
-    final result =
-        await methodChannel.invokeMethod<bool>('requestNotificationPermission');
+    final result = await methodChannel.invokeMethod<bool>(
+      'requestNotificationPermission',
+    );
     return result ?? false;
   }
 
   @override
   Future<bool> checkNotificationPermission() async {
-    final result =
-        await methodChannel.invokeMethod<bool>('checkNotificationPermission');
+    final result = await methodChannel.invokeMethod<bool>(
+      'checkNotificationPermission',
+    );
     return result ?? false;
   }
 
@@ -48,8 +52,10 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
-  Future<void> updateMetadata(String projectId,
-      [Map<String, dynamic>? metadata]) async {
+  Future<void> updateMetadata(
+    String projectId, [
+    Map<String, dynamic>? metadata,
+  ]) async {
     await methodChannel.invokeMethod('updateMetadata', {
       'projectId': projectId,
       if (metadata != null) 'metadata': metadata,
@@ -65,8 +71,9 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
-  Future<void> setForegroundPresentationOptions(
-      {required bool showSystemUI}) async {
+  Future<void> setForegroundPresentationOptions({
+    required bool showSystemUI,
+  }) async {
     await methodChannel.invokeMethod('setForegroundPresentationOptions', {
       'showSystemUI': showSystemUI,
     });

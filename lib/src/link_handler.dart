@@ -21,8 +21,10 @@ class LinkHandler {
     try {
       final uri = Uri.parse(link);
       if (uri.hasScheme) {
-        final launched =
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
         if (launched) {
           debugPrint('PNTA: Successfully launched URL: $link');
         } else {
@@ -37,7 +39,8 @@ class LinkHandler {
           return true;
         } else {
           debugPrint(
-              'PNTA: Cannot navigate - no navigator available for route: $link');
+            'PNTA: Cannot navigate - no navigator available for route: $link',
+          );
           return false;
         }
       }

@@ -9,8 +9,10 @@ Stream<Map<String, dynamic>> get onNotificationTapStream =>
     PntaFlutterPlatform.instance.onNotificationTap;
 
 /// Configures whether the native system UI should be shown for foreground notifications.
-Future<void> setForegroundPresentationOptionsInternal(
-    {required bool showSystemUI}) {
-  return PntaFlutterPlatform.instance
-      .setForegroundPresentationOptions(showSystemUI: showSystemUI);
+Future<void> setForegroundPresentationOptionsInternal({
+  required bool showSystemUI,
+}) {
+  return PntaFlutterPlatform.instance.setForegroundPresentationOptions(
+    showSystemUI: showSystemUI,
+  );
 }

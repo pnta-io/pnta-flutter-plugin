@@ -20,9 +20,10 @@ class MockPntaFlutterPlatform
   Future<String?> identify(String projectId) => Future.value('mock_user_id');
 
   @override
-  Future<void> updateMetadata(String projectId,
-          [Map<String, dynamic>? metadata]) =>
-      Future.value();
+  Future<void> updateMetadata(
+    String projectId, [
+    Map<String, dynamic>? metadata,
+  ]) => Future.value();
 
   @override
   Stream<Map<String, dynamic>> get foregroundNotifications => Stream.empty();
