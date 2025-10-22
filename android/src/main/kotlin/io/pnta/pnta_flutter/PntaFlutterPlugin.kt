@@ -19,11 +19,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.content.Context
-import io.flutter.plugin.common.PluginRegistry
 import android.content.Intent
 
 /** PntaFlutterPlugin */
-class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.NewIntentListener {
+class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -100,12 +99,11 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     binding.addRequestPermissionsResultListener { requestCode, permissions, grantResults ->
       onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-    binding.addOnNewIntentListener(this)
+    binding.addOnNewIntentListener { intent -> onNewIntent(intent) }
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
     activity = null
-    pluginBinding?.removeOnNewIntentListener(this)
     pluginBinding = null
     PermissionHandler.cleanup()
   }
@@ -113,12 +111,11 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     activity = binding.activity
     pluginBinding = binding
-    binding.addOnNewIntentListener(this)
+    binding.addOnNewIntentListener { intent -> onNewIntent(intent) }
   }
 
   override fun onDetachedFromActivity() {
     activity = null
-    pluginBinding?.removeOnNewIntentListener(this)
     pluginBinding = null
     PermissionHandler.cleanup()
   }
@@ -129,7 +126,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Plugin
     return !extras.containsKey("com.android.browser.headers")
   }
 
-  override fun onNewIntent(intent: Intent): Boolean {
+  private fun onNewIntent(intent: Intent): Boolean {
     if (!isNotificationTapIntent(intent)) {
       return false
     }
