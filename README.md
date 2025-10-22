@@ -1,5 +1,7 @@
 # PNTA Flutter Plugin
 
+[![pub package](https://img.shields.io/pub/v/pnta_flutter.svg)](https://pub.dev/packages/pnta_flutter)
+
 A Flutter plugin for requesting push notification permissions and handling notifications on iOS and Android with deep linking support.
 
 📖 **[Full Documentation](https://docs.pnta.io)** | 🌐 **[PNTA Dashboard](https://app.pnta.io)**
