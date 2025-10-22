@@ -56,8 +56,8 @@ class PntaFlutter {
       );
 
       // Always check if permissions are already granted
-      final permissionsGranted = await PntaFlutterPlatform.instance
-          .checkNotificationPermission();
+      final permissionsGranted =
+          await PntaFlutterPlatform.instance.checkNotificationPermission();
 
       if (permissionsGranted) {
         // Always register if permissions available, regardless of registerDevice flag
