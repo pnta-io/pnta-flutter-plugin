@@ -51,8 +51,9 @@ class PntaFlutter {
         metadata: metadata,
       );
       LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
-      await PntaFlutterPlatform.instance
-          .setForegroundPresentationOptions(showSystemUI: showSystemUI);
+      await PntaFlutterPlatform.instance.setForegroundPresentationOptions(
+        showSystemUI: showSystemUI,
+      );
 
       // Always check if permissions are already granted
       final permissionsGranted =
@@ -87,8 +88,10 @@ class PntaFlutter {
       return;
     }
     try {
-      await PntaFlutterPlatform.instance
-          .updateMetadata(_config!.projectId, metadata);
+      await PntaFlutterPlatform.instance.updateMetadata(
+        _config!.projectId,
+        metadata,
+      );
       _config!.metadata = metadata;
     } catch (e, st) {
       debugPrint('PNTA: updateMetadata error: $e\n$st');
@@ -138,13 +141,16 @@ class PntaFlutter {
       }
 
       // Pure device registration with SDK version
-      _deviceToken =
-          await PntaFlutterPlatform.instance.identify(_config!.projectId);
+      _deviceToken = await PntaFlutterPlatform.instance.identify(
+        _config!.projectId,
+      );
 
       // Update metadata if provided
       if (metadata != null && metadata.isNotEmpty) {
-        await PntaFlutterPlatform.instance
-            .updateMetadata(_config!.projectId, metadata);
+        await PntaFlutterPlatform.instance.updateMetadata(
+          _config!.projectId,
+          metadata,
+        );
         _config!.metadata = metadata;
       }
     } catch (e, st) {

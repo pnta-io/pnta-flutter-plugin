@@ -20,8 +20,10 @@ class MockPntaFlutterPlatform
   Future<String?> identify(String projectId) => Future.value('mock_user_id');
 
   @override
-  Future<void> updateMetadata(String projectId,
-          [Map<String, dynamic>? metadata]) =>
+  Future<void> updateMetadata(
+    String projectId, [
+    Map<String, dynamic>? metadata,
+  ]) =>
       Future.value();
 
   @override

@@ -1,6 +1,6 @@
 name: pnta_flutter
 description: "Official PNTA Flutter plugin to make push notifications suck less."
-version: 1.1.0
+version: 1.1.1
 homepage: https://pnta.io
 repository: https://github.com/pnta-io/pnta-flutter-plugin
 documentation: https://docs.pnta.io

@@ -2,7 +2,7 @@ PODS:
   - Flutter (1.0.0)
   - integration_test (0.0.1):
     - Flutter
-  - pnta_flutter (1.0.0):
+  - pnta_flutter (1.1.0):
     - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  pnta_flutter: eb46fe9d042bb203921a9958d04d80e2b9867144
+  pnta_flutter: cbb37c65318984b42a796c1cf7818df30a399deb
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
