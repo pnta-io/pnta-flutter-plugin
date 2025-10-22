@@ -1,7 +1,6 @@
 ## 1.1.1
 
 -   Fix build error by removing deprecated PluginRegistry.Registrar import
--   Update to modern Flutter plugin architecture
 
 ## 1.1.0
 
