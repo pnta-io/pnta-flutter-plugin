@@ -1,6 +1,7 @@
 ## 1.1.1
 
 -   Fix build error by removing deprecated PluginRegistry.Registrar import
+-   Update Android compileSdkVersion to 35
 
 ## 1.1.0
 
