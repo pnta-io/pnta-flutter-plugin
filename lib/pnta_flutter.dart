@@ -111,7 +111,8 @@ class PntaFlutter {
     final notificationId = payload['notification_id'] as String?;
     final token = payload['token'] as String?;
     if (notificationId == null || token == null) {
-      debugPrint('PNTA: trackOpen needs notification_id and token in the payload.');
+      debugPrint(
+          'PNTA: trackOpen needs notification_id and token in the payload.');
       return;
     }
     try {

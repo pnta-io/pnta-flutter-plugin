@@ -63,7 +63,8 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
-  Future<void> trackOpen(String projectId, String notificationId, String token) async {
+  Future<void> trackOpen(
+      String projectId, String notificationId, String token) async {
     await methodChannel.invokeMethod('trackOpen', {
       'projectId': projectId,
       'notificationId': notificationId,

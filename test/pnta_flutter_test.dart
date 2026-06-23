@@ -31,7 +31,8 @@ class MockPntaFlutterPlatform
   String? lastTrackOpenToken;
 
   @override
-  Future<void> trackOpen(String projectId, String notificationId, String token) {
+  Future<void> trackOpen(
+      String projectId, String notificationId, String token) {
     lastTrackOpenProjectId = projectId;
     lastTrackOpenNotificationId = notificationId;
     lastTrackOpenToken = token;
@@ -70,7 +71,8 @@ void main() {
     PntaFlutterPlatform.instance = fakePlatform;
 
     await PntaFlutter.initialize('prj_test');
-    await PntaFlutter.trackOpen({'notification_id': 'notif_abc', 'token': 'tok_123'});
+    await PntaFlutter.trackOpen(
+        {'notification_id': 'notif_abc', 'token': 'tok_123'});
 
     expect(fakePlatform.lastTrackOpenProjectId, 'prj_test');
     expect(fakePlatform.lastTrackOpenNotificationId, 'notif_abc');

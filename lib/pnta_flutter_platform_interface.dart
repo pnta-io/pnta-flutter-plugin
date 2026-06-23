@@ -50,7 +50,8 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('updateMetadata() has not been implemented.');
   }
 
-  Future<void> trackOpen(String projectId, String notificationId, String token) {
+  Future<void> trackOpen(
+      String projectId, String notificationId, String token) {
     throw UnimplementedError('trackOpen() has not been implemented.');
   }
 
