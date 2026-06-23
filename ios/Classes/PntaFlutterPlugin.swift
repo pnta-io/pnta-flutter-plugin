@@ -37,6 +37,15 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
       } else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for updateMetadata", details: nil))
       }
+    case "trackOpen":
+      if let args = call.arguments as? [String: Any],
+         let projectId = args["projectId"] as? String,
+         let notificationId = args["notificationId"] as? String,
+         let token = args["token"] as? String {
+        TrackOpenHandler.trackOpen(projectId: projectId, notificationId: notificationId, token: token, result: result)
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for trackOpen", details: nil))
+      }
     case "setForegroundPresentationOptions":
       if let args = call.arguments as? [String: Any],
          let showSystemUI = args["showSystemUI"] as? Bool {
