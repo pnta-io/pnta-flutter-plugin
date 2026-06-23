@@ -26,6 +26,18 @@ class MockPntaFlutterPlatform
   ]) =>
       Future.value();
 
+  String? lastTrackOpenProjectId;
+  String? lastTrackOpenNotificationId;
+  String? lastTrackOpenToken;
+
+  @override
+  Future<void> trackOpen(String projectId, String notificationId, String token) {
+    lastTrackOpenProjectId = projectId;
+    lastTrackOpenNotificationId = notificationId;
+    lastTrackOpenToken = token;
+    return Future.value();
+  }
+
   @override
   Stream<Map<String, dynamic>> get foregroundNotifications => Stream.empty();
 
@@ -50,5 +62,18 @@ void main() {
 
     // Test that deviceToken is accessible via getter
     expect(PntaFlutter.deviceToken, isNull); // Initially null
+  });
+
+  test('trackOpen pulls notification_id and token from the payload', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final fakePlatform = MockPntaFlutterPlatform();
+    PntaFlutterPlatform.instance = fakePlatform;
+
+    await PntaFlutter.initialize('prj_test');
+    await PntaFlutter.trackOpen({'notification_id': 'notif_abc', 'token': 'tok_123'});
+
+    expect(fakePlatform.lastTrackOpenProjectId, 'prj_test');
+    expect(fakePlatform.lastTrackOpenNotificationId, 'notif_abc');
+    expect(fakePlatform.lastTrackOpenToken, 'tok_123');
   });
 }
