@@ -75,6 +75,15 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         return
       }
       MetadataHandler.updateMetadata(projectId, metadata, result)
+    } else if (call.method == "trackOpen") {
+      val projectId = call.argument<String>("projectId")
+      val notificationId = call.argument<String>("notificationId")
+      val token = call.argument<String>("token")
+      if (projectId == null || notificationId == null || token == null) {
+        result.error("INVALID_ARGUMENTS", "projectId, notificationId or token is null", null)
+        return
+      }
+      TrackOpenHandler.trackOpen(projectId, notificationId, token, result)
     } else if (call.method == "setForegroundPresentationOptions") {
       val showSystemUI = call.argument<Boolean>("showSystemUI") ?: false
       ForegroundNotificationHandler.setForegroundPresentationOptions(showSystemUI)
