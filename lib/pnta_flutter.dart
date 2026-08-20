@@ -98,6 +98,34 @@ class PntaFlutter {
     }
   }
 
+  /// Track that a notification was opened.
+  ///
+  /// Pass the [payload] you received from [onNotificationTap] or
+  /// [foregroundNotifications]; its `notification_id` and `token` fields are
+  /// used. Best-effort: failures are logged, not thrown.
+  static Future<void> trackOpen(Map<String, dynamic> payload) async {
+    if (_config == null) {
+      debugPrint('PNTA: Must call initialize() before tracking open.');
+      return;
+    }
+    final notificationId = payload['notification_id'] as String?;
+    final token = payload['token'] as String?;
+    if (notificationId == null || token == null) {
+      debugPrint(
+          'PNTA: trackOpen needs notification_id and token in the payload.');
+      return;
+    }
+    try {
+      await PntaFlutterPlatform.instance.trackOpen(
+        _config!.projectId,
+        notificationId,
+        token,
+      );
+    } catch (e, st) {
+      debugPrint('PNTA: trackOpen error: $e\n$st');
+    }
+  }
+
   // Notifications
   /// Stream of notifications received while app is in foreground
   static Stream<Map<String, dynamic>> get foregroundNotifications =>

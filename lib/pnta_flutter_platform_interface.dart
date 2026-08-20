@@ -50,6 +50,11 @@ abstract class PntaFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('updateMetadata() has not been implemented.');
   }
 
+  Future<void> trackOpen(
+      String projectId, String notificationId, String token) {
+    throw UnimplementedError('trackOpen() has not been implemented.');
+  }
+
   /// Emits notification payloads when received while the app is in the foreground.
   Stream<Map<String, dynamic>> get foregroundNotifications {
     throw UnimplementedError(

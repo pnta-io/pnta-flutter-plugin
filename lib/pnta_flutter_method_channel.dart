@@ -63,6 +63,16 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   }
 
   @override
+  Future<void> trackOpen(
+      String projectId, String notificationId, String token) async {
+    await methodChannel.invokeMethod('trackOpen', {
+      'projectId': projectId,
+      'notificationId': notificationId,
+      'token': token,
+    });
+  }
+
+  @override
   Stream<Map<String, dynamic>> get foregroundNotifications {
     _foregroundNotificationsStream ??= _foregroundNotificationsEventChannel
         .receiveBroadcastStream()
