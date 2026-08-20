@@ -1,3 +1,7 @@
+## 1.2.0
+
+-   Add trackOpen method for notification open analytics
+
 ## 1.1.1
 
 -   Fix build error by removing deprecated PluginRegistry.Registrar import
