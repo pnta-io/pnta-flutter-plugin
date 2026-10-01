@@ -230,10 +230,6 @@ Returns `Future<void>`. Use `PntaFlutter.deviceToken` getter to access the devic
 
 Updates device metadata without re-registering. Must be called after successful initialization. Returns `Future<void>`.
 
-#### `PntaFlutter.trackOpen(Map<String, dynamic> payload)`
-
-Tracks that a notification was opened. Taps from `onNotificationTap` are tracked automatically. Call this only when you show your own UI for a foreground notification and the user taps it. Pass the payload; its `notification_id` and `token` fields are used. Must be called after `initialize()`. Best-effort — failures are logged, not thrown. Returns `Future<void>`.
-
 #### `PntaFlutter.handleLink(String link)`
 
 Manually handles a link using the plugin's routing logic.

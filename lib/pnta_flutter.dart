@@ -98,12 +98,7 @@ class PntaFlutter {
     }
   }
 
-  /// Track that a notification was opened.
-  ///
-  /// Pass the [payload] you received from [onNotificationTap] or
-  /// [foregroundNotifications]; its `notification_id` and `token` fields are
-  /// used. Best-effort: failures are logged, not thrown.
-  static Future<void> trackOpen(Map<String, dynamic> payload) async {
+  static Future<void> _trackOpen(Map<String, dynamic> payload) async {
     if (_config == null) {
       debugPrint('PNTA: Must call initialize() before tracking open.');
       return;
@@ -134,7 +129,7 @@ class PntaFlutter {
   /// Stream of notification taps
   static Stream<Map<String, dynamic>> get onNotificationTap =>
       PntaFlutterPlatform.instance.onNotificationTap.asyncMap((payload) async {
-        await trackOpen(payload);
+        await _trackOpen(payload);
         if (_config?.autoHandleLinks == true) {
           await handleLink(payload['link_to'] as String?);
         }
