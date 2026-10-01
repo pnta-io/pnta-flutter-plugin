@@ -72,7 +72,8 @@ void main() {
   test('onNotificationTap tracks the open automatically', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     final fakePlatform = MockPntaFlutterPlatform()
-      ..taps = Stream.value({'notification_id': 'notif_tap', 'token': 'tok_tap'});
+      ..taps =
+          Stream.value({'notification_id': 'notif_tap', 'token': 'tok_tap'});
     PntaFlutterPlatform.instance = fakePlatform;
 
     await PntaFlutter.initialize('prj_test');
