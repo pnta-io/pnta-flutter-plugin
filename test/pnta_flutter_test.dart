@@ -67,20 +67,6 @@ void main() {
     expect(PntaFlutter.deviceToken, isNull); // Initially null
   });
 
-  test('trackOpen pulls notification_id and token from the payload', () async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    final fakePlatform = MockPntaFlutterPlatform();
-    PntaFlutterPlatform.instance = fakePlatform;
-
-    await PntaFlutter.initialize('prj_test');
-    await PntaFlutter.trackOpen(
-        {'notification_id': 'notif_abc', 'token': 'tok_123'});
-
-    expect(fakePlatform.lastTrackOpenProjectId, 'prj_test');
-    expect(fakePlatform.lastTrackOpenNotificationId, 'notif_abc');
-    expect(fakePlatform.lastTrackOpenToken, 'tok_123');
-  });
-
   test('onNotificationTap tracks the open automatically', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     final fakePlatform = MockPntaFlutterPlatform()
@@ -90,6 +76,7 @@ void main() {
     await PntaFlutter.initialize('prj_test');
     await PntaFlutter.onNotificationTap.first;
 
+    expect(fakePlatform.lastTrackOpenProjectId, 'prj_test');
     expect(fakePlatform.lastTrackOpenNotificationId, 'notif_tap');
     expect(fakePlatform.lastTrackOpenToken, 'tok_tap');
   });
