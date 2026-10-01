@@ -42,8 +42,10 @@ class MockPntaFlutterPlatform
   @override
   Stream<Map<String, dynamic>> get foregroundNotifications => Stream.empty();
 
+  Stream<Map<String, dynamic>> taps = Stream.empty();
+
   @override
-  Stream<Map<String, dynamic>> get onNotificationTap => Stream.empty();
+  Stream<Map<String, dynamic>> get onNotificationTap => taps;
 
   @override
   Future<void> setForegroundPresentationOptions({required bool showSystemUI}) =>
@@ -77,5 +79,18 @@ void main() {
     expect(fakePlatform.lastTrackOpenProjectId, 'prj_test');
     expect(fakePlatform.lastTrackOpenNotificationId, 'notif_abc');
     expect(fakePlatform.lastTrackOpenToken, 'tok_123');
+  });
+
+  test('onNotificationTap tracks the open automatically', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final fakePlatform = MockPntaFlutterPlatform()
+      ..taps = Stream.value({'notification_id': 'notif_tap', 'token': 'tok_tap'});
+    PntaFlutterPlatform.instance = fakePlatform;
+
+    await PntaFlutter.initialize('prj_test');
+    await PntaFlutter.onNotificationTap.first;
+
+    expect(fakePlatform.lastTrackOpenNotificationId, 'notif_tap');
+    expect(fakePlatform.lastTrackOpenToken, 'tok_tap');
   });
 }

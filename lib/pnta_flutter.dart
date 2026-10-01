@@ -134,6 +134,7 @@ class PntaFlutter {
   /// Stream of notification taps
   static Stream<Map<String, dynamic>> get onNotificationTap =>
       PntaFlutterPlatform.instance.onNotificationTap.asyncMap((payload) async {
+        await trackOpen(payload);
         if (_config?.autoHandleLinks == true) {
           await handleLink(payload['link_to'] as String?);
         }
