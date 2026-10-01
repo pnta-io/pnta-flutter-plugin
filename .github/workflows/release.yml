@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
       - run: |
@@ -26,16 +26,11 @@ jobs:
           esac
           sed -i "s/^version: .*/version: $version/" pubspec.yaml
           sed -i "s/kPntaSdkVersion = '.*'/kPntaSdkVersion = '$version'/" lib/src/version.dart
-
-          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="v$version" -q .body > notes.md
-          { printf '## %s\n\n' "$version"; cat notes.md; printf '\n'; cat CHANGELOG.md; } > CHANGELOG.tmp
-          mv CHANGELOG.tmp CHANGELOG.md
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Release $version"
-          git tag "v$version"
-          git push --atomic origin HEAD "v$version"
-          gh release create "v$version" --notes-file notes.md
+          git tag -a "v$version" -m "v$version"
+          git push --follow-tags
+          gh release create "v$version" --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}

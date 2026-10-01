@@ -1,6 +1,26 @@
+.PHONY: deps
+deps: ## Install dependencies
+	@flutter pub get
+
+.PHONY: lint
+lint: ## Lint
+	@flutter analyze
+
+.PHONY: fmt
+fmt: ## Format
+	@dart format .
+
+.PHONY: test
+test: ## Run tests
+	@flutter test
+
 .PHONY: release
 release: ## Cut a release (BUMP=patch|minor|major, default patch)
 	@gh workflow run release.yml -f bump=$(or $(BUMP),patch)
+
+.PHONY: clean
+clean:
+	@flutter clean
 
 .PHONY: help
 help:
