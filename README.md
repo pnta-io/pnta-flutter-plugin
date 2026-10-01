@@ -197,6 +197,7 @@ PntaFlutter.onNotificationTap.listen((payload) {
   print('User tapped notification: ${payload['title']}');
 
   // Track analytics, show specific screen, etc.
+  // Opens are tracked automatically
   // Links are auto-handled if autoHandleLinks is true
 });
 
@@ -231,7 +232,7 @@ Updates device metadata without re-registering. Must be called after successful 
 
 #### `PntaFlutter.trackOpen(Map<String, dynamic> payload)`
 
-Tracks that a notification was opened. Pass the payload you received from `onNotificationTap` or `foregroundNotifications`; its `notification_id` and `token` fields are used. Must be called after `initialize()`. Best-effort — failures are logged, not thrown. Returns `Future<void>`.
+Tracks that a notification was opened. Taps from `onNotificationTap` are tracked automatically, so call this only for other cases, such as payloads from `foregroundNotifications`. Pass the payload; its `notification_id` and `token` fields are used. Must be called after `initialize()`. Best-effort — failures are logged, not thrown. Returns `Future<void>`.
 
 #### `PntaFlutter.handleLink(String link)`
 
@@ -249,7 +250,7 @@ Stream of notification payloads received when app is in foreground.
 
 #### `PntaFlutter.onNotificationTap`
 
-Stream of notification payloads when user taps a notification from background/terminated state.
+Stream of notification payloads when user taps a notification from background/terminated state. Each tap is tracked as an open automatically.
 
 ### Link Handling Rules
 

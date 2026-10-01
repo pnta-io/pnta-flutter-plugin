@@ -51,7 +51,6 @@ class _HomePageState extends State<HomePage> {
     });
 
     PntaFlutter.onNotificationTap.listen((payload) {
-      PntaFlutter.trackOpen(payload);
       setState(() => _lastNotification = 'Tap: ${payload.toString()}');
     });
   }
