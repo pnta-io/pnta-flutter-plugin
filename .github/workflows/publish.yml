@@ -1,0 +1,20 @@
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dart-lang/setup-dart@v1
+      - uses: flutter-actions/setup-flutter@v4
+        with:
+          version: 3.32.2
+          channel: stable
+      - run: flutter pub get
+      - run: flutter pub publish --force

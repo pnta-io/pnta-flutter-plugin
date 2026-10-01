@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - run: |
+          IFS=. read -r major minor patch <<< "$(grep '^version:' pubspec.yaml | cut -d' ' -f2)"
+          case "${{ inputs.bump }}" in
+            major) version="$((major + 1)).0.0" ;;
+            minor) version="$major.$((minor + 1)).0" ;;
+            patch) version="$major.$minor.$((patch + 1))" ;;
+          esac
+          sed -i "s/^version: .*/version: $version/" pubspec.yaml
+          sed -i "s/kPntaSdkVersion = '.*'/kPntaSdkVersion = '$version'/" lib/src/version.dart
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release $version"
+          git tag -a "v$version" -m "v$version"
+          git push --follow-tags
+          gh release create "v$version" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
