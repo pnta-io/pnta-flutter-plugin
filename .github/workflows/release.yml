@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - run: |
+          IFS=. read -r major minor patch <<< "$(grep '^version:' pubspec.yaml | cut -d' ' -f2)"
+          case "${{ inputs.bump }}" in
+            major) version="$((major + 1)).0.0" ;;
+            minor) version="$major.$((minor + 1)).0" ;;
+            patch) version="$major.$minor.$((patch + 1))" ;;
+          esac
+          sed -i "s/^version: .*/version: $version/" pubspec.yaml
+          sed -i "s/kPntaSdkVersion = '.*'/kPntaSdkVersion = '$version'/" lib/src/version.dart
+
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="v$version" -q .body > notes.md
+          { printf '## %s\n\n' "$version"; cat notes.md; printf '\n'; cat CHANGELOG.md; } > CHANGELOG.tmp
+          mv CHANGELOG.tmp CHANGELOG.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release $version"
+          git tag "v$version"
+          git push --atomic origin HEAD "v$version"
+          gh release create "v$version" --notes-file notes.md
+        env:
+          GH_TOKEN: ${{ github.token }}
