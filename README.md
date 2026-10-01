@@ -242,7 +242,7 @@ Global navigator key for internal route navigation. Must be assigned to your `Ma
 
 #### `PntaFlutter.foregroundNotifications`
 
-Stream of notification payloads received when app is in foreground.
+Stream of notification payloads received when app is in foreground. Each notification is tracked as an open automatically.
 
 #### `PntaFlutter.onNotificationTap`
 
