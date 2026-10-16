@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'src/link_handler.dart';
 import 'pnta_flutter_platform_interface.dart';
@@ -129,7 +131,7 @@ class PntaFlutter {
   /// Stream of notification taps
   static Stream<Map<String, dynamic>> get onNotificationTap =>
       PntaFlutterPlatform.instance.onNotificationTap.asyncMap((payload) async {
-        await _trackOpen(payload);
+        unawaited(_trackOpen(payload));
         if (_config?.autoHandleLinks == true) {
           await handleLink(payload['link_to'] as String?);
         }
