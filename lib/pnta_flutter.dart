@@ -124,11 +124,7 @@ class PntaFlutter {
   // Notifications
   /// Stream of notifications received while app is in foreground
   static Stream<Map<String, dynamic>> get foregroundNotifications =>
-      PntaFlutterPlatform.instance.foregroundNotifications
-          .asyncMap((payload) async {
-        await _trackOpen(payload);
-        return payload;
-      });
+      PntaFlutterPlatform.instance.foregroundNotifications;
 
   /// Stream of notification taps
   static Stream<Map<String, dynamic>> get onNotificationTap =>
