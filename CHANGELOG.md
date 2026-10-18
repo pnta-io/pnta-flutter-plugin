@@ -5,6 +5,7 @@
 -   Deliver the notification that launched the app to the first `onNotificationTap` listener
 -   Handle links from `autoHandleLinks` once per tap instead of once per listener
 -   Taps are only delivered after `initialize()` has been called
+-   Ignore a missing or non-string `link_to` instead of throwing
 
 ## 1.2.0
 
