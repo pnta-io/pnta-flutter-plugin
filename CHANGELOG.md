@@ -1,3 +1,11 @@
+## 1.3.0
+
+-   Track notification opens automatically when a notification is tapped, once per tap
+-   Remove `trackOpen`: opens are now tracked by the SDK, so delete any `PntaFlutter.trackOpen(...)` calls when upgrading
+-   Deliver the notification that launched the app to the first `onNotificationTap` listener
+-   Handle links from `autoHandleLinks` once per tap instead of once per listener
+-   Taps are only delivered after `initialize()` has been called
+
 ## 1.2.0
 
 -   Add trackOpen method for notification open analytics
