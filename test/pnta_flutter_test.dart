@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pnta_flutter/pnta_flutter.dart';
 import 'package:pnta_flutter/pnta_flutter_platform_interface.dart';
@@ -26,24 +28,22 @@ class MockPntaFlutterPlatform
   ]) =>
       Future.value();
 
-  String? lastTrackOpenProjectId;
-  String? lastTrackOpenNotificationId;
-  String? lastTrackOpenToken;
+  final List<List<String>> trackedOpens = [];
 
   @override
   Future<void> trackOpen(
       String projectId, String notificationId, String token) {
-    lastTrackOpenProjectId = projectId;
-    lastTrackOpenNotificationId = notificationId;
-    lastTrackOpenToken = token;
+    trackedOpens.add([projectId, notificationId, token]);
     return Future.value();
   }
 
   @override
   Stream<Map<String, dynamic>> get foregroundNotifications => Stream.empty();
 
+  final taps = StreamController<Map<String, dynamic>>.broadcast();
+
   @override
-  Stream<Map<String, dynamic>> get onNotificationTap => Stream.empty();
+  Stream<Map<String, dynamic>> get onNotificationTap => taps.stream;
 
   @override
   Future<void> setForegroundPresentationOptions({required bool showSystemUI}) =>
@@ -65,17 +65,88 @@ void main() {
     expect(PntaFlutter.deviceToken, isNull); // Initially null
   });
 
-  test('trackOpen pulls notification_id and token from the payload', () async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    final fakePlatform = MockPntaFlutterPlatform();
-    PntaFlutterPlatform.instance = fakePlatform;
+  group('notification taps', () {
+    const tap = {'notification_id': 'notif_tap', 'token': 'tok_tap'};
+    late MockPntaFlutterPlatform fakePlatform;
 
-    await PntaFlutter.initialize('prj_test');
-    await PntaFlutter.trackOpen(
-        {'notification_id': 'notif_abc', 'token': 'tok_123'});
+    void listen(void Function(Map<String, dynamic>) onTap) {
+      final subscription = PntaFlutter.onNotificationTap.listen(onTap);
+      addTearDown(subscription.cancel);
+    }
 
-    expect(fakePlatform.lastTrackOpenProjectId, 'prj_test');
-    expect(fakePlatform.lastTrackOpenNotificationId, 'notif_abc');
-    expect(fakePlatform.lastTrackOpenToken, 'tok_123');
+    setUp(() async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      await PntaFlutter.resetForTesting();
+      fakePlatform = MockPntaFlutterPlatform();
+      PntaFlutterPlatform.instance = fakePlatform;
+    });
+
+    test('tracks the open and delivers the tap', () async {
+      await PntaFlutter.initialize('prj_test');
+      final received = <Map<String, dynamic>>[];
+      listen(received.add);
+
+      fakePlatform.taps.add(tap);
+      await pumpEventQueue();
+
+      expect(fakePlatform.trackedOpens, [
+        ['prj_test', 'notif_tap', 'tok_tap']
+      ]);
+      expect(received, [tap]);
+    });
+
+    test('tracks one open when there are several listeners', () async {
+      await PntaFlutter.initialize('prj_test');
+      listen((_) {});
+      listen((_) {});
+
+      fakePlatform.taps.add(tap);
+      await pumpEventQueue();
+
+      expect(fakePlatform.trackedOpens, hasLength(1));
+    });
+
+    test('tracks the open when the app does not listen', () async {
+      await PntaFlutter.initialize('prj_test');
+
+      fakePlatform.taps.add(tap);
+      await pumpEventQueue();
+
+      expect(fakePlatform.trackedOpens, hasLength(1));
+    });
+
+    test('delivers a tap that arrived before the app listened', () async {
+      await PntaFlutter.initialize('prj_test');
+      fakePlatform.taps.add(tap);
+      await pumpEventQueue();
+
+      final received = <Map<String, dynamic>>[];
+      listen(received.add);
+      await pumpEventQueue();
+
+      expect(received, [tap]);
+      expect(fakePlatform.trackedOpens, hasLength(1));
+    });
+
+    test('skips tracking when the payload has no valid ids', () async {
+      await PntaFlutter.initialize('prj_test');
+
+      fakePlatform.taps.add({'notification_id': 42, 'token': 'tok_tap'});
+      await pumpEventQueue();
+
+      expect(fakePlatform.trackedOpens, isEmpty);
+    });
+
+    test('delivers a tap with a non-string link', () async {
+      await PntaFlutter.initialize('prj_test', autoHandleLinks: true);
+      final received = <Map<String, dynamic>>[];
+      listen(received.add);
+
+      fakePlatform.taps.add({...tap, 'link_to': 42});
+      await pumpEventQueue();
+
+      expect(received, hasLength(1));
+      expect(fakePlatform.trackedOpens, hasLength(1));
+    });
   });
 }

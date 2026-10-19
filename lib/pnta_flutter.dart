@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'src/link_handler.dart';
 import 'pnta_flutter_platform_interface.dart';
@@ -21,6 +23,16 @@ class _PntaFlutterConfig {
 class PntaFlutter {
   static _PntaFlutterConfig? _config;
   static String? _deviceToken;
+  static StreamSubscription<Map<String, dynamic>>? _tapSubscription;
+  static final List<Map<String, dynamic>> _pendingTaps = [];
+  static final StreamController<Map<String, dynamic>> _tapController =
+      StreamController<Map<String, dynamic>>.broadcast(onListen: () {
+    // Deliver taps that arrived before the app subscribed, such as the
+    // notification that launched the app.
+    final pending = List.of(_pendingTaps);
+    _pendingTaps.clear();
+    unawaited(_deliverTaps(pending));
+  });
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
@@ -51,6 +63,8 @@ class PntaFlutter {
         metadata: metadata,
       );
       LinkHandler.initialize(autoHandleLinks: autoHandleLinks);
+      _tapSubscription ??=
+          PntaFlutterPlatform.instance.onNotificationTap.listen(_onTap);
       await PntaFlutterPlatform.instance.setForegroundPresentationOptions(
         showSystemUI: showSystemUI,
       );
@@ -98,31 +112,45 @@ class PntaFlutter {
     }
   }
 
-  /// Track that a notification was opened.
-  ///
-  /// Pass the [payload] you received from [onNotificationTap] or
-  /// [foregroundNotifications]; its `notification_id` and `token` fields are
-  /// used. Best-effort: failures are logged, not thrown.
-  static Future<void> trackOpen(Map<String, dynamic> payload) async {
-    if (_config == null) {
-      debugPrint('PNTA: Must call initialize() before tracking open.');
-      return;
+  static void _onTap(Map<String, dynamic> payload) {
+    unawaited(_trackOpen(payload));
+    if (_tapController.hasListener) {
+      unawaited(_deliverTaps([payload]));
+    } else {
+      _pendingTaps.add(payload);
     }
-    final notificationId = payload['notification_id'] as String?;
-    final token = payload['token'] as String?;
-    if (notificationId == null || token == null) {
+  }
+
+  // Links are handled on delivery, once the app is listening and its
+  // navigator is likely mounted.
+  static Future<void> _deliverTaps(List<Map<String, dynamic>> payloads) async {
+    for (final payload in payloads) {
+      final link = payload['link_to'];
+      if (_config?.autoHandleLinks == true && link is String) {
+        await handleLink(link);
+      }
+      _tapController.add(payload);
+    }
+  }
+
+  static Future<void> _trackOpen(Map<String, dynamic> payload) async {
+    final config = _config;
+    if (config == null) return;
+    final notificationId = payload['notification_id'];
+    final token = payload['token'];
+    if (notificationId is! String || token is! String) {
       debugPrint(
-          'PNTA: trackOpen needs notification_id and token in the payload.');
+          'PNTA: Open not tracked, payload has no notification_id or token.');
       return;
     }
     try {
       await PntaFlutterPlatform.instance.trackOpen(
-        _config!.projectId,
+        config.projectId,
         notificationId,
         token,
       );
     } catch (e, st) {
-      debugPrint('PNTA: trackOpen error: $e\n$st');
+      debugPrint('PNTA: Error tracking open: $e\n$st');
     }
   }
 
@@ -131,14 +159,19 @@ class PntaFlutter {
   static Stream<Map<String, dynamic>> get foregroundNotifications =>
       PntaFlutterPlatform.instance.foregroundNotifications;
 
-  /// Stream of notification taps
+  /// Stream of notification taps. Opens are tracked automatically.
   static Stream<Map<String, dynamic>> get onNotificationTap =>
-      PntaFlutterPlatform.instance.onNotificationTap.asyncMap((payload) async {
-        if (_config?.autoHandleLinks == true) {
-          await handleLink(payload['link_to'] as String?);
-        }
-        return payload;
-      });
+      _tapController.stream;
+
+  /// Clears SDK state between tests.
+  @visibleForTesting
+  static Future<void> resetForTesting() async {
+    await _tapSubscription?.cancel();
+    _tapSubscription = null;
+    _pendingTaps.clear();
+    _config = null;
+    _deviceToken = null;
+  }
 
   // Utilities
   /// Manually handle a deep link
