@@ -1,3 +1,7 @@
+## 2.0.0
+
+-   **Breaking:** Remove public `trackOpen`. The SDK now tracks notification opens automatically on tap
+
 ## 1.2.0
 
 -   Add trackOpen method for notification open analytics
