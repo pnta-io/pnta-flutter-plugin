@@ -1,6 +1,7 @@
 ## 2.0.0
 
 -   **Breaking:** Remove public `trackOpen`. The SDK now tracks notification opens automatically on tap
+-   `onNotificationTap` now delivers taps that arrive before the app listens, such as the tap that launched the app, and handles each link once instead of once per listener
 
 ## 1.2.0
 
