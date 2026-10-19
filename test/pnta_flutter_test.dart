@@ -9,24 +9,37 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockPntaFlutterPlatform
     with MockPlatformInterfaceMixin
     implements PntaFlutterPlatform {
-  @override
-  Future<bool> requestNotificationPermission() => Future.value(true);
+  bool permissionGranted = true;
+  bool grantOnRequest = true;
+  final List<String> calls = [];
+  final List<Map<String, dynamic>?> metadataUpdates = [];
 
   @override
-  Future<bool> checkNotificationPermission() => Future.value(true);
+  Future<bool> requestNotificationPermission() {
+    calls.add('requestPermission');
+    return Future.value(grantOnRequest);
+  }
+
+  @override
+  Future<bool> checkNotificationPermission() => Future.value(permissionGranted);
 
   @override
   Future<String?> getDeviceToken() => Future.value('mock_token');
 
   @override
-  Future<String?> identify(String projectId) => Future.value('mock_user_id');
+  Future<String?> identify(String projectId) {
+    calls.add('identify');
+    return Future.value('mock_token');
+  }
 
   @override
   Future<void> updateMetadata(
     String projectId, [
     Map<String, dynamic>? metadata,
-  ]) =>
-      Future.value();
+  ]) {
+    metadataUpdates.add(metadata);
+    return Future.value();
+  }
 
   final List<List<String>> trackedOpens = [];
 
@@ -57,12 +70,100 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelPntaFlutter>());
   });
 
-  test('deviceToken getter', () async {
-    MockPntaFlutterPlatform fakePlatform = MockPntaFlutterPlatform();
-    PntaFlutterPlatform.instance = fakePlatform;
+  group('registration', () {
+    late MockPntaFlutterPlatform fakePlatform;
 
-    // Test that deviceToken is accessible via getter
-    expect(PntaFlutter.deviceToken, isNull); // Initially null
+    setUp(() async {
+      await PntaFlutter.resetForTesting();
+      fakePlatform = MockPntaFlutterPlatform();
+      PntaFlutterPlatform.instance = fakePlatform;
+    });
+
+    test('registers without a prompt when permission is granted', () async {
+      await PntaFlutter.initialize('prj_test', registerDevice: false);
+
+      expect(fakePlatform.calls, ['identify']);
+      expect(PntaFlutter.deviceToken, 'mock_token');
+    });
+
+    test('prompts and registers when permission is not granted', () async {
+      fakePlatform.permissionGranted = false;
+
+      await PntaFlutter.initialize('prj_test');
+
+      expect(fakePlatform.calls, ['requestPermission', 'identify']);
+      expect(PntaFlutter.deviceToken, 'mock_token');
+    });
+
+    test('does not prompt when registerDevice is false', () async {
+      fakePlatform.permissionGranted = false;
+
+      await PntaFlutter.initialize('prj_test', registerDevice: false);
+
+      expect(fakePlatform.calls, isEmpty);
+      expect(PntaFlutter.deviceToken, isNull);
+    });
+
+    test('does not identify when permission is denied', () async {
+      fakePlatform.permissionGranted = false;
+      fakePlatform.grantOnRequest = false;
+
+      await PntaFlutter.initialize('prj_test');
+
+      expect(fakePlatform.calls, ['requestPermission']);
+      expect(PntaFlutter.deviceToken, isNull);
+    });
+
+    test('sends metadata after identify', () async {
+      await PntaFlutter.initialize('prj_test', metadata: {'plan': 'pro'});
+
+      expect(fakePlatform.metadataUpdates, [
+        {'plan': 'pro'}
+      ]);
+      expect(PntaFlutter.currentMetadata, {'plan': 'pro'});
+    });
+
+    test('skips the metadata update when metadata is empty', () async {
+      await PntaFlutter.initialize('prj_test', metadata: {});
+
+      expect(fakePlatform.metadataUpdates, isEmpty);
+    });
+
+    test('ignores a project id without the prj_ prefix', () async {
+      await PntaFlutter.initialize('test');
+
+      expect(PntaFlutter.projectId, isNull);
+      expect(fakePlatform.calls, isEmpty);
+    });
+
+    test('does nothing before initialize', () async {
+      await PntaFlutter.registerDevice();
+      await PntaFlutter.updateMetadata({'plan': 'pro'});
+
+      expect(fakePlatform.calls, isEmpty);
+      expect(fakePlatform.metadataUpdates, isEmpty);
+    });
+
+    test('registerDevice prompts and registers later', () async {
+      fakePlatform.permissionGranted = false;
+      await PntaFlutter.initialize('prj_test', registerDevice: false);
+
+      await PntaFlutter.registerDevice();
+
+      expect(fakePlatform.calls, ['requestPermission', 'identify']);
+      expect(PntaFlutter.deviceToken, 'mock_token');
+    });
+
+    test('updateMetadata sends and stores metadata', () async {
+      await PntaFlutter.initialize('prj_test');
+
+      await PntaFlutter.updateMetadata({'plan': 'pro'});
+
+      expect(fakePlatform.metadataUpdates, [
+        {'plan': 'pro'}
+      ]);
+      expect(PntaFlutter.currentMetadata, {'plan': 'pro'});
+    });
   });
 
   group('notification taps', () {
