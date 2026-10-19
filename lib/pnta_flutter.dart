@@ -125,8 +125,9 @@ class PntaFlutter {
   // navigator is likely mounted.
   static Future<void> _deliverTaps(List<Map<String, dynamic>> payloads) async {
     for (final payload in payloads) {
-      if (_config?.autoHandleLinks == true) {
-        await handleLink(payload['link_to'] as String?);
+      final link = payload['link_to'];
+      if (_config?.autoHandleLinks == true && link is String) {
+        await handleLink(link);
       }
       _tapController.add(payload);
     }

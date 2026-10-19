@@ -136,5 +136,17 @@ void main() {
 
       expect(fakePlatform.trackedOpens, isEmpty);
     });
+
+    test('delivers a tap with a non-string link', () async {
+      await PntaFlutter.initialize('prj_test', autoHandleLinks: true);
+      final received = <Map<String, dynamic>>[];
+      listen(received.add);
+
+      fakePlatform.taps.add({...tap, 'link_to': 42});
+      await pumpEventQueue();
+
+      expect(received, hasLength(1));
+      expect(fakePlatform.trackedOpens, hasLength(1));
+    });
   });
 }
