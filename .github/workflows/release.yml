@@ -16,8 +16,6 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
       - run: |
           old=$(sed -n 's/^version: //p' pubspec.yaml)
           IFS=. read -r major minor patch <<< "$old"
@@ -29,8 +27,6 @@ jobs:
           sed -i "s/^version: $old$/version: $new/" pubspec.yaml
           sed -i "s/'$old'/'$new'/" lib/src/version.dart ios/pnta_flutter.podspec
           sed -i "s/^version = \"$old\"$/version = \"$new\"/" android/build.gradle
-          { printf '## %s\n\n' "$new"; git log --format='-   %s' "$(git describe --tags --abbrev=0)..HEAD"; echo; cat CHANGELOG.md; } > CHANGELOG.new
-          mv CHANGELOG.new CHANGELOG.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "$new"

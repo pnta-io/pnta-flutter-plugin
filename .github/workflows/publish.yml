@@ -10,13 +10,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v7
+      - uses: dart-lang/setup-dart@v1
       - uses: flutter-actions/setup-flutter@v4
         with:
           version: 3.32.2
           channel: stable
-      - run: |
-          token=$(curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://pub.dev" | jq -r .value)
-          echo "::add-mask::$token"
-          echo "PUB_TOKEN=$token" >> "$GITHUB_ENV"
-      - run: flutter pub token add https://pub.dev --env-var PUB_TOKEN
       - run: flutter pub publish --force
