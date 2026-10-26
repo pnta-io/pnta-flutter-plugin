@@ -14,6 +14,10 @@ fmt: ## Format
 test: ## Run tests
 	@flutter test
 
+.PHONY: release
+release: ## Cut a release (BUMP=patch|minor|major, default patch)
+	@gh workflow run release.yml -f bump=$(or $(BUMP),patch)
+
 .PHONY: clean
 clean:
 	@flutter clean
