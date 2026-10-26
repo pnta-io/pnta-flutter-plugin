@@ -30,9 +30,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "$new"
-          git tag -a "v$new" -m "$new"
+          git tag -a "$new" -m "$new"
           git push --follow-tags
-          gh release create "v$new" --generate-notes
-          gh workflow run publish.yml --ref "v$new"
+          gh release create "$new" --generate-notes
+          gh workflow run publish.yml --ref "$new"
         env:
           GH_TOKEN: ${{ github.token }}
