@@ -7,13 +7,18 @@ on:
         type: choice
         options: [patch, minor, major]
         default: patch
+  push:
+    branches: [main]
+    paths: [pubspec.yaml]
 
 jobs:
-  release:
+  bump:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
       - run: |
@@ -29,10 +34,34 @@ jobs:
           sed -i "s/^version = \"$old\"$/version = \"$new\"/" android/build.gradle
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "$new"
-          git tag -a "$new" -m "$new"
-          git push --follow-tags
-          gh release create "$new" --generate-notes
-          gh workflow run publish.yml --ref "$new"
+          git checkout -b "release/$new"
+          git commit -am "Release $new"
+          git push -u origin "release/$new"
+          gh pr create --title "Release $new" --body "Merge to tag and publish $new."
+          # PRs opened with GITHUB_TOKEN don't trigger pull_request workflows, so run the required check by hand
+          gh workflow run ci.yml --ref "release/$new"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  tag:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          version=$(sed -n 's/^version: //p' pubspec.yaml)
+          if git ls-remote --exit-code --tags origin "$version" >/dev/null; then
+            echo "$version already tagged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$version" -m "$version"
+          git push origin "$version"
+          gh release create "$version" --generate-notes
+          gh workflow run publish.yml --ref "$version"
         env:
           GH_TOKEN: ${{ github.token }}
