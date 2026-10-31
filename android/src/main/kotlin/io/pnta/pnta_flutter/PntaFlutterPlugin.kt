@@ -53,6 +53,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
+    call.argument<String>("pntaSdkVersion")?.let { NetworkUtils.sdkVersion = it }
     if (call.method == "requestNotificationPermission") {
       PermissionHandler.requestNotificationPermission(activity, result)
     } else if (call.method == "checkNotificationPermission") {

@@ -58,6 +58,7 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
   ]) async {
     await methodChannel.invokeMethod('updateMetadata', {
       'projectId': projectId,
+      'pntaSdkVersion': kPntaSdkVersion,
       if (metadata != null) 'metadata': metadata,
     });
   }
@@ -69,6 +70,7 @@ class MethodChannelPntaFlutter extends PntaFlutterPlatform {
       'projectId': projectId,
       'notificationId': notificationId,
       'token': token,
+      'pntaSdkVersion': kPntaSdkVersion,
     });
   }
 

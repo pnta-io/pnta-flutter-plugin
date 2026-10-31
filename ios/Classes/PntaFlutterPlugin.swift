@@ -14,6 +14,9 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    if let sdkVersion = (call.arguments as? [String: Any])?["pntaSdkVersion"] as? String {
+      NetworkUtils.sdkVersion = sdkVersion
+    }
     switch call.method {
     case "requestNotificationPermission":
       PermissionHandler.requestNotificationPermission(result: result)

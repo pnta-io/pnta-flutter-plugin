@@ -2,6 +2,8 @@ import Foundation
 import Flutter
 
 class NetworkUtils {
+    static var sdkVersion = "Unknown"
+
     static func sendPutRequest(
         urlString: String,
         payload: [String: Any],
@@ -14,6 +16,8 @@ class NetworkUtils {
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("flutter", forHTTPHeaderField: "X-Pnta-Sdk")
+        request.setValue(sdkVersion, forHTTPHeaderField: "X-Pnta-Sdk-Version")
         request.httpBody = jsonData
         request.timeoutInterval = 3
 
