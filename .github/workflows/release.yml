@@ -38,7 +38,6 @@ jobs:
           git commit -am "Release $new"
           git push -u origin "release/$new"
           gh pr create --title "Release $new" --body "Merge to tag and publish $new."
-          # PRs opened with GITHUB_TOKEN don't trigger pull_request workflows, so run the required check by hand
           gh workflow run ci.yml --ref "release/$new"
         env:
           GH_TOKEN: ${{ github.token }}
