@@ -26,7 +26,7 @@ object NetworkUtils {
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "PUT"
             conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("X-Pnta-Sdk", "flutter")
+            conn.setRequestProperty("X-Pnta-Sdk", "pnta-flutter")
             conn.setRequestProperty("X-Pnta-Sdk-Version", sdkVersion)
             conn.doOutput = true
             conn.connectTimeout = timeoutMillis
