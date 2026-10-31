@@ -116,7 +116,8 @@ object IdentifyHandler {
             "bundle_identifier" to bundleIdentifier,
             "app_version" to appVersion,
             "app_build" to appBuild,
-            "pnta_sdk_version" to pntaSdkVersion
+            "pnta_sdk_version" to pntaSdkVersion,
+            "pnta_sdk" to "flutter"
         )
     }
 } 

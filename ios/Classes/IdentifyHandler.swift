@@ -28,7 +28,8 @@ class IdentifyHandler {
                 "bundle_identifier": bundle.bundleIdentifier ?? "Unavailable",
                 "app_version": bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unavailable",
                 "app_build": bundle.infoDictionary?["CFBundleVersion"] as? String ?? "Unavailable",
-                "pnta_sdk_version": pntaSdkVersion
+                "pnta_sdk_version": pntaSdkVersion,
+                "pnta_sdk": "flutter"
             ]
 
             let info: [String: Any] = [
