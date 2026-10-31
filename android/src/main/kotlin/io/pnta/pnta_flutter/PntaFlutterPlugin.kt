@@ -53,6 +53,7 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
+    call.argument<String>("pntaSdkVersion")?.let { NetworkUtils.sdkVersion = it }
     if (call.method == "requestNotificationPermission") {
       PermissionHandler.requestNotificationPermission(activity, result)
     } else if (call.method == "checkNotificationPermission") {
@@ -61,12 +62,11 @@ class PntaFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       TokenHandler.getDeviceToken(activity, result)
     } else if (call.method == "identify") {
       val projectId = call.argument<String>("projectId")
-      val pntaSdkVersion = call.argument<String>("pntaSdkVersion") ?: "Unknown"
       if (projectId == null) {
         result.error("INVALID_ARGUMENTS", "projectId is null", null)
         return
       }
-      IdentifyHandler.identify(activity, projectId, pntaSdkVersion, result)
+      IdentifyHandler.identify(activity, projectId, result)
     } else if (call.method == "updateMetadata") {
       val projectId = call.argument<String>("projectId")
       val metadata = call.argument<Map<String, Any>>("metadata")

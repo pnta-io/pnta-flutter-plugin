@@ -14,6 +14,9 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    if let sdkVersion = (call.arguments as? [String: Any])?["pntaSdkVersion"] as? String {
+      NetworkUtils.sdkVersion = sdkVersion
+    }
     switch call.method {
     case "requestNotificationPermission":
       PermissionHandler.requestNotificationPermission(result: result)
@@ -24,8 +27,7 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
     case "identify":
       if let args = call.arguments as? [String: Any],
          let projectId = args["projectId"] as? String {
-        let pntaSdkVersion = args["pntaSdkVersion"] as? String ?? "Unknown"
-        IdentifyHandler.identify(projectId: projectId, pntaSdkVersion: pntaSdkVersion, result: result)
+        IdentifyHandler.identify(projectId: projectId, result: result)
       } else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for identify", details: nil))
       }

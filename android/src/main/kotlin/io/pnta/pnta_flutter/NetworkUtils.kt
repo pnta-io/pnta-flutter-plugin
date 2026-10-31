@@ -12,6 +12,8 @@ import java.net.URL
 import kotlin.math.pow
 
 object NetworkUtils {
+    @Volatile var sdkVersion: String? = null
+
     suspend fun sendPutRequest(
         urlString: String,
         payload: Map<String, Any>,
@@ -24,6 +26,8 @@ object NetworkUtils {
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "PUT"
             conn.setRequestProperty("Content-Type", "application/json")
+            conn.setRequestProperty("X-Pnta-Sdk", "pnta-flutter")
+            sdkVersion?.let { conn.setRequestProperty("X-Pnta-Sdk-Version", it) }
             conn.doOutput = true
             conn.connectTimeout = timeoutMillis
             conn.readTimeout = timeoutMillis
