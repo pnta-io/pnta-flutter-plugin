@@ -16,6 +16,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
       - run: |
           old=$(sed -n 's/^version: //p' pubspec.yaml)
           IFS=. read -r major minor patch <<< "$old"
