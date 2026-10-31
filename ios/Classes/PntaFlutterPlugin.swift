@@ -27,8 +27,7 @@ public class PntaFlutterPlugin: NSObject, FlutterPlugin, UIApplicationDelegate {
     case "identify":
       if let args = call.arguments as? [String: Any],
          let projectId = args["projectId"] as? String {
-        let pntaSdkVersion = args["pntaSdkVersion"] as? String ?? "Unknown"
-        IdentifyHandler.identify(projectId: projectId, pntaSdkVersion: pntaSdkVersion, result: result)
+        IdentifyHandler.identify(projectId: projectId, result: result)
       } else {
         result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing arguments for identify", details: nil))
       }
