@@ -12,7 +12,7 @@ import java.net.URL
 import kotlin.math.pow
 
 object NetworkUtils {
-    @Volatile var sdkVersion = "Unknown"
+    @Volatile var sdkVersion: String? = null
 
     suspend fun sendPutRequest(
         urlString: String,
@@ -27,7 +27,7 @@ object NetworkUtils {
             conn.requestMethod = "PUT"
             conn.setRequestProperty("Content-Type", "application/json")
             conn.setRequestProperty("X-Pnta-Sdk", "pnta-flutter")
-            conn.setRequestProperty("X-Pnta-Sdk-Version", sdkVersion)
+            sdkVersion?.let { conn.setRequestProperty("X-Pnta-Sdk-Version", it) }
             conn.doOutput = true
             conn.connectTimeout = timeoutMillis
             conn.readTimeout = timeoutMillis

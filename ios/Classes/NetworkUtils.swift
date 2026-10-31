@@ -2,7 +2,7 @@ import Foundation
 import Flutter
 
 class NetworkUtils {
-    static var sdkVersion = "Unknown"
+    static var sdkVersion: String?
 
     static func sendPutRequest(
         urlString: String,
